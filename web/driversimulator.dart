@@ -25,7 +25,8 @@ class SimSystem {
   num height;
   num renderTime, dt;
   
-  num x, y;
+  num x, y, vx, vy, r;
+  Random random;
   
   SimSystem(this.canvas);
   
@@ -38,8 +39,12 @@ class SimSystem {
     context = canvas.context2D;
     window.onResize.listen(resizeCanvas);
     
-    x = 0;
-    y = 0;
+    x = width/2;
+    y = height/2;
+    vx = 0;
+    vy = 0;
+    r = 0;
+    random = new Random(new DateTime.now().millisecond);
     
     redraw();
   }
@@ -56,10 +61,12 @@ class SimSystem {
     if (renderTime != null) {
       dt = time - renderTime;
       showFps(1000 / dt);
+    }
+    renderTime = time;
+    if (dt != null) {
       simulate();
     }
     draw();
-    renderTime = time;
     redraw();
   }
   
@@ -68,16 +75,19 @@ class SimSystem {
   }
   
   void simulate() {
-    x += dt*0.06;
+    vx += (random.nextDouble()*2 - 1)*0.1;
+    vy += (random.nextDouble()*2 - 1)*0.1;
+    x += dt*vx*0.01;
     x %= width;
-    y += dt*0.06;
+    y += dt*vy*0.01;
     y %= height;
+    r = (renderTime*0.05)%30;
   }
   
   void draw() {
     context.clearRect(0, 0, width, height);
     context.beginPath();
-    context.arc(x, y, 20, 0, PI * 2, true); 
+    context.arc(x, y, r, 0, PI * 2, true); 
     context.stroke();
   }
 }
