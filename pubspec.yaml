@@ -1,4 +1,4 @@
-name: DriverSimulator
+name: driversim
 description: A sample web application
 dependencies:
   browser: any
