@@ -1,93 +1,78 @@
 import 'dart:html';
 import 'dart:math';
+import 'package:game_loop/game_loop_html.dart';
+import 'package:vector_math/vector_math.dart';
+
+GameLoopHtml gameLoop;
+CanvasRenderingContext2D canvas;
+
+const int WIDTH = 640;
+const int HEIGHT = 480;
 
 void main() {
-  CanvasElement canvas = new CanvasElement();
-  Element container = querySelector("#container");
-  container.children.add(canvas);
-  new SimSystem(canvas).start();  
+  CanvasElement element = querySelector(".game-element");
+  gameLoop = new GameLoopHtml(element);
+  canvas = element.context2D;
+
+  gameLoop.state = runningState;
+  gameLoop.start();
 }
 
-Element notes = querySelector("#fps");
-num fpsAverage;
-/// Display the animation's FPS in a div.
-void showFps(num fps) {
-  if (fpsAverage == null) fpsAverage = fps;
-  fpsAverage = fps * 0.05 + fpsAverage * 0.95;
-  notes.text = "${fpsAverage.round()} fps";
+GameLoopHtmlState initialState = new InitialState();
+RunningState runningState = new RunningState();
+Car car = new Car(new Vector2(WIDTH/2, HEIGHT/2), new Vector2.zero());
+Random random = new Random(new DateTime.now().millisecond);
+num r = 0;
+
+// Create a simple state implementing only the handlers you care about
+class InitialState extends SimpleHtmlState {
+  void onRender(GameLoop gameLoop) {
+    print("Render initialState");
+  }
+
+  void onKeyDown(KeyboardEvent event) {
+    event.preventDefault();
+
+    print("Key event");
+    print("Switching to $runningState");
+    print("Rendering with ${runningState.onRender}}");
+    gameLoop.state = runningState;
+  }
 }
 
-class SimSystem {
-  CanvasElement canvas;
-  
-  CanvasRenderingContext2D context;  
-  num width;
-  num height;
-  num renderTime, dt;
-  
-  num x, y, vx, vy, r;
-  Random random;
-  
-  SimSystem(this.canvas);
-  
-  void start() {
-    Rectangle rect = canvas.parent.client;
-    width = rect.width;
-    height = rect.height;
-    canvas.width = width;
-    canvas.height = height;
-    context = canvas.context2D;
-    window.onResize.listen(resizeCanvas);
-    
-    x = width/2;
-    y = height/2;
-    vx = 0;
-    vy = 0;
-    r = 0;
-    random = new Random(new DateTime.now().millisecond);
-    
-    redraw();
+class RunningState extends SimpleHtmlState {
+  void onRender(GameLoop gameLoop) {
+    print("Render runningState");
+    draw(canvas);
   }
   
-  void resizeCanvas(e) {
-    Rectangle rect = canvas.parent.client;
-    width = rect.width;
-    height = rect.height;
-    canvas.width = width;
-    canvas.height = height;
+  void onUpdate(GameLoop gameLoop) {
+    car.pos += new Vector2((random.nextDouble()*2 - 1)*10, (random.nextDouble()*2 - 1)*10);
+    car.pos.x %= WIDTH;
+    car.pos.y %= HEIGHT;
+    //car.pos += car.vel*gameLoop.updateTimeStep;
+    r = (gameLoop.frame)%30;
   }
-  
-  void update(num time) {
-    if (renderTime != null) {
-      dt = time - renderTime;
-      showFps(1000 / dt);
-    }
-    renderTime = time;
-    if (dt != null) {
-      simulate();
-    }
-    draw();
-    redraw();
+
+  void onKeyDown(KeyboardEvent event) {
+    event.preventDefault();
+
+    print("Key event");
+    print("Switching to $initialState");
+    print("Rendering with ${initialState.onRender}");
+    gameLoop.state = initialState;
   }
-  
-  void redraw() {
-    window.animationFrame.then(update);
-  }
-  
-  void simulate() {
-    vx += (random.nextDouble()*2 - 1)*0.1;
-    vy += (random.nextDouble()*2 - 1)*0.1;
-    x += dt*vx*0.01;
-    x %= width;
-    y += dt*vy*0.01;
-    y %= height;
-    r = (renderTime*0.05)%30;
-  }
-  
-  void draw() {
-    context.clearRect(0, 0, width, height);
-    context.beginPath();
-    context.arc(x, y, r, 0, PI * 2, true); 
-    context.stroke();
-  }
+}
+
+void draw(CanvasRenderingContext2D context) {
+  context.clearRect(0, 0, WIDTH, HEIGHT);
+  context.beginPath();
+  context.arc(car.pos.x, car.pos.y, r, 0, PI * 2, true); 
+  context.stroke();
+}
+
+class Car {
+  Vector2 vel;
+  Vector2 pos;
+  Car(this.pos, this.vel);
 }
