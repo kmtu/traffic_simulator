@@ -30,7 +30,7 @@ class TrafficSimulator implements World {
   
   void addRoad(Road road) {
     this.road.add(road);
-    road._end.forEach((e) => joint.add(e));
+    road.joint.forEach((e) => joint.add(e));
   }
   
   void addJoint(Joint joint) {
@@ -45,8 +45,8 @@ class TrafficSimulator implements World {
       rd.draw(camera);
     }
     
-    if (joint.length > 0) {
-      
+    for (Joint joint in joint) {
+      joint.draw(camera);
     }
   }
 }

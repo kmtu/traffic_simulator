@@ -6,17 +6,25 @@ class Vehicle {
   Vector2 acc;
   Lane lane;
   Driver driver;
+  double width;
+  double length;
 
-  Vehicle(Lane lane, [this.driver]) {
+  Vehicle(this.lane, {this.width, this.length, this.driver}) {
     if (driver == null) {
       this.driver = new Driver(vehicle: this);
     }
   }
     
-  @override
   void draw(Camera camera, Matrix3 transformMatrix) {
+    // the lane center is x-axs, lane begins from origin
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
+    
+    transformContext(context, preTranslate(transformMatrix, pos.x, pos.y));
+    // draw as if the reference point of the vehicle is the origin
+    
+    context.fillStyle = "blue";
+    context.fillRect(-length, -width / 2, length, width);
     context.restore();
   }
 

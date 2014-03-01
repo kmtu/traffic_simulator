@@ -8,8 +8,8 @@ GameLoopHtml gameLoop;
 TrafficSimulator world;
 Camera camera;
 
-const int WIDTH = 900;
-const int HEIGHT = 600;
+const int WIDTH = 1200;
+const int HEIGHT = 400;
 DivElement fpsDiv = querySelector("#fps");
 
 void main() {
@@ -18,7 +18,7 @@ void main() {
   film.height = HEIGHT;
   gameLoop = new GameLoopHtml(film);
 
-  Vector2 worldSize = new Vector2(75.0, 50.0); // in meters
+  Vector2 worldSize = new Vector2(150.0, 50.0); // in meters
   world = new TrafficSimulator(worldSize, gameLoop);
   camera = new Camera(film, world);
 
@@ -31,8 +31,8 @@ void main() {
                      new Road([joint[0], joint[2]]).addLane(3,1),
                      new Road([joint[1], joint[3]]).addLane(3,3)]; */
   
-  List<Joint> joint = [new Joint(new Vector2(10.0, 25.0)), new Joint(new Vector2(65.0, 25.0))];
-  List<Road> road = [new Road([joint[0], joint[1]])];
+  List joint = [new SourceJoint(new Vector2(20.0, 20.0)), new Joint(new Vector2(130.0, 35.0))];
+  List<Road> road = [new Road([joint[0], joint[1]], numForwardLane: 2, numBackwardLane: 2)];
   road.forEach((r) => world.addRoad(r));
 
   gameLoop.state = runningState;

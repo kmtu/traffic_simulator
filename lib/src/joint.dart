@@ -25,14 +25,21 @@ class Joint {
     radius = 0.0;
     if (road.length > 0) {
       for (Road rd in road) {
-        if (rd.distance > radius) {
-          radius = rd.distance;
+        if (rd.width / 2 > radius) {
+          radius = rd.width / 2;
         }
       }
     }
   }
   
   void draw(Camera camera) {
+    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    context.save();
+    context.beginPath();
+    context.arc(_pos.x, _pos.y, radius, 0, 2*PI);
+    context.fillStyle = "grey";
+    context.fill();
+    context.restore();
   }
 }
 
@@ -42,8 +49,18 @@ class SourceJoint extends Joint {
   SourceJoint(Vector2 pos) : super(pos);
   
   void update(GameLoopHtml gameLoop) {
-    if (road.length > 0) {
-      
-    }
+    gameLoop.addTimer(addVehicle, 1, periodic: true);
+  }
+  
+  void draw(Camera camera) {
+    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    context.save();
+    
+    context.beginPath();
+    context.arc(_pos.x, _pos.y, radius, 0, 2*PI);
+    context.fillStyle = "orange";
+    context.fill();
+    
+    context.restore();
   }
 }

@@ -26,6 +26,7 @@ class Camera {
   }
   
   void shoot() {
+    worldCanvas.context2D.clearRect(pos.x, pos.y, width, height);
     drawWorldBoundary();
     world.draw(this);
     film.context2D.clearRect(0, 0, film.width, film.height);
@@ -35,13 +36,15 @@ class Camera {
   }
   
   void drawWorldBoundary() {
-    worldCanvas.context2D.clearRect(0, 0, worldCanvas.width, worldCanvas.height);
-    worldCanvas.context2D.save();
-    worldCanvas.context2D.beginPath();
-    worldCanvas.context2D.strokeStyle = "red";
-    worldCanvas.context2D.lineWidth = 5;
-    worldCanvas.context2D.strokeRect(0, 0, world.dimension.x, world.dimension.y);
-    worldCanvas.context2D.restore();
+    CanvasRenderingContext2D context = worldCanvas.context2D;
+    context.save();
+    
+    context.beginPath();
+    context.strokeStyle = "red";
+    context.lineWidth = 5;
+    context.strokeRect(0, 0, world.dimension.x, world.dimension.y);
+    
+    context.restore();
   }
   
   CanvasElement makeCanvas() {

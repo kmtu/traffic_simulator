@@ -1,7 +1,7 @@
 part of traffic_simulator;
 
 class Lane {
-  List<Vehicle> vehicle = new List<Vehicle>();
+  DoubleLinkedQueue<Vehicle> vehicle = new DoubleLinkedQueue<Vehicle>();
   Road road;
   final double width;
   double halfWidth;
@@ -17,18 +17,13 @@ class Lane {
     context.save();
     
     // align the center of this lane to x-axis
-    Matrix3 tm = transformMatrix * makeTranslateMatrix3(0.0, halfWidth);
-    context.transform(tm.entry(0, 0), tm.entry(1, 0),
-                      tm.entry(0, 1), tm.entry(1, 1),
-                      tm.entry(0, 2), tm.entry(1, 2));
-    
-    // draw begins
-    context.save();
-    
+    Matrix3 tm = preTranslate(transformMatrix, 0.0, halfWidth);
+    transformContext(context, tm);
+        
     // draw ground color
     context.beginPath();
     context.fillStyle = "black";
-    context.fillRect(0, -halfWidth, road.distance, width);
+    context.fillRect(0, -halfWidth, road.length, width);
 
     // draw lane division line
     Function drawLineByNeighborLane = (Lane neighbor) {
@@ -45,30 +40,32 @@ class Lane {
     
     context.beginPath();
     context.moveTo(0, -halfWidth);
-    context.lineTo(road.distance, -halfWidth);
+    context.lineTo(road.length, -halfWidth);
     if (entry.previousEntry() != null) {
       drawLineByNeighborLane(entry.previousEntry().element);
     }
 
     context.beginPath();
     context.moveTo(0, halfWidth);
-    context.lineTo(road.distance, halfWidth);
+    context.lineTo(road.length, halfWidth);
     if (entry.nextEntry() != null) {
       drawLineByNeighborLane(entry.nextEntry().element);
     }
 
-    // draw ends
     context.restore();
 
     for (var veh in vehicle) {
       veh.draw(camera, tm);
     }
-    context.restore();
   }
   
   void update(GameLoopHtml gameLoop) {
     for (var veh in vehicle) {
       veh.update(gameLoop);
     }
+  }
+  
+  void addVehicle(Vehicle veh) {
+    this.vehicle.add(veh);
   }
 }
