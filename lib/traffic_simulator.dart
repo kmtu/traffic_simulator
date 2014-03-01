@@ -24,6 +24,7 @@ class TrafficSimulator implements World {
   Vector2 dimension; // meter
 
   TrafficSimulator(this.dimension);
+  
   void update(double dt) {
   }
   

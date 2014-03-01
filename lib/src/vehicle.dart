@@ -14,7 +14,7 @@ class Vehicle {
   }
     
   @override
-  void draw(Camera camera) {
+  void draw(Camera camera, Matrix3 transformMatrix) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
     context.restore();

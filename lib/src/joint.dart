@@ -10,12 +10,20 @@ class Joint {
     _pos = pos;
     if (road.length > 0) {
       for (Road rd in road) {
-        rd.updateTransformMatrix();
+        rd.updateEnds();
       }
     }
   }
 }
 
 class SourceJoint extends Joint {
+  Random random = new Random(new DateTime.now().millisecondsSinceEpoch);
+  
   SourceJoint(Vector2 pos) : super(pos);
+  
+  void update(double dt) {
+    if (road.length > 0) {
+      
+    }
+  }
 }

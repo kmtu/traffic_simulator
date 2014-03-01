@@ -3,21 +3,19 @@ part of traffic_simulator;
 class Camera {
   Vector2 pos = new Vector2.zero(); // top-left corner
   Vector2 vel = new Vector2.zero();
-  double friction = 0.1;
-  double acc = 500.0; // 10/dt = 66
+  double lineWidth = 1.0;
+  double acc = 100.0;
+  double maxSpeed = 200.0; // meter per click
   double height; // meters
-  double _minHeight;
   double ratio; // = width / height
   World world;
   double worldPixelPerMeter;
   CanvasElement film, worldCanvas;
-  double maxSpeed = 500.0; // meter per click
 //  double minZoomFactor; // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
-  double currentZoomFactor = 1.0;
+  double zoomFactor = 1.0;
   double get width => height * ratio;
   
-  Camera(this.film, this.world, {this.worldPixelPerMeter: 5.0})  {
-    _minHeight = film.height / worldPixelPerMeter;
+  Camera(this.film, this.world, {this.worldPixelPerMeter: 10.0})  {
     worldCanvas= makeCanvas();
     ratio = film.width / film.height;
     if (world.dimension.y <= world.dimension.x) {
@@ -29,18 +27,22 @@ class Camera {
   }
   
   void shoot() {
-    worldCanvas.context2D.clearRect(0, 0, worldCanvas.width, worldCanvas.height);
-    worldCanvas.context2D.save();
-    worldCanvas.context2D.beginPath();
-    worldCanvas.context2D.strokeStyle = "red";
-    worldCanvas.context2D.lineWidth = 10;
-    worldCanvas.context2D.strokeRect(0, 0, width/currentZoomFactor-1, height/currentZoomFactor-1);
-    worldCanvas.context2D.restore();
+    drawWorldBoundary();
     world.draw(this);
     film.context2D.clearRect(0, 0, film.width, film.height);
     film.context2D.drawImageScaledFromSource(worldCanvas, 
       pos.x*worldPixelPerMeter, pos.y*worldPixelPerMeter, width * worldPixelPerMeter, height * worldPixelPerMeter,
       0, 0, film.width, film.height);
+  }
+  
+  void drawWorldBoundary() {
+    worldCanvas.context2D.clearRect(0, 0, worldCanvas.width, worldCanvas.height);
+    worldCanvas.context2D.save();
+    worldCanvas.context2D.beginPath();
+    worldCanvas.context2D.strokeStyle = "red";
+    worldCanvas.context2D.lineWidth = lineWidth*5;
+    worldCanvas.context2D.strokeRect(0, 0, world.dimension.x, world.dimension.y);
+    worldCanvas.context2D.restore();
   }
   
   CanvasElement makeCanvas() {
@@ -52,10 +54,11 @@ class Camera {
   }
   
   void zoom(double factor) {
-    currentZoomFactor *= factor;
-    double oldHeight = height;
+    zoomFactor *= factor;
+    maxSpeed *= factor;
+    acc *= factor;
+    double dy = height*(1-factor) / 2.0;
     height *= factor;
-    double dy = (oldHeight - height) / 2.0;
     pos.y += dy;
     pos.x += dy * ratio;
   }
@@ -64,25 +67,37 @@ class Camera {
   void zoomOut(double factor) => zoom(factor);
   
   void moveRight() {
-    if (vel.x < maxSpeed) {
+    if (vel.x >= maxSpeed) {
+      vel.x = maxSpeed;
+    }
+    else {
       vel.x += acc;
     }
   }
   
   void moveLeft() {
-    if (vel.x > -maxSpeed) {
+    if (vel.x < -maxSpeed) {
+      vel.x = -maxSpeed;
+    }
+    else {
       vel.x -= acc;
     }
   }
   
   void moveUp() {
-    if (vel.y > -maxSpeed) {
+    if (vel.y < -maxSpeed) {
+      vel.y = -maxSpeed;
+    }
+    else {
       vel.y -= acc;
     }
   }
   
   void moveDown() {
-    if (vel.y < maxSpeed) {
+    if (vel.y > maxSpeed) {
+      vel.y = maxSpeed;
+    }
+    else {
       vel.y += acc;
     }
   }
@@ -93,7 +108,5 @@ class Camera {
   
   void update(double dt) {
     pos += vel*dt;
- //   vel.x.abs() > 1 ? vel.x -= friction * vel.x: vel.x = 0.0;
- //   vel.y.abs() > 1 ? vel.y -= friction * vel.y: vel.y = 0.0;
   }
 }
