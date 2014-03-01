@@ -1,11 +1,17 @@
 part of traffic_simulator;
 
-class Road extends DoubleLinkedQueue<Lane> {
+class Road extends DoubleLinkedQueue<Lane> {  
+  static const int FORWARD = 0;
+  static const int BACKWARD = 1;
+  static const int RHT = 10; //Right-Hand Traffic
+  static const int LHT = 11; //Left-Hand Traffic
+
   List<Joint> _end;
   double distance;
   Matrix3 transformMatrix;
+  int direction;
   
-  Road(List<Joint> joint) {
+  Road(List<Joint> joint, {int direction: RHT}) {
     _end = new List<Joint>.from(joint, growable: false);
     for (Joint j in joint) {
       j.road.add(this);
@@ -22,9 +28,24 @@ class Road extends DoubleLinkedQueue<Lane> {
   }
   
   @override
-  Road add(Lane lane) {
-    super.add(lane);
+  void add(Lane lane) {
+    if ((lane.direction == FORWARD && this.direction == RHT)||
+        (lane.direction == BACKWARD && this.direction == LHT)) {
+      super.addLast(lane);
+    }
+    else {
+      super.addFirst(lane);
+    }
     lane.road = this;
+  }
+  
+  Road addLane(int numForward, int numBackword) {
+    for (int i = 0; i < numForward; i++) {
+      this.add(new Lane(this, direction: FORWARD));
+    }
+    for (int i = 0; i < numBackword; i++) {
+      this.add(new Lane(this, direction: BACKWARD));
+    }
     return this;
   }
   
@@ -76,5 +97,13 @@ class Road extends DoubleLinkedQueue<Lane> {
     double angle = atan2(d.y, d.x);
     transformMatrix = new Matrix3.rotationZ(angle);
     transformMatrix = translateMatrix3(transformMatrix, _end[0]._pos.x, _end[0]._pos.y);
+  }
+  
+  void update(GameLoopHtml gameLoop) {
+    if (this.isNotEmpty) {
+      for (Lane lane in this) {
+        lane.update(gameLoop);
+      }
+    }
   }
 }

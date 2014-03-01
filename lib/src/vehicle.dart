@@ -19,4 +19,7 @@ class Vehicle {
     context.save();
     context.restore();
   }
+
+  void update(GameLoopHtml gameLoop) {
+  }
 }

@@ -4,6 +4,7 @@ import 'dart:html';
 import 'dart:math';
 import 'dart:collection';
 import 'package:vector_math/vector_math.dart';
+import 'package:game_loop/game_loop_html.dart';
 
 part 'src/driver.dart';
 part 'src/road.dart';
@@ -21,18 +22,31 @@ abstract class World {
 class TrafficSimulator implements World {
   List<Vehicle> vehicle;
   List<Road> road = new List<Road>();
+  Set<Joint> joint = new Set<Joint>();
   Vector2 dimension; // meter
+  GameLoopHtml gameLoop;
 
-  TrafficSimulator(this.dimension);
+  TrafficSimulator(this.dimension, this.gameLoop);
   
-  void update(double dt) {
+  void addRoad(Road road) {
+    this.road.add(road);
+    road._end.forEach((e) => joint.add(e));
+  }
+  
+  void addJoint(Joint joint) {
+    this.joint.add(joint);
+  }
+  
+  void update(gameLoop) {
   }
   
   void draw(Camera camera) {
-    if (road.length > 0) {
-      for (var rd in road) {
-        rd.draw(camera);
-      }
+    for (Road rd in road) {
+      rd.draw(camera);
+    }
+    
+    if (joint.length > 0) {
+      
     }
   }
 }

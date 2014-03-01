@@ -5,8 +5,9 @@ class Lane {
   Road road;
   final double width;
   double halfWidth;
+  int direction;
 
-  Lane([this.width = 3.5, this.road]) {
+  Lane(this.road, {this.width: 3.5, this.direction: Road.FORWARD}) {
     halfWidth = width / 2;
   }
   
@@ -39,5 +40,11 @@ class Lane {
       veh.draw(camera, tm);
     }
     context.restore();
+  }
+  
+  void update(GameLoopHtml gameLoop) {
+    for (var veh in vehicle) {
+      veh.update(gameLoop);
+    }
   }
 }

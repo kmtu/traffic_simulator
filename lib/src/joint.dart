@@ -21,7 +21,7 @@ class SourceJoint extends Joint {
   
   SourceJoint(Vector2 pos) : super(pos);
   
-  void update(double dt) {
+  void update(GameLoopHtml gameLoop) {
     if (road.length > 0) {
       
     }
