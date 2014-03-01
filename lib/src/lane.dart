@@ -6,7 +6,7 @@ class Lane {
   final double width;
   double halfWidth;
   int direction;
-  DoubleLinkedQueueEntry entry;
+  DoubleLinkedQueueEntry<Lane> entry;
 
   Lane(this.road, {this.width: 3.5, this.direction: Road.FORWARD}) {
     halfWidth = width / 2;
@@ -32,7 +32,6 @@ class Lane {
 
     // draw lane division line
     Function drawLineByNeighborLane = (Lane neighbor) {
-      if (neighbor != null) {
         if (neighbor.direction != this.direction) {
           context.setStrokeColorRgb(255, 255, 0);
           context.lineWidth = 0.4;
@@ -42,26 +41,21 @@ class Lane {
           context.lineWidth = 0.2;
         }
         context.stroke();
-      }
     }; 
     
     context.beginPath();
     context.moveTo(0, -halfWidth);
     context.lineTo(road.distance, -halfWidth);
-    Lane prev_;
     if (entry.previousEntry() != null) {
-      prev_ = entry.previousEntry().element;
+      drawLineByNeighborLane(entry.previousEntry().element);
     }
-    drawLineByNeighborLane(prev_);
 
     context.beginPath();
     context.moveTo(0, halfWidth);
     context.lineTo(road.distance, halfWidth);
-    Lane next_;
     if (entry.nextEntry() != null) {
-      Lane next_ = entry.nextEntry().element;
+      drawLineByNeighborLane(entry.nextEntry().element);
     }
-    drawLineByNeighborLane(next_);
 
     // draw ends
     context.restore();
