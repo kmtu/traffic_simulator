@@ -3,6 +3,7 @@ part of traffic_simulator;
 class Joint {
   List<Road> road = new List<Road>();
   Vector2 _pos;
+  double radius;
   
   Joint(this._pos);
   
@@ -10,9 +11,28 @@ class Joint {
     _pos = pos;
     if (road.length > 0) {
       for (Road rd in road) {
-        rd.updateEnds();
+        rd.updateOnJointChange();
       }
     }
+  }
+  
+  void addRoad(Road road) {
+    this.road.add(road);
+    updateOnRoadChange();
+  }
+  
+  void updateOnRoadChange() {
+    radius = 0.0;
+    if (road.length > 0) {
+      for (Road rd in road) {
+        if (rd.distance > radius) {
+          radius = rd.distance;
+        }
+      }
+    }
+  }
+  
+  void draw(Camera camera) {
   }
 }
 

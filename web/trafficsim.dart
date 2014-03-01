@@ -8,7 +8,7 @@ GameLoopHtml gameLoop;
 TrafficSimulator world;
 Camera camera;
 
-const int WIDTH = 800;
+const int WIDTH = 900;
 const int HEIGHT = 600;
 DivElement fpsDiv = querySelector("#fps");
 
@@ -18,19 +18,21 @@ void main() {
   film.height = HEIGHT;
   gameLoop = new GameLoopHtml(film);
 
-  Vector2 worldSize = new Vector2(300.0, 225.0); // in meters
+  Vector2 worldSize = new Vector2(75.0, 50.0); // in meters
   world = new TrafficSimulator(worldSize, gameLoop);
   camera = new Camera(film, world);
 
-  List<Joint> joint = [new Joint(new Vector2(50.0, 50.0)), new Joint(new Vector2(250.0, 50.0)),
-                       new Joint(new Vector2(250.0, 150.0)), new Joint(new Vector2(50.0, 150.0))
-                      ];
+/*  List<Joint> joint = [new Joint(new Vector2(20.0, 20.0)), new Joint(new Vector2(130.0, 20.0)),
+                       new Joint(new Vector2(130.0, 90.0)), new Joint(new Vector2(20.0, 90.0))];
   List<Road> road = [new Road([joint[0], joint[1]]).addLane(1,1),
-                     new Road([joint[1], joint[2]]).addLane(1,1),
-                     new Road([joint[2], joint[3]]).addLane(1,1),
-                     new Road([joint[3], joint[0]]).addLane(1,1),
-                     new Road([joint[0], joint[2]]).addLane(1,1),
-                     new Road([joint[1], joint[3]]).addLane(1,1)];
+                     new Road([joint[1], joint[2]]).addLane(1,2),
+                     new Road([joint[2], joint[3]]).addLane(2,2),
+                     new Road([joint[3], joint[0]]).addLane(1,3),
+                     new Road([joint[0], joint[2]]).addLane(3,1),
+                     new Road([joint[1], joint[3]]).addLane(3,3)]; */
+  
+  List<Joint> joint = [new Joint(new Vector2(10.0, 25.0)), new Joint(new Vector2(65.0, 25.0))];
+  List<Road> road = [new Road([joint[0], joint[1]])];
   road.forEach((r) => world.addRoad(r));
 
   gameLoop.state = runningState;

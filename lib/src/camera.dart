@@ -3,15 +3,14 @@ part of traffic_simulator;
 class Camera {
   Vector2 pos = new Vector2.zero(); // top-left corner
   Vector2 vel = new Vector2.zero();
-  double lineWidth = 1.0;
-  double acc = 100.0;
-  double maxSpeed = 200.0; // meter per click
+  double acc = 50.0;
+  double maxSpeed = 100.0; // meter per click
   double height; // meters
   double ratio; // = width / height
   World world;
   double worldPixelPerMeter;
   CanvasElement film, worldCanvas;
-//  double minZoomFactor; // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
+  double minZoomFactor = 0.2; // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
   double zoomFactor = 1.0;
   double get width => height * ratio;
   
@@ -40,7 +39,7 @@ class Camera {
     worldCanvas.context2D.save();
     worldCanvas.context2D.beginPath();
     worldCanvas.context2D.strokeStyle = "red";
-    worldCanvas.context2D.lineWidth = lineWidth*5;
+    worldCanvas.context2D.lineWidth = 5;
     worldCanvas.context2D.strokeRect(0, 0, world.dimension.x, world.dimension.y);
     worldCanvas.context2D.restore();
   }
@@ -54,13 +53,17 @@ class Camera {
   }
   
   void zoom(double factor) {
-    zoomFactor *= factor;
-    maxSpeed *= factor;
-    acc *= factor;
-    double dy = height*(1-factor) / 2.0;
-    height *= factor;
-    pos.y += dy;
-    pos.x += dy * ratio;
+    // prevent camera from zooming out of the world canvas
+    double zoomFactorTest = zoomFactor * factor;
+    if (zoomFactorTest <= 1 && zoomFactorTest >= minZoomFactor) {
+      zoomFactor = zoomFactorTest;
+      maxSpeed *= factor;
+      acc *= factor;
+      double dy = height*(1-factor) / 2.0;
+      height *= factor;
+      pos.y += dy;
+      pos.x += dy * ratio;
+    }
   }
   
   void zoomIn(double factor) => zoom(1.0 / factor);
@@ -108,5 +111,25 @@ class Camera {
   
   void update(double dt) {
     pos += vel*dt;
+    
+    double maxWidth_ = world.dimension.x - width;
+    double maxHeight = world.dimension.y - height;
+
+    if (pos.x < 0) {
+      pos.x = 0.0;
+      vel.x = 0.0;
+    }
+    else if (pos.x > maxWidth_) {
+      pos.x = maxWidth_;
+      vel.x = 0.0;
+    }
+    if (pos.y < 0) {
+      pos.y = 0.0;
+      vel.y = 0.0;
+    }
+    else if (pos.y > maxHeight) {
+      pos.y = maxHeight;
+      vel.y = 0.0;
+    }
   }
 }

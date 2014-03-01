@@ -6,6 +6,7 @@ class Lane {
   final double width;
   double halfWidth;
   int direction;
+  DoubleLinkedQueueEntry entry;
 
   Lane(this.road, {this.width: 3.5, this.direction: Road.FORWARD}) {
     halfWidth = width / 2;
@@ -14,25 +15,54 @@ class Lane {
   void draw(Camera camera, Matrix3 transformMatrix) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
+    
+    // align the center of this lane to x-axis
     Matrix3 tm = transformMatrix * makeTranslateMatrix3(0.0, halfWidth);
     context.transform(tm.entry(0, 0), tm.entry(1, 0),
                       tm.entry(0, 1), tm.entry(1, 1),
                       tm.entry(0, 2), tm.entry(1, 2));
     
-    context.save();
     // draw begins
+    context.save();
+    
+    // draw ground color
     context.beginPath();
     context.fillStyle = "black";
     context.fillRect(0, -halfWidth, road.distance, width);
+
+    // draw lane division line
+    Function drawLineByNeighborLane = (Lane neighbor) {
+      if (neighbor != null) {
+        if (neighbor.direction != this.direction) {
+          context.setStrokeColorRgb(255, 255, 0);
+          context.lineWidth = 0.4;
+        }
+        else {
+          context.setStrokeColorRgb(200, 200, 200);
+          context.lineWidth = 0.2;
+        }
+        context.stroke();
+      }
+    }; 
     
     context.beginPath();
     context.moveTo(0, -halfWidth);
     context.lineTo(road.distance, -halfWidth);
+    Lane prev_;
+    if (entry.previousEntry() != null) {
+      prev_ = entry.previousEntry().element;
+    }
+    drawLineByNeighborLane(prev_);
+
+    context.beginPath();
     context.moveTo(0, halfWidth);
     context.lineTo(road.distance, halfWidth);
-    context.setStrokeColorRgb(200, 200, 200);
-    context.lineWidth = camera.lineWidth*0.5;
-    context.stroke();
+    Lane next_;
+    if (entry.nextEntry() != null) {
+      Lane next_ = entry.nextEntry().element;
+    }
+    drawLineByNeighborLane(next_);
+
     // draw ends
     context.restore();
 

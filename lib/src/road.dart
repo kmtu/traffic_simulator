@@ -10,21 +10,15 @@ class Road extends DoubleLinkedQueue<Lane> {
   double distance;
   Matrix3 transformMatrix;
   int direction;
+  double width = 0.0;
   
-  Road(List<Joint> joint, {int direction: RHT}) {
+  Road(List<Joint> joint, {int numForwardLane: 1, int numBackwardLane: 1, int direction: RHT}) {
     _end = new List<Joint>.from(joint, growable: false);
+    updateOnJointChange();
+    addLane(numForwardLane, numBackwardLane);
     for (Joint j in joint) {
-      j.road.add(this);
+      j.addRoad(this);
     }
-    updateEnds();
-  }
-  
-  double get width {
-    double width_ = 0.0;
-    for (Lane lane in this) {
-      width_ += lane.width;
-    }
-    return width_;
   }
   
   @override
@@ -32,11 +26,14 @@ class Road extends DoubleLinkedQueue<Lane> {
     if ((lane.direction == FORWARD && this.direction == RHT)||
         (lane.direction == BACKWARD && this.direction == LHT)) {
       super.addLast(lane);
+      lane.entry = this.lastEntry();
     }
     else {
       super.addFirst(lane);
+      lane.entry = this.firstEntry();
     }
     lane.road = this;
+    updateOnLaneChange();
   }
   
   Road addLane(int numForward, int numBackword) {
@@ -60,14 +57,43 @@ class Road extends DoubleLinkedQueue<Lane> {
     else {
       double cumWidth_ = 0.0;
       double halfRoadWidth = width / 2;
-      for (Lane lane in this) {
+      forEachEntry((laneEntry){
         context.save();
         Matrix3 tm = transformMatrix * makeTranslateMatrix3(0.0, -halfRoadWidth + cumWidth_);
-        lane.draw(camera, tm);
+        laneEntry.element.draw(camera, tm);
         context.restore();
-        cumWidth_ += lane.width;
-      }
+        cumWidth_ += laneEntry.element.width;        
+      });
+      drawRoadBoundary(camera);
     }
+  }
+  
+  void drawRoadBoundary(Camera camera) {
+    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    context.save();
+
+    // draw as if the center of the road aligns to the x-axis
+    double halfRoadWidth = width / 2;
+    Matrix3 tm = transformMatrix * makeTranslateMatrix3(0.0, 0.0);
+    context.transform(tm.entry(0, 0), tm.entry(1, 0),
+                      tm.entry(0, 1), tm.entry(1, 1),
+                      tm.entry(0, 2), tm.entry(1, 2));
+  
+    context.beginPath();
+    
+    // draw top boundary line
+    context.moveTo(0, -halfRoadWidth);
+    context.lineTo(distance, -halfRoadWidth);
+    
+    // draw top boundary line
+    context.moveTo(0, halfRoadWidth);
+    context.lineTo(distance, halfRoadWidth);
+    
+    context.setStrokeColorRgb(100, 100, 100);
+    context.lineWidth = 1;
+    context.stroke();
+    
+    context.restore();
   }
   
   void drawRoadLine(Camera camera) {
@@ -81,12 +107,13 @@ class Road extends DoubleLinkedQueue<Lane> {
     context.moveTo(0, 0);
     context.lineTo(distance, 0);
     context.setStrokeColorRgb(255, 0, 0, 0.5);
-    context.lineWidth = camera.lineWidth;
+    context.lineWidth = 1;
     context.stroke();
     context.restore();
   }
   
-  void updateEnds() {
+  void updateOnJointChange() {
+    // call when states of ends are changed
     distance = _end[0]._pos.distanceTo(_end[1]._pos).toDouble();
     
     // rotate first then translate
@@ -99,11 +126,19 @@ class Road extends DoubleLinkedQueue<Lane> {
     transformMatrix = translateMatrix3(transformMatrix, _end[0]._pos.x, _end[0]._pos.y);
   }
   
-  void update(GameLoopHtml gameLoop) {
-    if (this.isNotEmpty) {
-      for (Lane lane in this) {
-        lane.update(gameLoop);
-      }
+  void updateOnLaneChange() {
+    width = 0.0;
+    for (Lane lane in this) {
+      width += lane.width;
     }
+    for (Joint joint in _end) {
+      joint.updateOnRoadChange();
+    }
+  }
+  
+  void update(GameLoopHtml gameLoop) {
+    forEachEntry((laneEntry){
+      laneEntry.element.update(gameLoop);
+    });
   }
 }
