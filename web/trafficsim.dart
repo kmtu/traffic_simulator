@@ -1,5 +1,4 @@
 import 'dart:html';
-import 'dart:math';
 import 'package:game_loop/game_loop_html.dart';
 import 'package:vector_math/vector_math.dart';
 import 'package:driversim/traffic_simulator.dart';

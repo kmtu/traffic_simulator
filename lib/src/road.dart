@@ -17,7 +17,20 @@ class Road {
   static const int RANDOM_LANE = 22;
   
   double boundaryLineWidth = 1.0;
-  DoubleLinkedQueue<Lane> lane = new DoubleLinkedQueue<Lane>();
+  
+  /// Lanes which direction are [Road.FORWARD]
+  /// First added will be drawn as outer lanes
+  ReversibleDoubleLinkedQueue<Lane> forwardLane = new ReversibleDoubleLinkedQueue<Lane>();
+  
+  /// Lanes which direction are [Road.BACKWARD]
+  /// First added will be drawn as outer lanes
+  ReversibleDoubleLinkedQueue<Lane> backwardLane = new ReversibleDoubleLinkedQueue<Lane>();
+  
+  /// Lanes in the upper part of this road. For drawing purpose.
+  DoubleLinkedQueue<Lane> _upperLane;
+  /// Lanes in the upper part of this road. For drawing purpose.
+  DoubleLinkedQueue<Lane> _lowerLane;
+  
   /// Position of the two [roadEnd] of this road
   final List<RoadEnd> roadEnd = new List<RoadEnd>(2);
   double length;
@@ -41,14 +54,16 @@ class Road {
   }
   
   void _addLane(Lane ln) {
-    if ((ln.direction == FORWARD && this.drivingHand == RHT) ||
-        (ln.direction == BACKWARD && this.drivingHand == LHT)) {
-      lane.addLast(ln);
-      ln.entry = lane.lastEntry();
+    if (ln.direction == FORWARD) {
+      forwardLane.add(ln);
+      ln.entry = forwardLane.lastEntry();
+    }
+    else if (ln.direction == BACKWARD) {
+      backwardLane.add(ln);
+      ln.entry = backwardLane.lastEntry();
     }
     else {
-      lane.addFirst(ln);
-      ln.entry = lane.firstEntry();
+      throw new ArgumentError("A lane must have a valid direction when added to road.");
     }
     ln.road = this;
     updateOnLaneChange();
@@ -68,18 +83,14 @@ class Road {
     
   void draw(Camera camera) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
-    context.save();       
-    if (lane.isEmpty) {
-      drawRoadLine(camera);
+    context.save();
+    if (forwardLane.isEmpty && backwardLane.isEmpty) {
+      _drawMiddleLine(camera);
     }
     else {
-      double cumWidth_ = 0.0;
-      double halfTotalLaneWidth = width / 2 - boundaryLineWidth / 2;
-      lane.forEachEntry((laneEntry){
-        laneEntry.element.draw(camera, preTranslate( transformMatrix, 0.0, -halfTotalLaneWidth + cumWidth_));
-        cumWidth_ += laneEntry.element.width;        
-      });
-      drawRoadBoundary(camera);
+      _drawUpperLane(camera, _upperLane);
+      _drawLowerLane(camera, _lowerLane);
+      _drawBoundary(camera);
     }
     context.restore();
     
@@ -87,7 +98,27 @@ class Road {
     roadEnd.forEach((r) => r.drawJoint(camera));
   }
   
-  void drawRoadBoundary(Camera camera) {
+  void _drawUpperLane(Camera camera, DoubleLinkedQueue<Lane> lane) {
+    double cumWidth_ = 0.0;
+    double halfTotalLaneWidth = width / 2 - boundaryLineWidth / 2;
+    lane.forEachEntry((laneEntry){
+      laneEntry.element.draw(camera, 
+          preTranslate( transformMatrix, 0.0, -halfTotalLaneWidth + cumWidth_));
+      cumWidth_ += laneEntry.element.width;        
+    });
+  }
+
+  void _drawLowerLane(Camera camera, DoubleLinkedQueue<Lane> lane) {
+    double cumWidth_ = 0.0;
+    double halfTotalLaneWidth = width / 2 - boundaryLineWidth / 2;
+    lane.forEachEntry((laneEntry){
+      cumWidth_ += laneEntry.element.width;        
+      laneEntry.element.draw(camera, 
+          preTranslate( transformMatrix, 0.0, halfTotalLaneWidth - cumWidth_));
+    });
+  }
+  
+  void _drawBoundary(Camera camera) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
 
@@ -112,7 +143,7 @@ class Road {
     context.restore();
   }
   
-  void drawRoadLine(Camera camera) {
+  void _drawMiddleLine(Camera camera) {
     //Draw a line if the road contains no lane
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
@@ -126,6 +157,11 @@ class Road {
     context.lineWidth = 1;
     context.stroke();
     context.restore();
+  }
+  
+  ReversibleDoubleLinkedQueue<Lane> _getOppositeLane(Lane lane) {
+    if (lane.direction == Road.FORWARD) return backwardLane;
+    else return forwardLane;
   }
     
   /**
@@ -146,18 +182,27 @@ class Road {
   
   void updateOnLaneChange() {
     width = boundaryLineWidth;
-    for (Lane ln in lane) {
-      width += ln.width;
-    }
+    forwardLane.forEach((l) => width += l.width);
+    backwardLane.forEach((l) => width += l.width);
+
     for (var end in roadEnd) {
       if (end.joint != null) end.joint.updateOnRoadChange();
+    }
+    
+    if (drivingHand == Road.RHT) {
+      _upperLane = backwardLane;
+      _lowerLane = forwardLane;
+      
+    }
+    else {
+      _upperLane = forwardLane;
+      _lowerLane = backwardLane;
     }
   }
   
   void update() {
-    lane.forEachEntry((laneEntry){
-      laneEntry.element.update();
-    });
+    forwardLane.forEach((l) => l.update());
+    backwardLane.forEach((l) => l.update());
   }
   
   void addJoint(Joint joint, int side) {
@@ -170,7 +215,6 @@ class Road {
    * [preferLane] should be [Road.RANDOM_LANE], [Road.INNER_LANE], or [Road.OUTER_LANE].
    */
   bool requestAddVehicle(RoadEnd roadEnd, Vehicle vehicle, int preferLane) {
-    DoubleLinkedQueue<Lane> outwardLane;
     //       RHT         LHT
     // Begin                   End
     //0     <----       ---->
@@ -178,13 +222,11 @@ class Road {
     //2     ---->       <----
     //3     ---->       <----
     
+    DoubleLinkedQueue<Lane> outwardLane;
     bool isThisLine = false;
     if (preferLane == Road.RANDOM_LANE) isThisLine = world.random.nextBool();
     
-    // Now let's assume RHT
-    if (roadEnd.side == Road.BEGIN_SIDE) {
-      outwardLane = new DoubleLinkedQueue<Lane>.from(lane.where((l) => l.direction == Road.FORWARD));
-      // Inner lanes are the first in list
+    Function reqAddV = (ReversibleDoubleLinkedQueue<Lane> outwardLane) {
       if (preferLane == Road.INNER_LANE || isThisLine) {
         if (outwardLane.firstWhere((l) => 
             requestAddVehicleOnLane(roadEnd, vehicle, l), orElse: () => null) != null) {
@@ -193,14 +235,10 @@ class Road {
         else {
           // no available lane
           return false;
-        }
+        }      
       }
       else {
-        // 
-        // HERE IS BE THE PROBLEM !!!!
-        // lastWhere() may actually still start from the beginning and thus  
-        //
-        if (outwardLane.lastWhere((l) => 
+        if (outwardLane.reversedLastWhere((l) => 
             requestAddVehicleOnLane(roadEnd, vehicle, l), orElse: () => null) != null) {
           return true;
         }
@@ -209,35 +247,15 @@ class Road {
           return false;
         }
       }
+    };
+    
+    if (roadEnd.side == Road.BEGIN_SIDE) {
+      outwardLane = forwardLane;
     }
     else {
-      outwardLane = new DoubleLinkedQueue<Lane>.from(lane.where((l) => l.direction == Road.BACKWARD));
-      // Outer lanes are the first in list
-      if (preferLane == Road.INNER_LANE || isThisLine) {
-        // 
-        // HERE IS BE THE PROBLEM !!!!!
-        // lastWhere() may actually still start from the beginning and thus  
-        //
-        if (outwardLane.lastWhere((l) => 
-            requestAddVehicleOnLane(roadEnd, vehicle, l), orElse: () => null) != null) {
-          return true;
-        }
-        else {
-          // no available lane
-          return false;
-        }
-      }
-      else {
-        if (outwardLane.firstWhere((l) => 
-            requestAddVehicleOnLane(roadEnd, vehicle, l), orElse: () => null) != null) {
-          return true;
-        }
-        else {
-          // no available lane
-          return false;
-        }
-      }
+      outwardLane = backwardLane;
     }
+    return reqAddV(outwardLane);
   }
   
   bool requestAddVehicleOnLane(RoadEnd roadEnd, Vehicle vehicle, Lane lane) {

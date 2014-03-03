@@ -40,10 +40,10 @@ class Joint {
   
   bool isOutward(RoadEnd roadEnd) {    
     if (roadEnd.side == Road.BEGIN_SIDE) {
-      return roadEnd.road.lane.any((l) => l.direction == Road.FORWARD);
+      return roadEnd.road.forwardLane.length > 0;
     }
     else if (roadEnd.side == Road.END_SIDE) {
-      return roadEnd.road.lane.any((l) => l.direction == Road.BACKWARD);
+      return roadEnd.road.backwardLane.length > 0;
     }
     else {
       // road is not connected to this joint
@@ -53,10 +53,10 @@ class Joint {
   
   bool isInward(RoadEnd roadEnd) {
     if (roadEnd.side == Road.BEGIN_SIDE) {
-      return roadEnd.road.lane.any((l) => l.direction == Road.BACKWARD);
+      return roadEnd.road.backwardLane.length > 0;
     }
     else if (roadEnd.side == Road.END_SIDE) {
-      return roadEnd.road.lane.any((l) => l.direction == Road.FORWARD);
+      return roadEnd.road.forwardLane.length > 0;
     }
     else {
       // road is not connected to this joint
@@ -91,7 +91,7 @@ class Joint {
 }
 
 class SourceJoint extends Joint {
-  double spawnInterval = 0.5;
+  double spawnInterval = 1.0;
   double accumulatedTime = 0.0;
   
   @override

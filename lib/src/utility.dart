@@ -30,3 +30,27 @@ void transformContext(CanvasRenderingContext2D context, Matrix3 M) {
                     M.entry(0, 1), M.entry(1, 1),
                     M.entry(0, 2), M.entry(1, 2));
 }
+
+/**
+ * A reversible [DoubleLinkedQueue]
+ * 
+ * Implements some methods utilizes the reversibility nature of [DoubleLinkedQueue]
+ */
+class ReversibleDoubleLinkedQueue<E> extends DoubleLinkedQueue<E> {
+  @override
+  /**
+   * This method is similar to the [lastWhere] method inherited from [Iterable],
+   * but it iterates from the last entry instead of the first entry.
+   */
+  dynamic reversedLastWhere(bool test(E value), { Object orElse() }) {
+    E result = null;
+    bool foundMatching = false;
+    DoubleLinkedQueueEntry<E> entry = lastEntry();
+    while (entry != null) {
+      if (test(entry.element)) return entry.element;
+      entry = entry.previousEntry();
+    }
+    if (orElse != null) return orElse();
+    throw new StateError("No matching element");
+  }
+}
