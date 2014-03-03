@@ -31,10 +31,10 @@ void main() {
                      new Road([joint[0], joint[2]]).addLane(3,1),
                      new Road([joint[1], joint[3]]).addLane(3,3)]; */
   
-  List joint = [new SourceJoint(new Vector2(20.0, 20.0)), new Joint(new Vector2(130.0, 35.0))];
-  List<Road> road = [new Road([joint[0], joint[1]], numForwardLane: 2, numBackwardLane: 2)];
-  road.forEach((r) => world.addRoad(r));
-
+  world.addRoad(new Road([new Vector2(20.0, 20.0), new Vector2(130.0, 35.0)], numForwardLane: 2, numBackwardLane: 2));
+  Joint joint = new SourceJoint();
+  world.attachJointToRoad(joint, world.road[0], Road.BEGIN_SIDE);
+  world.attachJointToRoad(joint, world.road[0], Road.END_SIDE);
   gameLoop.state = runningState;
   gameLoop.start();
 }
@@ -89,8 +89,8 @@ class RunningState extends SimpleHtmlState {
   }
     
   void onUpdate(GameLoop gameLoop) {
-    world.update(gameLoop.dt);
-    camera.update(gameLoop.dt);
+    world.update();
+    camera.update();
   }
 
   void onKeyDown(KeyboardEvent event) {

@@ -17,27 +17,38 @@ part 'src/camera.dart';
 abstract class World {
   Vector2 dimension;
   void draw(Camera camera);
+  GameLoopHtml gameLoop;
 }
 
 class TrafficSimulator implements World {
-  List<Vehicle> vehicle;
   List<Road> road = new List<Road>();
-  Set<Joint> joint = new Set<Joint>();
+  Queue<Vehicle> garage = new Queue<Vehicle>();
+  Set<Joint> orphanJoint = new Set<Joint>();
+  Set<Joint> attachedJoint = new Set<Joint>();
   Vector2 dimension; // meter
   GameLoopHtml gameLoop;
+  Random random;
 
-  TrafficSimulator(this.dimension, this.gameLoop);
+  TrafficSimulator(this.dimension, this.gameLoop, [this.random]) {
+    if (random == null) {
+      random = new Random(new DateTime.now().millisecondsSinceEpoch);
+    }
+  }
   
   void addRoad(Road road) {
+    road.world = this;
     this.road.add(road);
-    road.joint.forEach((e) => joint.add(e));
   }
   
-  void addJoint(Joint joint) {
-    this.joint.add(joint);
+  void attachJointToRoad(Joint joint, Road road, int side) {
+    joint.world = this;
+    road.addJoint(joint, side);
+    attachedJoint.add(joint);
   }
   
-  void update(gameLoop) {
+  void update() {
+    road.forEach((r) => r.update());
+    attachedJoint.forEach((j) => j.update());
   }
   
   void draw(Camera camera) {
@@ -45,8 +56,17 @@ class TrafficSimulator implements World {
       rd.draw(camera);
     }
     
-    for (Joint joint in joint) {
-      joint.draw(camera);
+    for (Joint joint in orphanJoint) {
+      joint.drawOrphan(camera);
+    }
+  }
+  
+  Vehicle requestVehicle() {
+    if (garage.isEmpty) {
+      return new Vehicle();
+    }
+    else {
+      return garage.removeLast();
     }
   }
 }

@@ -16,6 +16,15 @@ Matrix3 postTranslate(Matrix3 M, double dx, double dy) {
   return tm;
 }
 
+/**
+ * Returns a tranfomration matrix which flips x coordinates
+ * 
+ * That is, x becomes -x
+ */
+Matrix3 makeInvertXMatrix3() {
+  return new Matrix3.identity().setDiagonal(new Vector3(-1.0, 1.0, 1.0));
+}
+
 void transformContext(CanvasRenderingContext2D context, Matrix3 M) {
   context.transform(M.entry(0, 0), M.entry(1, 0),
                     M.entry(0, 1), M.entry(1, 1),

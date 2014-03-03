@@ -112,7 +112,8 @@ class Camera {
     vel.setZero();
   }
   
-  void update(double dt) {
+  void update() {
+    double dt = world.gameLoop.dt;
     pos += vel*dt;
     
     double maxWidth_ = world.dimension.x - width;
