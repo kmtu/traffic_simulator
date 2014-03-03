@@ -11,3 +11,5 @@ packages/
 
 build/
 *.dart.precompiled.js
+
+pubspec.lock
