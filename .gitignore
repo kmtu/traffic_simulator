@@ -1,0 +1,17 @@
+.DS_Store
+
+# Don't commit the following files and directories created by pub and dart2js
+packages/
+*.js_
+*.js.deps
+
+# Avoid committing generated JavaScript files
+
+build/
+*.dart.precompiled.js
+
+pubspec.lock
+
+lib/
+pubspec.yaml
+web/
