@@ -13,3 +13,6 @@ build/
 *.dart.precompiled.js
 
 pubspec.lock
+
+trafficsim.sublime-workspace
+trafficsim.sublime-project
