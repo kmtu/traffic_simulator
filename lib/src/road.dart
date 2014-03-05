@@ -17,11 +17,11 @@ class Road {
   static const int RANDOM_LANE = 22;
   
   /// Lanes which direction are [Road.FORWARD]
-  /// First added will be drawn as outer lanes
+  /// First added will be drawn as inner lanes
   BacktraceReversibleDBLQ<Lane> forwardLane = new BacktraceReversibleDBLQ<Lane>();
   
   /// Lanes which direction are [Road.BACKWARD]
-  /// First added will be drawn as outer lanes
+  /// First added will be drawn as inner lanes
   BacktraceReversibleDBLQ<Lane> backwardLane = new BacktraceReversibleDBLQ<Lane>();
   
   /// Lanes in the upper part of this road. For drawing purpose.
@@ -93,20 +93,22 @@ class Road {
     roadEnd.forEach((r) => r.drawJoint(camera));
   }
   
-  void _drawUpperLane(Camera camera, DoubleLinkedQueue<Lane> lane) {
+  void _drawUpperLane(Camera camera, BacktraceReversibleDBLQ<Lane> lane) {
     double cumWidth_ = 0.0;
     double halfTotalLaneWidth = width / 2 - boundaryLineWidth / 2;
-    lane.forEachEntry((laneEntry){
+    // draw from outer lane
+    lane.forEachEntryFromLast((laneEntry){
       laneEntry.element.draw(camera, 
           preTranslate( transformMatrix, 0.0, -halfTotalLaneWidth + cumWidth_));
       cumWidth_ += laneEntry.element.width;        
     });
   }
 
-  void _drawLowerLane(Camera camera, DoubleLinkedQueue<Lane> lane) {
+  void _drawLowerLane(Camera camera, BacktraceReversibleDBLQ<Lane> lane) {
     double cumWidth_ = 0.0;
     double halfTotalLaneWidth = width / 2 - boundaryLineWidth / 2;
-    lane.forEachEntry((laneEntry){
+    // draw from outer lane
+    lane.forEachEntryFromLast((laneEntry){
       cumWidth_ += laneEntry.element.width;        
       laneEntry.element.draw(camera, 
           preTranslate( transformMatrix, 0.0, halfTotalLaneWidth - cumWidth_));

@@ -35,10 +35,10 @@ class Lane implements Backtraceable {
     context.fillStyle = "black";
     context.fillRect(0, 0, road.length, width);
 
-    // lanes are ordered as outer-lane first
-    if (entry.previousEntry() == null) {
-      if (entry.nextEntry() == null) {
-        if (road._getOppositeLane(this).last == null) {
+    // lanes are ordered as inner-lane first
+    if (entry.nextEntry() == null) {
+      if (entry.previousEntry() == null) {
+        if (road._getOppositeLane(this).first == null) {
           // Single lane road
         }
         else {
@@ -57,8 +57,8 @@ class Lane implements Backtraceable {
       }
     }
     else {
-      if (entry.nextEntry() == null) {
-        if (road._getOppositeLane(this).last == null) {
+      if (entry.previousEntry() == null) {
+        if (road._getOppositeLane(this).first == null) {
           // Outermost lane next to another same-directional lane.
           // This is a one-way traffic road with multiple lanes
           // TODO: inside white line
