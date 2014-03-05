@@ -26,7 +26,7 @@ class Driver {
     Road road = vehicle.lane.road;
     if (vehicle.pos - vehicle.length > road.length) {
       if (vehicle.lane.removeLastVehicle() != this.vehicle) {
-        throw new StateError("The last removed vehicle must be the one who" 
+        throw new StateError("The last removed vehicle must be the one who " 
                              "goes over the road end first.");
       }
       vehicle.lane.laneEnd.last.joint.getRandomOutwardLane().addFirstVehicle(vehicle);
