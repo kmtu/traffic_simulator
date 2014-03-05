@@ -23,39 +23,9 @@ abstract class Joint {
   void updateOnRoadChange() {
     _inwardRoadEnd.clear();
     _outwardRoadEnd.clear();
-    for (RoadEnd re in roadEnd) {
-      if (isOutward(re)) {
-        _outwardRoadEnd.add(re);
-      }
-      if (isInward(re)) {
-        _inwardRoadEnd.add(re);
-      }
-    }
-  }
-  
-  bool isOutward(RoadEnd roadEnd) {    
-    if (roadEnd.side == Road.BEGIN_SIDE) {
-      return roadEnd.road.forwardLane.length > 0;
-    }
-    else if (roadEnd.side == Road.END_SIDE) {
-      return roadEnd.road.backwardLane.length > 0;
-    }
-    else {
-      // road is not connected to this joint
-      return false;
-    }
-  }
-  
-  bool isInward(RoadEnd roadEnd) {
-    if (roadEnd.side == Road.BEGIN_SIDE) {
-      return roadEnd.road.backwardLane.length > 0;
-    }
-    else if (roadEnd.side == Road.END_SIDE) {
-      return roadEnd.road.forwardLane.length > 0;
-    }
-    else {
-      // road is not connected to this joint
-      return false;
+    for (var roadEnd in this.roadEnd) {
+      if (roadEnd.outwardLane.length > 0) _outwardRoadEnd.add(roadEnd);
+      if (roadEnd.inwardLane.length > 0) _inwardRoadEnd.add(roadEnd);
     }
   }
   

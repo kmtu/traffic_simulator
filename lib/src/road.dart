@@ -18,11 +18,11 @@ class Road {
   
   /// Lanes which direction are [Road.FORWARD]
   /// First added will be drawn as inner lanes
-  BacktraceReversibleDBLQ<Lane> forwardLane = new BacktraceReversibleDBLQ<Lane>();
+  final BacktraceReversibleDBLQ<Lane> forwardLane = new BacktraceReversibleDBLQ<Lane>();
   
   /// Lanes which direction are [Road.BACKWARD]
   /// First added will be drawn as inner lanes
-  BacktraceReversibleDBLQ<Lane> backwardLane = new BacktraceReversibleDBLQ<Lane>();
+  final BacktraceReversibleDBLQ<Lane> backwardLane = new BacktraceReversibleDBLQ<Lane>();
   
   /// Lanes in the upper part of this road. For drawing purpose.
   DoubleLinkedQueue<Lane> _upperLane;
@@ -31,6 +31,8 @@ class Road {
   
   /// Position of the two [roadEnd] of this road
   final List<RoadEnd> roadEnd = new List<RoadEnd>(2);
+  
+  /// Length of this road in meters
   double length;
   Matrix3 transformMatrix;
   /// Right-Hand Traffic or Left-Hand Traffic.
@@ -45,9 +47,9 @@ class Road {
   Road(List<Vector2> end, {int numForwardLane: 1, int numBackwardLane: 1, this.drivingHand: RHT}) {
     if (end.length != 2) {
       throw new ArgumentError("Road: there must be two and only two ends in a road.");
-    } 
-    roadEnd[0] = new RoadEnd(this, Road.BEGIN_SIDE, end[0]);
-    roadEnd[1] = new RoadEnd(this, Road.END_SIDE, end[1]);
+    }
+    roadEnd[0] = new RoadEnd(this, Road.BEGIN_SIDE, end[0], forwardLane, backwardLane);
+    roadEnd[1] = new RoadEnd(this, Road.END_SIDE, end[1], backwardLane, forwardLane);
     updateOnEndChange();
     addLane(numForwardLane, numBackwardLane);
   }
@@ -179,10 +181,6 @@ class Road {
     forwardLane.forEach((l) => width += l.width);
     backwardLane.forEach((l) => width += l.width);
 
-    for (var end in roadEnd) {
-      if (end.joint != null) end.joint.updateOnRoadChange();
-    }
-    
     if (drivingHand == Road.RHT) {
       _upperLane = backwardLane;
       _lowerLane = forwardLane;
@@ -192,6 +190,8 @@ class Road {
       _upperLane = forwardLane;
       _lowerLane = backwardLane;
     }
+    
+    roadEnd.forEach((e) => e.updateOnLaneChange());
   }
   
   void update() {
@@ -266,9 +266,16 @@ class RoadEnd {
   final Road road;
   /// The index for roadEnd side (can be [Road.BEGIN] or [Road.END]).
   final int side;
+  /// Outward means go onto the road,
+  /// in order to be consistent with Joint's point of view.
+  final BacktraceReversibleDBLQ<Lane> outwardLane;
+  /// Inward means leave the road,
+  /// in order to be consistent with Joint's point of view.
+  final BacktraceReversibleDBLQ<Lane> inwardLane;
+  
   Joint joint;
   
-  RoadEnd(this.road, this.side, this.pos);
+  RoadEnd(this.road, this.side, this.pos, this.outwardLane, this.inwardLane);
   
   /**
    * Returns true if the request for adding a [vehicle] to a [road] is successful
@@ -282,10 +289,13 @@ class RoadEnd {
   
   void addJoint(Joint joint) {
     if (this.joint != null) {
-      this.joint.removeRoadEnd(this);
+      this.joint.removeRoadEnd(this); 
     }
-    
     this.joint = joint;
     joint.addRoadEnd(this);
+  }
+  
+  void updateOnLaneChange() {
+    if (joint != null) joint.updateOnRoadChange();
   }
 }
