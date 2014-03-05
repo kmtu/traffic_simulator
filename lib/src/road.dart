@@ -20,11 +20,11 @@ class Road {
   
   /// Lanes which direction are [Road.FORWARD]
   /// First added will be drawn as outer lanes
-  ReversibleDoubleLinkedQueue<Lane> forwardLane = new ReversibleDoubleLinkedQueue<Lane>();
+  BacktraceReversibleDBLQ<Lane> forwardLane = new BacktraceReversibleDBLQ<Lane>();
   
   /// Lanes which direction are [Road.BACKWARD]
   /// First added will be drawn as outer lanes
-  ReversibleDoubleLinkedQueue<Lane> backwardLane = new ReversibleDoubleLinkedQueue<Lane>();
+  BacktraceReversibleDBLQ<Lane> backwardLane = new BacktraceReversibleDBLQ<Lane>();
   
   /// Lanes in the upper part of this road. For drawing purpose.
   DoubleLinkedQueue<Lane> _upperLane;
@@ -56,11 +56,9 @@ class Road {
   void _addLane(Lane ln) {
     if (ln.direction == FORWARD) {
       forwardLane.add(ln);
-      ln.entry = forwardLane.lastEntry();
     }
     else if (ln.direction == BACKWARD) {
       backwardLane.add(ln);
-      ln.entry = backwardLane.lastEntry();
     }
     else {
       throw new ArgumentError("A lane must have a valid direction when added to road.");
@@ -159,7 +157,7 @@ class Road {
     context.restore();
   }
   
-  ReversibleDoubleLinkedQueue<Lane> _getOppositeLane(Lane lane) {
+  BacktraceReversibleDBLQ<Lane> _getOppositeLane(Lane lane) {
     if (lane.direction == Road.FORWARD) return backwardLane;
     else return forwardLane;
   }
@@ -226,7 +224,7 @@ class Road {
     bool isThisLine = false;
     if (preferLane == Road.RANDOM_LANE) isThisLine = world.random.nextBool();
     
-    Function reqAddV = (ReversibleDoubleLinkedQueue<Lane> outwardLane) {
+    Function reqAddV = (BacktraceReversibleDBLQ<Lane> outwardLane) {
       if (preferLane == Road.INNER_LANE || isThisLine) {
         if (outwardLane.firstWhere((l) => 
             requestAddVehicleOnLane(roadEnd, vehicle, l), orElse: () => null) != null) {
@@ -238,7 +236,7 @@ class Road {
         }      
       }
       else {
-        if (outwardLane.reversedLastWhere((l) => 
+        if (outwardLane.lastWhereFromLast((l) => 
             requestAddVehicleOnLane(roadEnd, vehicle, l), orElse: () => null) != null) {
           return true;
         }

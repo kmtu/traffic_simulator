@@ -13,6 +13,7 @@ part 'src/joint.dart';
 part 'src/lane.dart';
 part 'src/utility.dart';
 part 'src/camera.dart';
+part 'src/data-structure.dart';
 
 abstract class World {
   Vector2 dimension;

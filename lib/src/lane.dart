@@ -1,6 +1,6 @@
 part of traffic_simulator;
 
-class Lane {
+class Lane implements Backtraceable {
   DoubleLinkedQueue<Vehicle> vehicle = new DoubleLinkedQueue<Vehicle>();
   Road road;
   final double width;
