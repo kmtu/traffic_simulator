@@ -44,14 +44,14 @@ class Lane implements Backtraceable {
         else {
           // Only single lane with this direction,
           // Next to its "inside" is an opposite-direction lane
-          // TODO: insdie yellow line
+          // Draw: insdie yellow line
           _traceInsidePath(context);
           _strokeSingleYelloLine(context);
         }
       }
       else {
         // Outermost lane with another same-direction lane inside
-        // TODO: inside white line
+        // Draw: inside white line
         _traceInsidePath(context);
         _strokeWhiteLine(context);
       }
@@ -61,13 +61,13 @@ class Lane implements Backtraceable {
         if (road._getOppositeLane(this).first == null) {
           // Outermost lane next to another same-directional lane.
           // This is a one-way traffic road with multiple lanes
-          // TODO: inside white line
+          // Draw: inside white line
           _traceInsidePath(context);
           _strokeWhiteLine(context);
         }
         else {
           // Middle road with its "inside" next to an opposite-direction lane
-          // TODO: inside yello line, outside white line
+          // Draw: inside yello line, outside white line
           _traceInsidePath(context);
           _strokeSingleYelloLine(context);
           _traceOutsidePath(context);
