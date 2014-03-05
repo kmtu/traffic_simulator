@@ -16,8 +16,6 @@ class Road {
   /// Both inner lanes and outer lane are fine
   static const int RANDOM_LANE = 22;
   
-  double boundaryLineWidth = 1.0;
-  
   /// Lanes which direction are [Road.FORWARD]
   /// First added will be drawn as outer lanes
   BacktraceReversibleDBLQ<Lane> forwardLane = new BacktraceReversibleDBLQ<Lane>();
@@ -38,12 +36,13 @@ class Road {
   /// Right-Hand Traffic or Left-Hand Traffic.
   /// Can be [Road.RHT] or [Road.LHT].
   int drivingHand;
+  
   double width = 0.0;
-  int numForwardLane = 0;
-  int numBackwardLane = 0;
+  double boundaryLineWidth = 1.0;
+  
   TrafficSimulator world;
  
-  Road(List<Vector2> end, {this.numForwardLane: 1, this.numBackwardLane: 1, this.drivingHand: RHT}) {
+  Road(List<Vector2> end, {int numForwardLane: 1, int numBackwardLane: 1, this.drivingHand: RHT}) {
     if (end.length != 2) {
       throw new ArgumentError("Road: there must be two and only two ends in a road.");
     } 
@@ -68,11 +67,9 @@ class Road {
   }
   
   Road addLane(int numForward, int numBackword) {
-    numForwardLane += numForward;
     for (int i = 0; i < numForward; i++) {
       this._addLane(new Lane(this, direction: FORWARD));
     }
-    numBackwardLane += numBackword;
     for (int i = 0; i < numBackword; i++) {
       this._addLane(new Lane(this, direction: BACKWARD));
     }
