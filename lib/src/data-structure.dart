@@ -25,7 +25,7 @@ class ReversibleDBLQ<E> extends DoubleLinkedQueue<E> {
   
   void forEachEntryFromLast(void f(DoubleLinkedQueueEntry<E> element)) {
     DoubleLinkedQueueEntry<E> entry = lastEntry();
-    while (entry.previousEntry() != null) {
+    while (entry != null) {
       DoubleLinkedQueueEntry<E> previousEntry = entry.previousEntry();
       f(entry);
       entry = previousEntry;
