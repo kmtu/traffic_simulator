@@ -31,7 +31,7 @@ void main() {
                      new Road([joint[1], joint[3]]).addLane(3,3)]; */
   
   world.addRoad(new Road([new Vector2(20.0, 20.0), new Vector2(130.0, 35.0)], numForwardLane: 2, numBackwardLane: 2));
-  Joint joint = new SourceJoint();
+  Joint joint = new SourceJoint("A");
   world.attachJointToRoad(joint, world.road[0], Road.BEGIN_SIDE);
   world.attachJointToRoad(joint, world.road[0], Road.END_SIDE);
   gameLoop.state = runningState;

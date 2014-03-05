@@ -24,8 +24,7 @@ abstract class World {
 class TrafficSimulator implements World {
   List<Road> road = new List<Road>();
   Queue<Vehicle> garage = new Queue<Vehicle>();
-  Set<Joint> orphanJoint = new Set<Joint>();
-  Set<Joint> attachedJoint = new Set<Joint>();
+  Set<Joint> joint = new Set<Joint>();
   Vector2 dimension; // meter
   GameLoopHtml gameLoop;
   Random random;
@@ -44,12 +43,12 @@ class TrafficSimulator implements World {
   void attachJointToRoad(Joint joint, Road road, int side) {
     joint.world = this;
     road.addJoint(joint, side);
-    attachedJoint.add(joint);
+    this.joint.add(joint);
   }
   
   void update() {
     road.forEach((r) => r.update());
-    attachedJoint.forEach((j) => j.update());
+    joint.forEach((j) => j.update());
   }
   
   void draw(Camera camera) {
@@ -57,8 +56,8 @@ class TrafficSimulator implements World {
       rd.draw(camera);
     }
     
-    for (Joint joint in orphanJoint) {
-      joint.drawOrphan(camera);
+    for (Joint joint in this.joint) {
+      joint.draw(camera);
     }
   }
   

@@ -1,11 +1,13 @@
 part of traffic_simulator;
 
-class Joint {
+abstract class Joint {
   Set<RoadEnd> roadEnd = new Set<RoadEnd>();
   Set<RoadEnd> _inwardRoadEnd =  new Set<RoadEnd>();
   Set<RoadEnd> _outwardRoadEnd =  new Set<RoadEnd>();
-  double radius;
-  Vector2 pos = new Vector2.zero();
+  String label = ""; 
+  
+  Joint(String this.label);
+  
   TrafficSimulator world;
     
   void addRoadEnd(RoadEnd roadEnd) {
@@ -19,15 +21,8 @@ class Joint {
   }
   
   void updateOnRoadChange() {
-    radius = 0.0;
     _inwardRoadEnd.clear();
     _outwardRoadEnd.clear();
-    for (RoadEnd re in roadEnd) {
-      double tmpR = re.road.width / 2;
-      if (tmpR > radius) {
-        radius = tmpR;
-      }
-    }
     for (RoadEnd re in roadEnd) {
       if (isOutward(re)) {
         _outwardRoadEnd.add(re);
@@ -64,36 +59,41 @@ class Joint {
     }
   }
   
-  void drawOrphan(Camera camera) {
+  void draw(Camera camera);
+  
+  void drawLabel(Camera camera) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
-    context.save();
-    transformContext(context, makeTranslateMatrix3(pos.x, pos.y));
-    context.beginPath();
-    context.arc(0, 0, radius, 0, 2*PI);
-    context.fillStyle = "red";
-    context.fill();
-    context.restore();
+    for (var roadEnd in this.roadEnd) {
+      context.save();
+      transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
+      context.beginPath();
+      context.arc(0, 0, 3, 0, 2*PI);
+      context.setFillColorRgb(0, 200, 0);
+      context.fill();
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.setFillColorRgb(0, 0, 0);
+      context.font = "4px arial";
+      context.fillText(label, 0, 0.4);
+      context.restore();
+    }
   }
   
-  void drawWithRoadEnd(Camera camera, RoadEnd roadEnd) {
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
-    context.save();
-    transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
-    context.beginPath();
-    context.arc(0, 0, radius, 0, 2*PI);
-    context.fillStyle = "grey";
-    context.fill();
-    context.restore();
-  }
-  
-  void update() {
-  }
+  void update();
 }
 
 class SourceJoint extends Joint {
   double spawnInterval = 1.0;
   double accumulatedTime = 0.0;
+  double _opacity;
+  double opacityFreq = 0.5;
+  double maxOpacity = 0.5;
+  double minOpacity = 0.1;
   
+  SourceJoint(String label) : super(label) {
+    _opacity = maxOpacity;
+  }
+ 
   @override
   void update() {
     if (accumulatedTime < spawnInterval) {
@@ -103,38 +103,39 @@ class SourceJoint extends Joint {
       accumulatedTime = 0.0;
       randomDispatch();
     }
+    
+    _updateBlink();
+  }
+  
+  void _updateBlink() {
+    _opacity += opacityFreq * world.gameLoop.dt;    
+    if (_opacity > maxOpacity) {
+      _opacity = maxOpacity;
+      opacityFreq *= -1;      
+    }
+    else if (_opacity < minOpacity) {
+      _opacity = minOpacity;
+      opacityFreq *= -1;      
+    }    
   }
   
   void randomDispatch() {
     // Randomly pick a roadEnd to add
     var roadEnd = _outwardRoadEnd.elementAt(world.random.nextInt(_outwardRoadEnd.length));
-//    world.gameLoop.addTimer((timer) => roadEnd.requestAddVehicle(world.requestVehicle()), 1.0);
     roadEnd.requestAddVehicle(world.requestVehicle());
   }
   
-  @override  
-  void drawOrphan(Camera camera) {
+  void draw(Camera camera) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
-    for (var re in roadEnd) {
+    for (var roadEnd in this.roadEnd) {
       context.save();
-      transformContext(context, makeTranslateMatrix3(re.pos.x, re.pos.y));
+      transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
       context.beginPath();
-      context.arc(0, 0, radius, 0, 2*PI);
-      context.fillStyle = "red";
-      context.fill();   
+      context.arc(0, 0, roadEnd.road.width*0.5, 0, 2*PI);
+      context.setFillColorRgb(200, 0, 0, _opacity);
+      context.fill();
       context.restore();
     }
-  }
-  
-  @override
-  void drawWithRoadEnd(Camera camera, RoadEnd roadEnd) {
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
-    context.save();
-    transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
-    context.beginPath();
-    context.arc(0, 0, radius, 0, 2*PI);
-    context.fillStyle = "orange";
-    context.fill();
-    context.restore();
+    drawLabel(camera);
   }
 }

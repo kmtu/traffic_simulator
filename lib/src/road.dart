@@ -87,10 +87,7 @@ class Road {
       _drawLowerLane(camera, _lowerLane);
       _drawBoundary(camera);
     }
-    context.restore();
-    
-    // Draw joints on the roadEnds
-    roadEnd.forEach((r) => r.drawJoint(camera));
+    context.restore();    
   }
   
   void _drawUpperLane(Camera camera, BacktraceReversibleDBLQ<Lane> lane) {
@@ -290,9 +287,5 @@ class RoadEnd {
     
     this.joint = joint;
     joint.addRoadEnd(this);
-  }
-  
-  void drawJoint(Camera camera) {
-    if (joint != null) joint.drawWithRoadEnd(camera, this);
   }
 }
