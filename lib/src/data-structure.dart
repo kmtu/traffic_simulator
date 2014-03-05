@@ -8,7 +8,8 @@ part of traffic_simulator;
 class ReversibleDBLQ<E> extends DoubleLinkedQueue<E> {
   /**
    * This method is similar to the [lastWhere] method inherited from [Iterable],
-   * but it iterates from the last entry instead of the first entry.
+   * but it iterates from the last entry instead of the first entry,
+   * and returns right away when it finds an entry satisfies the [test]
    */  
   lastWhereFromLast(bool test(E value), { Object orElse() }) {
     E result = null;
