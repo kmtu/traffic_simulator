@@ -1,6 +1,6 @@
 part of traffic_simulator;
 
-class Vehicle {
+class Vehicle implements Backtraceable {
   double pos = 0.0;
   double vel = 10.0;
   double acc = 0.0;
@@ -8,10 +8,12 @@ class Vehicle {
   Driver driver;
   double width;
   double length;
+  DoubleLinkedQueueEntry entry; 
+  TrafficSimulator world;
 
-  Vehicle({this.width: 1.6, this.length: 3.5, this.driver}) {
+  Vehicle(this.world, {this.width: 1.6, this.length: 3.5, this.driver}) {
     if (driver == null) {
-      this.driver = new Driver(vehicle: this);
+      this.driver = new Driver(world, vehicle: this);
     }
   }
     
@@ -31,5 +33,7 @@ class Vehicle {
   void update() {
     double dt = lane.road.world.gameLoop.dt;
     pos += vel*dt;
+    vel += acc*dt;
+    driver.update();
   }
 }

@@ -63,7 +63,7 @@ class TrafficSimulator implements World {
   
   Vehicle requestVehicle() {
     if (garage.isEmpty) {
-      return new Vehicle();
+      return new Vehicle(this);
     }
     else {
       return garage.removeLast();

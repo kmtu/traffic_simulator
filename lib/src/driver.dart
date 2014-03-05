@@ -2,11 +2,34 @@ part of traffic_simulator;
 
 
 class Driver {
-  static const double DEF_SIGHT_RANGE = 100.0; // meter
-  static const double DEF_REACTION_TIME = 0.3; // sec
-  double sightRange;
-  double reactionTime;
-  Vehicle vehicle;
+  final Vehicle vehicle;
+  TrafficSimulator world;
   
-  Driver({this.sightRange: DEF_SIGHT_RANGE, this.reactionTime: DEF_REACTION_TIME, this.vehicle});
+  Driver(this.world, {this.vehicle});
+  
+  void update() {
+/*    DoubleLinkedQueueEntry<Vehicle> nextVehicle = vehicle.entry.nextEntry();
+    if (nextVehicle != null) {
+      double distance = nextVehicle.element.pos - nextVehicle.element.length - vehicle.pos;
+      if (distance < 5) {
+        vehicle.acc = -5.0;
+      }
+      else if (distance > 10) {
+        vehicle.acc = 1.0;
+      }
+      else 
+      {
+        vehicle.acc = 0.0;
+      }
+    }
+*/    
+    Road road = vehicle.lane.road;
+    if (vehicle.pos - vehicle.length > road.length) {
+      if (vehicle.lane.removeLastVehicle() != this.vehicle) {
+        throw new StateError("The last removed vehicle must be the one who" 
+                             "goes over the road end first.");
+      }
+      vehicle.lane.laneEnd.last.joint.getRandomOutwardLane().addFirstVehicle(vehicle);
+    }
+  }
 }

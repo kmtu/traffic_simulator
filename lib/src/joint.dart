@@ -49,6 +49,16 @@ abstract class Joint {
     }
   }
   
+  Lane getRandomOutwardLane() {
+    var max = _outwardRoadEnd.length;
+    if (max > 0) {
+      return _outwardRoadEnd.elementAt(world.random.nextInt(max)).getRandomOutwardLane();
+    }
+    else {
+      return null;
+    }
+  }
+  
   void update();
 }
 

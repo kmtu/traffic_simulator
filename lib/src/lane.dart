@@ -1,14 +1,24 @@
 part of traffic_simulator;
 
 class Lane implements Backtraceable {
-  DoubleLinkedQueue<Vehicle> vehicle = new DoubleLinkedQueue<Vehicle>();
+  BacktraceReversibleDBLQ<Vehicle> vehicle = new BacktraceReversibleDBLQ<Vehicle>();
   Road road;
   final double width;
   /// Direction of this lane, can be [Road.FORWARD] or [Road.BACKWARD]
-  int direction;
+  final int direction;
+  
+  /// The direction of a lane is always from laneEnd[0] to laneEnd[1]
+  List<RoadEnd> laneEnd;
   DoubleLinkedQueueEntry<Lane> entry;
 
-  Lane(this.road, {this.width: 3.5, this.direction: Road.FORWARD}) ;
+  Lane(this.road, this.direction, {this.width: 3.5}) {
+    if (direction == Road.FORWARD) {
+      laneEnd = road.roadEnd;
+    }
+    else {
+      laneEnd = road.roadEnd.reversed.toList(growable: false);
+    }
+  }
   
   void draw(Camera camera, Matrix3 transformMatrix) {
     drawLane(camera, transformMatrix);
@@ -38,7 +48,7 @@ class Lane implements Backtraceable {
     // lanes are ordered as inner-lane first
     if (entry.nextEntry() == null) {
       if (entry.previousEntry() == null) {
-        if (road._getOppositeLane(this).first == null) {
+        if (road._getOppositeLane(this).firstEntry() == null) {
           // Single lane road
         }
         else {
@@ -135,7 +145,17 @@ class Lane implements Backtraceable {
     // TODO: add checking condition if a vehicle can be added
     vehicle.pos = 0.0;
     vehicle.lane = this;
-    this.vehicle.add(vehicle);
+    this.vehicle.addFirst(vehicle);
     return true;
+  }
+  
+  void addFirstVehicle(Vehicle vehicle) {
+    vehicle.pos = 0.0;
+    vehicle.lane = this;
+    this.vehicle.addFirst(vehicle);
+  }
+  
+  Vehicle removeLastVehicle() {
+    return this.vehicle.removeLast();
   }
 }

@@ -27,8 +27,8 @@ class Camera {
   
   void shoot() {
     worldCanvas.context2D.clearRect(pos.x, pos.y, width, height);
-    drawWorldBoundary();
     world.draw(this);
+    drawWorldBoundary();
     film.context2D.clearRect(0, 0, film.width, film.height);
     film.context2D.drawImageScaledFromSource(worldCanvas, 
       pos.x*worldPixelPerMeter, pos.y*worldPixelPerMeter, width * worldPixelPerMeter, height * worldPixelPerMeter,

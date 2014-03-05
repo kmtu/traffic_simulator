@@ -70,10 +70,10 @@ class Road {
   
   Road addLane(int numForward, int numBackword) {
     for (int i = 0; i < numForward; i++) {
-      this._addLane(new Lane(this, direction: FORWARD));
+      this._addLane(new Lane(this, FORWARD));
     }
     for (int i = 0; i < numBackword; i++) {
-      this._addLane(new Lane(this, direction: BACKWARD));
+      this._addLane(new Lane(this, BACKWARD));
     }
     return this;
   }
@@ -297,5 +297,15 @@ class RoadEnd {
   
   void updateOnLaneChange() {
     if (joint != null) joint.updateOnRoadChange();
+  }
+  
+  Lane getRandomOutwardLane() {
+    var max = outwardLane.length;
+    if (max > 0) {
+      return outwardLane.elementAt(road.world.random.nextInt(max));
+    }
+    else {
+      return null;
+    }
   }
 }
