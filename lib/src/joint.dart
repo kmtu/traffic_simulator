@@ -69,6 +69,7 @@ class SourceJoint extends Joint {
   double opacityFreq = 0.5;
   double maxOpacity = 0.5;
   double minOpacity = 0.1;
+  int maxDispatch = 10;
   
   SourceJoint(String label) : super(label) {
     _opacity = maxOpacity;
@@ -76,15 +77,20 @@ class SourceJoint extends Joint {
  
   @override
   void update() {
-    if (accumulatedTime < spawnInterval) {
-      accumulatedTime += world.gameLoop.dt;
+    if (maxDispatch > 0) {
+      if (accumulatedTime < spawnInterval) {
+        accumulatedTime += world.gameLoop.dt;
+      }
+      else {
+        accumulatedTime = 0.0;
+        randomDispatch();
+        maxDispatch--;
+      }
+      _updateBlink();
     }
     else {
-      accumulatedTime = 0.0;
-      randomDispatch();
+      _opacity = 0.0;
     }
-    
-    _updateBlink();
   }
   
   void _updateBlink() {
