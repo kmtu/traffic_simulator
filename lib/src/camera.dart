@@ -13,6 +13,7 @@ class Camera {
   double minZoomFactor = 0.2; // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
   double zoomFactor = 1.0;
   double get width => height * ratio;
+  double dt;
   
   Camera(this.film, this.world, {this.worldPixelPerMeter: 10.0})  {
     worldCanvas= makeCanvas();
@@ -26,12 +27,16 @@ class Camera {
   }
   
   void shoot() {
+    dt = world.gameLoop.dt * world.gameLoop.renderInterpolationFactor;
     worldCanvas.context2D.clearRect(pos.x, pos.y, width, height);
     world.draw(this);
     drawWorldBoundary();
     film.context2D.clearRect(0, 0, film.width, film.height);
     film.context2D.drawImageScaledFromSource(worldCanvas, 
-      pos.x*worldPixelPerMeter, pos.y*worldPixelPerMeter, width * worldPixelPerMeter, height * worldPixelPerMeter,
+      (pos.x + vel.x * dt) * worldPixelPerMeter,
+      (pos.y + vel.y * dt) * worldPixelPerMeter,
+      width * worldPixelPerMeter,
+      height * worldPixelPerMeter,
       0, 0, film.width, film.height);
   }
   

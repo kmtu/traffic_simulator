@@ -112,7 +112,7 @@ class SourceJoint extends Joint {
       transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
       context.beginPath();
       context.arc(0, 0, roadEnd.road.width*0.5, 0, 2*PI);
-      context.setFillColorRgb(200, 0, 0, _opacity);
+      context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * camera.dt);
       context.fill();
       context.restore();
     }
