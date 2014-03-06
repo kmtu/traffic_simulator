@@ -68,7 +68,7 @@ class Lane implements Backtraceable {
     }
     else {
       if (entry.previousEntry() == null) {
-        if (road._getOppositeLane(this).first == null) {
+        if (road._getOppositeLane(this).isEmpty) {
           // Outermost lane next to another same-directional lane.
           // This is a one-way traffic road with multiple lanes
           // Draw: inside white line
