@@ -18,7 +18,8 @@ class Camera {
   Camera(this.film, this.world, {this.worldPixelPerMeter: 10.0})  {
     worldCanvas= makeCanvas();
     ratio = film.width / film.height;
-    if (world.dimension.y <= world.dimension.x) {
+    double worldRatio = world.dimension.x / world.dimension.y;
+    if (ratio <= worldRatio) {
       height = world.dimension.y;
     }
     else {
