@@ -21,22 +21,22 @@ void main() {
   film.height = HEIGHT;
   gameLoop = new GameLoopHtml(film);
 
-  Vector2 worldSize = new Vector2(100.0, 75.0); // in meters
+  Vector2 worldSize = new Vector2(120.0, 90.0); // in meters
   world = new TrafficSimulator(worldSize, gameLoop);
   camera = new Camera(film, world);
 
   List<Joint> joint = [new SourceJoint("A"), new SourceJoint("B"), new SourceJoint("C")];
-  world.addRoad(new Road([new Vector2(10.0, 60.0), new Vector2(90.0, 60.0)],
+  world.addRoad(new Road([new Vector2(20.0, 70.0), new Vector2(100.0, 70.0)],
       numForwardLane: 2, numBackwardLane: 2));
   world.attachJointToRoad(joint[0], world.road[0], Road.BEGIN_SIDE);
   world.attachJointToRoad(joint[1], world.road[0], Road.END_SIDE);
   
-  world.addRoad(new Road([new Vector2(90.0, 60.0), new Vector2(55.0, 10.0)],
+  world.addRoad(new Road([new Vector2(105.0, 65.0), new Vector2(65.0, 20.0)],
       numForwardLane: 1, numBackwardLane: 0));
   world.attachJointToRoad(joint[1], world.road[1], Road.BEGIN_SIDE);
   world.attachJointToRoad(joint[2], world.road[1], Road.END_SIDE);
 
-  world.addRoad(new Road([new Vector2(55.0, 10.0), new Vector2(10.0, 60.0)],
+  world.addRoad(new Road([new Vector2(60.0, 20.0), new Vector2(15.0, 55.0)],
       numForwardLane: 3, numBackwardLane: 2));
   world.attachJointToRoad(joint[2], world.road[2], Road.BEGIN_SIDE);
   world.attachJointToRoad(joint[0], world.road[2], Road.END_SIDE);
