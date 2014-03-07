@@ -51,6 +51,7 @@ class Driver {
                              "goes over the road end first.");
       }
       nextLane.addFirstVehicle(vehicle);
+      nextLane = null;
     }
   }
 }
