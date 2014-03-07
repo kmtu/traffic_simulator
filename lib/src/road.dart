@@ -78,6 +78,19 @@ class Road {
     return this;
   }
 
+  void attachJoint(Joint joint, int side) {
+    if (side == Road.BEGIN_SIDE) {
+      roadEnd[Road.BEGIN_SIDE].addJoint(joint);
+    }
+    else if (side == Road.END_SIDE) {
+      roadEnd[Road.END_SIDE].addJoint(joint);
+    }
+    else {
+      throw new ArgumentError("Joint can only be attached to either "
+                              "the Road.BEGIN_SIDE or Road.END_SIDE of a road.");
+    }
+  }
+
   void draw(Camera camera) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
@@ -197,10 +210,6 @@ class Road {
   void update() {
     forwardLane.forEach((l) => l.update());
     backwardLane.forEach((l) => l.update());
-  }
-
-  void addJoint(Joint joint, int side) {
-    roadEnd[side].addJoint(joint);
   }
 
   /**

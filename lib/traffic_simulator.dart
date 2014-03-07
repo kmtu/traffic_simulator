@@ -22,9 +22,10 @@ abstract class World {
 }
 
 class TrafficSimulator implements World {
-  List<Road> road = new List<Road>();
-  Queue<Vehicle> garage = new Queue<Vehicle>();
-  Set<Joint> joint = new Set<Joint>();
+  final Set<Road> road = new Set<Road>();
+  final Set<Vehicle> vehicle = new Set<Vehicle>();
+  final Queue<Vehicle> garage = new Queue<Vehicle>();
+  final Set<Joint> joint = new Set<Joint>();
   Vector2 dimension; // meter
   GameLoopHtml gameLoop;
   Random random;
@@ -34,33 +35,35 @@ class TrafficSimulator implements World {
       random = new Random(new DateTime.now().millisecondsSinceEpoch);
     }
   }
-  
-  void addRoad(Road road) {
-    road.world = this;
-    this.road.add(road);
+
+  void addRoad(Iterable<Road> road) {
+    for (Road rd in road) {
+      rd.world = this;
+      this.road.add(rd);
+      for (RoadEnd re in rd.roadEnd) {
+        if (re.joint != null) {
+          re.joint.world = this;
+          this.joint.add(re.joint);
+        }
+      }
+    }
   }
-  
-  void attachJointToRoad(Joint joint, Road road, int side) {
-    joint.world = this;
-    road.addJoint(joint, side);
-    this.joint.add(joint);
-  }
-  
+
   void update() {
     road.forEach((r) => r.update());
     joint.forEach((j) => j.update());
   }
-  
+
   void draw(Camera camera) {
     for (Road rd in road) {
       rd.draw(camera);
     }
-    
+
     for (Joint joint in this.joint) {
       joint.draw(camera);
     }
   }
-  
+
   Vehicle requestVehicle() {
     if (garage.isEmpty) {
       return new Vehicle(this);

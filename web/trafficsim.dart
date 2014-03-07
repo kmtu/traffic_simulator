@@ -26,20 +26,22 @@ void main() {
   camera = new Camera(film, world);
 
   List<Joint> joint = [new SourceJoint("A"), new SourceJoint("B"), new SourceJoint("C")];
-  world.addRoad(new Road([new Vector2(20.0, 70.0), new Vector2(100.0, 70.0)],
-      numForwardLane: 2, numBackwardLane: 2));
-  world.attachJointToRoad(joint[0], world.road[0], Road.BEGIN_SIDE);
-  world.attachJointToRoad(joint[1], world.road[0], Road.END_SIDE);
-  
-  world.addRoad(new Road([new Vector2(105.0, 65.0), new Vector2(65.0, 20.0)],
-      numForwardLane: 1, numBackwardLane: 0));
-  world.attachJointToRoad(joint[1], world.road[1], Road.BEGIN_SIDE);
-  world.attachJointToRoad(joint[2], world.road[1], Road.END_SIDE);
+  List<Road> road
+      = [new Road([new Vector2(20.0, 70.0), new Vector2(100.0, 70.0)],
+            numForwardLane: 2, numBackwardLane: 1),
+         new Road([new Vector2(105.0, 65.0), new Vector2(65.0, 20.0)],
+            numForwardLane: 2, numBackwardLane: 1),
+         new Road([new Vector2(60.0, 20.0), new Vector2(15.0, 55.0)],
+            numForwardLane: 2, numBackwardLane: 1)
+        ];
+  road[0].attachJoint(joint[0], Road.BEGIN_SIDE);
+  road[0].attachJoint(joint[1], Road.END_SIDE);
+  road[1].attachJoint(joint[1], Road.BEGIN_SIDE);
+  road[1].attachJoint(joint[2], Road.END_SIDE);
+  road[2].attachJoint(joint[2], Road.BEGIN_SIDE);
+  road[2].attachJoint(joint[0], Road.END_SIDE);
 
-  world.addRoad(new Road([new Vector2(60.0, 20.0), new Vector2(15.0, 55.0)],
-      numForwardLane: 3, numBackwardLane: 2));
-  world.attachJointToRoad(joint[2], world.road[2], Road.BEGIN_SIDE);
-  world.attachJointToRoad(joint[0], world.road[2], Road.END_SIDE);
+  world.addRoad(road);
   gameLoop.state = runningState;
   gameLoop.start();
 }
@@ -94,9 +96,9 @@ class FPS {
   Duration lastShowPassedDuration;
   double fps = 0.0;
   DivElement div;
-  
+
   FPS(this.div);
-  
+
   void sampleFPS() {
     if (prevTime == null) {
       prevTime = new DateTime.now();
@@ -110,7 +112,7 @@ class FPS {
       prevTime = currentTime;
     }
   }
-  
+
   void showFPS() {
     div.text = "FPS: ${fps.toStringAsFixed(2)}";
     lastShowPassedDuration = new Duration();
@@ -125,7 +127,7 @@ class RunningState extends SimpleHtmlState {
       fps.showFPS();
     }
   }
-    
+
   void onUpdate(GameLoop gameLoop) {
     world.update();
     camera.update();
