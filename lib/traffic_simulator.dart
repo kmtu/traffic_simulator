@@ -28,7 +28,9 @@ class TrafficSimulator implements World {
   final Set<Joint> joint = new Set<Joint>();
   Vector2 dimension; // meter
   GameLoopHtml gameLoop;
+  double dt = 0.0;
   Random random;
+  bool pause = false;
 
   TrafficSimulator(this.dimension, this.gameLoop, [this.random]) {
     if (random == null) {
@@ -55,6 +57,10 @@ class TrafficSimulator implements World {
   }
 
   void draw(Camera camera) {
+    if (pause == false) {
+      dt = gameLoop.dt * gameLoop.renderInterpolationFactor;
+    }
+
     for (Road rd in road) {
       rd.draw(camera);
     }

@@ -86,6 +86,7 @@ class PauseState extends SimpleHtmlState {
         break;
       default:
         gameLoop.state = runningState;
+        world.pause = false;
     }
   }
 }
@@ -159,6 +160,7 @@ class RunningState extends SimpleHtmlState {
         break;
       default:
         gameLoop.state = pauseState;
+        world.pause = true;
     }
   }
 }
