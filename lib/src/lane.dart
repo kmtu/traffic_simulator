@@ -55,14 +55,15 @@ class Lane implements Backtraceable {
           // Only single lane with this direction,
           // Next to its "inside" is an opposite-direction lane
           // Draw: insdie yellow line
-          _traceInsidePath(context);
-          _strokeSingleYelloLine(context);
+          _beginPathInsideLine(context);
+          _strokeSingleYellowLine(context);
         }
       }
       else {
         // Outermost lane with another same-direction lane inside
         // Draw: inside white line
-        _traceInsidePath(context);
+//        _beginPathInsideLine(context);
+        _beginPathInsideDash(context, 1.0, 1.0);
         _strokeWhiteLine(context);
       }
     }
@@ -71,23 +72,23 @@ class Lane implements Backtraceable {
         if (road._getOppositeLane(this).isEmpty) {
           // Outermost lane next to another same-directional lane.
           // This is a one-way traffic road with multiple lanes
-          // Draw: inside white line
-          _traceInsidePath(context);
+//        _beginPathInsideLine(context);
+          _beginPathInsideDash(context, 1.0, 1.0);
           _strokeWhiteLine(context);
         }
         else {
           // Middle road with its "inside" next to an opposite-direction lane
           // Draw: inside yello line, outside white line
-          _traceInsidePath(context);
-          _strokeSingleYelloLine(context);
-          _traceOutsidePath(context);
+          _beginPathInsideLine(context);
+          _strokeSingleYellowLine(context);
+          _beginPathOutsideLine(context);
           _strokeWhiteLine(context);
         }
       }
       else {
         // God bless it's just a simple middle lane!
-        _traceInsidePath(context);
-        _traceOutsidePath(context);
+        _beginPathInsideLine(context);
+        _beginPathOutsideLine(context);
         _strokeWhiteLine(context);
       }
     }
@@ -95,37 +96,76 @@ class Lane implements Backtraceable {
     context.restore();
   }
   
-  void _traceInsidePath(CanvasRenderingContext2D context) {
+  void _traceDashAtY(CanvasRenderingContext2D context,
+                   double solidLength, double gapLength, double height) {
+    double p = 0.0;
+    context.moveTo(0, height);
+    while (p < road.length) {
+      context.lineTo(p += solidLength, height);
+      context.moveTo(p += gapLength, height);
+    }
+  }
+
+  void _traceLineAtY(CanvasRenderingContext2D context, double height) {
+    context.moveTo(0, height);
+    context.lineTo(road.length, height);
+  }
+ 
+  void _beginPathInsideLine(CanvasRenderingContext2D context) {
     context.beginPath();
     if ((direction == Road.FORWARD && road.drivingHand == Road.RHT) ||
         (direction == Road.BACKWARD && road.drivingHand == Road.LHT)) {
       // Inside is top
-      context.moveTo(0, 0);
-      context.lineTo(road.length, 0);
+      _traceLineAtY(context, 0.0);
     }
     else {
       // Inside is bottom
-      context.moveTo(0, width);      
-      context.lineTo(road.length, width);
+      _traceLineAtY(context, width);
+    }
+  }
+
+  void _beginPathInsideDash(CanvasRenderingContext2D context,
+                            double solidLength, double gapLength) {
+    context.beginPath();
+    if ((direction == Road.FORWARD && road.drivingHand == Road.RHT) ||
+        (direction == Road.BACKWARD && road.drivingHand == Road.LHT)) {
+      // Inside is top
+      _traceDashAtY(context, solidLength, gapLength, 0.0);
+    }
+    else {
+      // Inside is bottom
+      _traceDashAtY(context, solidLength, gapLength, width);
     }
   }
   
-  void _traceOutsidePath(CanvasRenderingContext2D context) {
+  void _beginPathOutsideLine(CanvasRenderingContext2D context) {
     context.beginPath();
     if ((direction == Road.FORWARD && road.drivingHand == Road.LHT) ||
         (direction == Road.BACKWARD && road.drivingHand == Road.RHT)) {
       // Outside is top
-      context.moveTo(0, 0);
-      context.lineTo(road.length, 0);
+      _traceLineAtY(context, 0.0);
     }
     else {
       // Outside is bottom
-      context.moveTo(0, width);      
-      context.lineTo(road.length, width);
+      _traceLineAtY(context, width);
     }
   }
 
-  void _strokeSingleYelloLine(CanvasRenderingContext2D context) {
+  void _beginPathOutsideDash(CanvasRenderingContext2D context, 
+                             double solidLength, double gapLength) {
+    context.beginPath();
+    if ((direction == Road.FORWARD && road.drivingHand == Road.LHT) ||
+        (direction == Road.BACKWARD && road.drivingHand == Road.RHT)) {
+      // Outside is top
+      _traceDashAtY(context, solidLength, gapLength, 0.0);
+    }
+    else {
+      // Outside is bottom
+      _traceDashAtY(context, solidLength, gapLength, width);
+    }
+  }  
+  
+  void _strokeSingleYellowLine(CanvasRenderingContext2D context) {
     context.setStrokeColorRgb(255, 255, 0);
     context.lineWidth = 0.4;
     context.stroke();
@@ -133,7 +173,7 @@ class Lane implements Backtraceable {
   
   void _strokeWhiteLine(CanvasRenderingContext2D context) {
     context.setStrokeColorRgb(200, 200, 200);
-    context.lineWidth = 0.2;
+    context.lineWidth = 0.4;
     context.stroke();
   }
   
