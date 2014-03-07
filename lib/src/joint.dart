@@ -47,8 +47,15 @@ abstract class Joint {
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.setFillColorRgb(0, 0, 0);
-      context.font = "4px arial";
-      context.fillText(label, 0, 0.4);
+      
+      // Use larger font first then scale down to workaround the
+      // minimum font size problem in Chrome
+      context.save();
+      context.scale(0.25, 0.25);
+      context.font = "16px arial";
+      context.fillText(label, 0, 0.4*4);
+      context.restore();
+      
       context.restore();
     }
   }
