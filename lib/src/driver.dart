@@ -5,8 +5,13 @@ class Driver {
   final Vehicle vehicle;
   TrafficSimulator world;
   double safeDistance;
+  double safeDistanceMin;
   Lane nextAvailableLane;
-  Driver(this.world, {this.vehicle});
+  Driver(this.world, {this.vehicle, this.safeDistanceMin}) {
+    if (safeDistanceMin == null) {
+      safeDistanceMin = world.random.nextDouble() * 2 + 0.5;
+    }
+  }
 
   void update() {
     if (nextAvailableLane == null) {
@@ -46,21 +51,17 @@ class Driver {
       }
     }
 
-    if (nextVehicle != null) {
-      safeDistance = vehicle.vel * vehicle.vel / (2 * vehicle.accMax);
-      if (distance < safeDistance && vehicle.vel > 0) {
-        vehicle.acc = -vehicle.accMax;
-      }
-      else if (distance > safeDistance) {
-        vehicle.acc = vehicle.accMax;
-      }
-      else
-      {
-        vehicle.acc = 0.0;
-      }
+    safeDistance = vehicle.vel * vehicle.vel / (2 * vehicle.accMax) + safeDistanceMin;
+
+    if (distance < safeDistance && vehicle.vel > 0) {
+      vehicle.acc = -vehicle.accMax;
     }
-    else {
+    else if (distance > safeDistance) {
       vehicle.acc = vehicle.accMax;
+    }
+    else
+    {
+      vehicle.acc = 0.0;
     }
   }
 }
