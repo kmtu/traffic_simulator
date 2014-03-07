@@ -6,23 +6,23 @@ abstract class Joint {
   Set<RoadEnd> _outwardRoadEnd =  new Set<RoadEnd>();
   String label = "";
   Color labelCircleColor;
-  
+
   Joint(String this.label) {
     labelCircleColor = new Color.random(min: 100);
   }
-  
+
   TrafficSimulator world;
-    
+
   void addRoadEnd(RoadEnd roadEnd) {
     this.roadEnd.add(roadEnd);
     updateOnRoadChange();
   }
-  
+
   void removeRoadEnd(RoadEnd end) {
     roadEnd.remove(end);
     updateOnRoadChange();
   }
-  
+
   void updateOnRoadChange() {
     _inwardRoadEnd.clear();
     _outwardRoadEnd.clear();
@@ -31,9 +31,9 @@ abstract class Joint {
       if (roadEnd.inwardLane.length > 0) _inwardRoadEnd.add(roadEnd);
     }
   }
-  
+
   void draw(Camera camera);
-  
+
   void drawLabel(Camera camera) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     for (var roadEnd in this.roadEnd) {
@@ -47,7 +47,7 @@ abstract class Joint {
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.setFillColorRgb(0, 0, 0);
-      
+
       // Use larger font first then scale down to workaround the
       // minimum font size problem in Chrome
       context.save();
@@ -55,21 +55,27 @@ abstract class Joint {
       context.font = "16px arial";
       context.fillText(label, 0, 0);
       context.restore();
-      
+
       context.restore();
     }
   }
-  
-  Lane getRandomOutwardLane() {
-    var max = _outwardRoadEnd.length;
-    if (max > 0) {
-      return _outwardRoadEnd.elementAt(world.random.nextInt(max)).getRandomOutwardLane();
+
+  Lane getRandomAvailableOutwardLane() {
+    Iterable<RoadEnd> roadEnd = getAvailableOutwardRoadEnd();
+    if (roadEnd.isNotEmpty) {
+      Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)).
+          getAvailableOutwardLane();
+      return lane.elementAt(world.random.nextInt(lane.length));
     }
     else {
       return null;
     }
   }
-  
+
+  Iterable<RoadEnd> getAvailableOutwardRoadEnd() {
+    return _outwardRoadEnd.where((r) => r.hasAvailableOutwardLane());
+  }
+
   void update();
 }
 
@@ -81,11 +87,11 @@ class SourceJoint extends Joint {
   double maxOpacity = 0.5;
   double minOpacity = 0.1;
   int maxDispatch = 10;
-  
+
   SourceJoint(String label) : super(label) {
     _opacity = maxOpacity;
   }
- 
+
   @override
   void update() {
     if (maxDispatch > 0) {
@@ -95,7 +101,6 @@ class SourceJoint extends Joint {
       else {
         accumulatedTime = 0.0;
         randomDispatch();
-        maxDispatch--;
       }
       _updateBlink();
     }
@@ -103,25 +108,28 @@ class SourceJoint extends Joint {
       _opacity = -1.0;
     }
   }
-  
+
   void _updateBlink() {
-    _opacity += opacityFreq * world.gameLoop.dt;    
+    _opacity += opacityFreq * world.gameLoop.dt;
     if (_opacity > maxOpacity) {
       _opacity = maxOpacity;
-      opacityFreq *= -1;      
+      opacityFreq *= -1;
     }
     else if (_opacity < minOpacity) {
       _opacity = minOpacity;
-      opacityFreq *= -1;      
-    }    
+      opacityFreq *= -1;
+    }
   }
-  
+
   void randomDispatch() {
-    // Randomly pick a roadEnd to add
-    var roadEnd = _outwardRoadEnd.elementAt(world.random.nextInt(_outwardRoadEnd.length));
-    roadEnd.requestAddVehicle(world.requestVehicle());
+    // Randomly pick a lane to add
+    Lane lane = getRandomAvailableOutwardLane();
+    if (lane != null) {
+      lane.addFirstVehicle(world.requestVehicle());
+      maxDispatch--;
+    }
   }
-  
+
   void draw(Camera camera) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     for (var roadEnd in this.roadEnd) {

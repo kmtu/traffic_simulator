@@ -6,7 +6,7 @@ class Lane implements Backtraceable {
   final double width;
   /// Direction of this lane, can be [Road.FORWARD] or [Road.BACKWARD]
   final int direction;
-  
+
   /// The direction of a lane is always from laneEnd[0] to laneEnd[1]
   List<RoadEnd> laneEnd;
   DoubleLinkedQueueEntry<Lane> entry;
@@ -19,7 +19,7 @@ class Lane implements Backtraceable {
       laneEnd = road.roadEnd.reversed.toList(growable: false);
     }
   }
-  
+
   void draw(Camera camera, Matrix3 transformMatrix) {
     drawLane(camera, transformMatrix);
     for (var veh in vehicle) {
@@ -32,18 +32,21 @@ class Lane implements Backtraceable {
       veh.draw(camera, tm);
     }
   }
-  
+
   void drawLane(Camera camera, Matrix3 transformMatrix) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
-    
+
     // top of this lane is aligned to x-axis
     transformContext(context, transformMatrix);
-      
+
     // draw ground color
     context.beginPath();
     context.fillStyle = "black";
     context.fillRect(0, 0, road.length, width);
+    context.setStrokeColorRgb(0, 0, 0);
+    context.lineWidth = 1 / camera.worldPixelPerMeter;
+    context.strokeRect(0, 0, road.length, width);
 
     // lanes are ordered as inner-lane first
     if (entry.nextEntry() == null) {
@@ -81,21 +84,21 @@ class Lane implements Backtraceable {
           // Draw: inside yello line, outside white line
           _beginPathInsideLine(context);
           _strokeSingleYellowLine(context);
-          _beginPathOutsideLine(context);
+          _beginPathOutsideDash(context, 1.0, 1.0);
           _strokeWhiteLine(context);
         }
       }
       else {
         // God bless it's just a simple middle lane!
-        _beginPathInsideLine(context);
-        _beginPathOutsideLine(context);
+        _beginPathInsideDash(context, 1.0, 1.0);
+        _beginPathOutsideDash(context, 1.0, 1.0);
         _strokeWhiteLine(context);
       }
     }
-    
+
     context.restore();
   }
-  
+
   void _traceDashAtY(CanvasRenderingContext2D context,
                    double solidLength, double gapLength, double height) {
     double p = 0.0;
@@ -110,7 +113,7 @@ class Lane implements Backtraceable {
     context.moveTo(0, height);
     context.lineTo(road.length, height);
   }
- 
+
   void _beginPathInsideLine(CanvasRenderingContext2D context) {
     context.beginPath();
     if ((direction == Road.FORWARD && road.drivingHand == Road.RHT) ||
@@ -137,7 +140,7 @@ class Lane implements Backtraceable {
       _traceDashAtY(context, solidLength, gapLength, width);
     }
   }
-  
+
   void _beginPathOutsideLine(CanvasRenderingContext2D context) {
     context.beginPath();
     if ((direction == Road.FORWARD && road.drivingHand == Road.LHT) ||
@@ -151,7 +154,7 @@ class Lane implements Backtraceable {
     }
   }
 
-  void _beginPathOutsideDash(CanvasRenderingContext2D context, 
+  void _beginPathOutsideDash(CanvasRenderingContext2D context,
                              double solidLength, double gapLength) {
     context.beginPath();
     if ((direction == Road.FORWARD && road.drivingHand == Road.LHT) ||
@@ -163,24 +166,24 @@ class Lane implements Backtraceable {
       // Outside is bottom
       _traceDashAtY(context, solidLength, gapLength, width);
     }
-  }  
-  
+  }
+
   void _strokeSingleYellowLine(CanvasRenderingContext2D context) {
     context.setStrokeColorRgb(255, 255, 0);
     context.lineWidth = 0.4;
     context.stroke();
   }
-  
+
   void _strokeWhiteLine(CanvasRenderingContext2D context) {
     context.setStrokeColorRgb(200, 200, 200);
     context.lineWidth = 0.4;
     context.stroke();
   }
-  
+
   void update() {
     vehicle.forEach((v) => v.update());
   }
-  
+
   bool requestAddVehicle(Vehicle vehicle) {
     // TODO: add checking condition if a vehicle can be added
     vehicle.pos = 0.0;
@@ -188,14 +191,28 @@ class Lane implements Backtraceable {
     this.vehicle.addFirst(vehicle);
     return true;
   }
-  
+
   void addFirstVehicle(Vehicle vehicle) {
     vehicle.pos = 0.0;
     vehicle.lane = this;
     this.vehicle.addFirst(vehicle);
   }
-  
+
   Vehicle removeLastVehicle() {
     return this.vehicle.removeLast();
+  }
+
+  bool availableForAddVehicle() {
+    if (vehicle.isEmpty) {
+      return true;
+    }
+    else {
+      if (vehicle.first.pos - vehicle.first.length > 0) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
   }
 }

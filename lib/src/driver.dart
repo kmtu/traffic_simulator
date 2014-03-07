@@ -10,7 +10,7 @@ class Driver {
   
   void update() {
     if (nextLane == null) {
-      nextLane = vehicle.lane.laneEnd.last.joint.getRandomOutwardLane();
+      nextLane = vehicle.lane.laneEnd.last.joint.getRandomAvailableOutwardLane();
     }
     
     DoubleLinkedQueueEntry<Vehicle> nextVehicleEntry = vehicle.entry.nextEntry();
