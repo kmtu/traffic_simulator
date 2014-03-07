@@ -89,7 +89,7 @@ class SourceJoint extends Joint {
       _updateBlink();
     }
     else {
-      _opacity = 0.0;
+      _opacity = -1.0;
     }
   }
   
@@ -118,8 +118,10 @@ class SourceJoint extends Joint {
       transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
       context.beginPath();
       context.arc(0, 0, 5, 0, 2*PI);
-      context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * camera.dt);
-      context.fill();
+      if (_opacity >= 0) {
+        context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * camera.dt);
+        context.fill();
+      }
       context.restore();
     }
     drawLabel(camera);
