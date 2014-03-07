@@ -10,7 +10,7 @@ class Vehicle implements Backtraceable {
   Driver driver;
   double width;
   double length;
-  DoubleLinkedQueueEntry entry; 
+  DoubleLinkedQueueEntry entry;
   TrafficSimulator world;
   Color color;
 
@@ -20,19 +20,21 @@ class Vehicle implements Backtraceable {
       this.driver = new Driver(world, vehicle: this);
     }
     if (color == null) {
-      color = new Color(world.random.nextInt(2)*255, world.random.nextInt(2)*255,
+      do {
+        color = new Color(world.random.nextInt(2)*255, world.random.nextInt(2)*255,
           world.random.nextInt(2)*255);
+      } while (color.r == 0 && color.g == 0 && color.b == 0);
     }
   }
-    
+
   void draw(Camera camera, Matrix3 transformMatrix) {
     // the lane center is x-aixs, lane begins from origin to the positive x
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
-    
+
     transformContext(context, preTranslate(transformMatrix, pos + vel * camera.dt, 0.0));
     // draw as if the reference point of the vehicle is the origin
-    
+
     context.setFillColorRgb(color.r, color.g, color.b);
     context.fillRect(-length, -width / 2, length, width);
     context.restore();
