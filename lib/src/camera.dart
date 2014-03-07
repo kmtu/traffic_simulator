@@ -143,3 +143,48 @@ class Camera {
     }
   }
 }
+
+class Color {
+  int r, g, b;
+  num a = 1;
+  static Random _rand = new Random();
+  
+  Color(this.r, this.g, this.b, [this.a]);
+  
+  Color.red() {
+    r = 255;
+    g = 0;
+    b = 0;    
+  }
+  
+  /**
+   * [min] and [max] should be integers 0-255
+   * [max] should be greater than [min]
+   * 
+   * No check is performed for efficiency
+   */
+  Color.random({int min: 0, int max: 255}) {
+    r = _rand.nextInt(max-min+1) + min;
+    g = _rand.nextInt(max-min+1) + min;
+    b = _rand.nextInt(max-min+1) + min;
+  }
+    
+  Color clone() {
+    return new Color(r, g, b, a);
+  }
+  
+  @override
+  bool operator ==(Color other) {
+    if (r == other.r && g == other.g && b == other.b && a == other.a) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  
+  @override
+  int get hashCode {
+    return (a+1) * 10000000 + (r+1) * 1000000 + (g+1) * 1000 + b;
+  }
+}
