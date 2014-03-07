@@ -53,7 +53,7 @@ abstract class Joint {
       context.save();
       context.scale(0.25, 0.25);
       context.font = "16px arial";
-      context.fillText(label, 0, 0.4*4);
+      context.fillText(label, 0, 0);
       context.restore();
       
       context.restore();
