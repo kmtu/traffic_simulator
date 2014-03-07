@@ -12,11 +12,16 @@ class Vehicle implements Backtraceable {
   double length;
   DoubleLinkedQueueEntry entry; 
   TrafficSimulator world;
+  Color color;
 
   Vehicle(this.world, {this.width: 1.6, this.length: 3.5, this.accMax: 5.0,
-                       this.velMax: 20.0, this.driver}) {
+                       this.velMax: 20.0, this.color, this.driver}) {
     if (driver == null) {
       this.driver = new Driver(world, vehicle: this);
+    }
+    if (color == null) {
+      color = new Color(world.random.nextInt(2)*255, world.random.nextInt(2)*255,
+          world.random.nextInt(2)*255);
     }
   }
     
@@ -28,7 +33,7 @@ class Vehicle implements Backtraceable {
     transformContext(context, preTranslate(transformMatrix, pos + vel * camera.dt, 0.0));
     // draw as if the reference point of the vehicle is the origin
     
-    context.fillStyle = "blue";
+    context.setFillColorRgb(color.r, color.g, color.b);
     context.fillRect(-length, -width / 2, length, width);
     context.restore();
   }
