@@ -14,7 +14,7 @@ class Camera {
   double zoomFactor = 1.0;
   double get width => height * ratio;
   double dt;
-  
+
   Camera(this.film, this.world, {this.worldPixelPerMeter: 10.0})  {
     worldCanvas= makeCanvas();
     ratio = film.width / film.height;
@@ -26,33 +26,33 @@ class Camera {
       height = world.dimension.x / ratio;
     }
   }
-  
+
   void shoot() {
     dt = world.gameLoop.dt * world.gameLoop.renderInterpolationFactor;
     worldCanvas.context2D.clearRect(pos.x, pos.y, width, height);
     world.draw(this);
     drawWorldBoundary();
     film.context2D.clearRect(0, 0, film.width, film.height);
-    film.context2D.drawImageScaledFromSource(worldCanvas, 
+    film.context2D.drawImageScaledFromSource(worldCanvas,
       (pos.x + vel.x * dt) * worldPixelPerMeter,
       (pos.y + vel.y * dt) * worldPixelPerMeter,
       width * worldPixelPerMeter,
       height * worldPixelPerMeter,
       0, 0, film.width, film.height);
   }
-  
+
   void drawWorldBoundary() {
     CanvasRenderingContext2D context = worldCanvas.context2D;
     context.save();
-    
+
     context.beginPath();
     context.strokeStyle = "red";
     context.lineWidth = 5;
     context.strokeRect(0, 0, world.dimension.x, world.dimension.y);
-    
+
     context.restore();
   }
-  
+
   CanvasElement makeCanvas() {
     CanvasElement canvas = new CanvasElement()
            .. width = (world.dimension.x * worldPixelPerMeter).toInt()
@@ -60,7 +60,7 @@ class Camera {
     canvas.context2D.scale(worldPixelPerMeter, worldPixelPerMeter);
     return canvas;
   }
-  
+
   void zoom(double factor) {
     // prevent camera from zooming out of the world canvas
     double zoomFactorTest = zoomFactor * factor;
@@ -74,10 +74,10 @@ class Camera {
       pos.x += dy * ratio;
     }
   }
-  
+
   void zoomIn(double factor) => zoom(1.0 / factor);
   void zoomOut(double factor) => zoom(factor);
-  
+
   void moveRight() {
     if (vel.x >= maxSpeed) {
       vel.x = maxSpeed;
@@ -86,7 +86,7 @@ class Camera {
       vel.x += acc;
     }
   }
-  
+
   void moveLeft() {
     if (vel.x < -maxSpeed) {
       vel.x = -maxSpeed;
@@ -95,7 +95,7 @@ class Camera {
       vel.x -= acc;
     }
   }
-  
+
   void moveUp() {
     if (vel.y < -maxSpeed) {
       vel.y = -maxSpeed;
@@ -104,7 +104,7 @@ class Camera {
       vel.y -= acc;
     }
   }
-  
+
   void moveDown() {
     if (vel.y > maxSpeed) {
       vel.y = maxSpeed;
@@ -113,15 +113,15 @@ class Camera {
       vel.y += acc;
     }
   }
-  
+
   void stopMove() {
     vel.setZero();
   }
-  
+
   void update() {
     double dt = world.gameLoop.dt;
     pos += vel*dt;
-    
+
     double maxWidth_ = world.dimension.x - width;
     double maxHeight = world.dimension.y - height;
 
@@ -148,19 +148,25 @@ class Color {
   int r, g, b;
   num a = 1;
   static Random _rand = new Random();
-  
+
   Color(this.r, this.g, this.b, [this.a]);
-  
+
   Color.red() {
     r = 255;
     g = 0;
-    b = 0;    
+    b = 0;
   }
-  
+
+  Color.black() {
+    r = 0;
+    g = 0;
+    b = 0;
+  }
+
   /**
    * [min] and [max] should be integers 0-255
    * [max] should be greater than [min]
-   * 
+   *
    * No check is performed for efficiency
    */
   Color.random({int min: 0, int max: 255}) {
@@ -168,11 +174,11 @@ class Color {
     g = _rand.nextInt(max-min+1) + min;
     b = _rand.nextInt(max-min+1) + min;
   }
-    
+
   Color clone() {
     return new Color(r, g, b, a);
   }
-  
+
   @override
   bool operator ==(Color other) {
     if (r == other.r && g == other.g && b == other.b && a == other.a) {
@@ -182,7 +188,7 @@ class Color {
       return false;
     }
   }
-  
+
   @override
   int get hashCode {
     return (a+1) * 10000000 + (r+1) * 1000000 + (g+1) * 1000 + b;

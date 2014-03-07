@@ -66,7 +66,7 @@ class Lane implements Backtraceable {
         // Outermost lane with another same-direction lane inside
         // Draw: inside white line
 //        _beginPathInsideLine(context);
-        _beginPathInsideDash(context, 1.0, 1.0);
+        _beginPathInsideDash(context, 2.0, 1.0);
         _strokeWhiteLine(context);
       }
     }
@@ -76,7 +76,7 @@ class Lane implements Backtraceable {
           // Outermost lane next to another same-directional lane.
           // This is a one-way traffic road with multiple lanes
 //        _beginPathInsideLine(context);
-          _beginPathInsideDash(context, 1.0, 1.0);
+          _beginPathInsideDash(context, 2.0, 1.0);
           _strokeWhiteLine(context);
         }
         else {
@@ -84,14 +84,14 @@ class Lane implements Backtraceable {
           // Draw: inside yello line, outside white line
           _beginPathInsideLine(context);
           _strokeSingleYellowLine(context);
-          _beginPathOutsideDash(context, 1.0, 1.0);
+          _beginPathOutsideDash(context, 2.0, 1.0);
           _strokeWhiteLine(context);
         }
       }
       else {
         // God bless it's just a simple middle lane!
-        _beginPathInsideDash(context, 1.0, 1.0);
-        _beginPathOutsideDash(context, 1.0, 1.0);
+        _beginPathInsideDash(context, 2.0, 1.0);
+        _beginPathOutsideDash(context, 2.0, 1.0);
         _strokeWhiteLine(context);
       }
     }

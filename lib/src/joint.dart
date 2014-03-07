@@ -42,7 +42,7 @@ abstract class Joint {
       context.beginPath();
       context.arc(0, 0, roadEnd.road.width / 2, 0, 2*PI);
       context.setFillColorRgb(labelCircleColor.r, labelCircleColor.g,
-          labelCircleColor.b);
+          labelCircleColor.b, 0.9);
       context.fill();
       context.textAlign = "center";
       context.textBaseline = "middle";
@@ -86,7 +86,7 @@ class SourceJoint extends Joint {
   double opacityFreq = 0.5;
   double maxOpacity = 0.5;
   double minOpacity = 0.1;
-  int maxDispatch = 10;
+  int maxDispatch = 20;
 
   SourceJoint(String label) : super(label) {
     _opacity = maxOpacity;
