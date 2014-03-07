@@ -14,7 +14,7 @@ build/
 
 pubspec.lock
 
-trafficsim.sublime-workspace
-trafficsim.sublime-project
+*.sublime-workspace
+*.sublime-project
 
 .swp
