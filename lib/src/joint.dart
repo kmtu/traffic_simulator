@@ -4,9 +4,12 @@ abstract class Joint {
   Set<RoadEnd> roadEnd = new Set<RoadEnd>();
   Set<RoadEnd> _inwardRoadEnd =  new Set<RoadEnd>();
   Set<RoadEnd> _outwardRoadEnd =  new Set<RoadEnd>();
-  String label = ""; 
+  String label = "";
+  Color labelCircleColor;
   
-  Joint(String this.label);
+  Joint(String this.label) {
+    labelCircleColor = new Color.random(min: 100);
+  }
   
   TrafficSimulator world;
     
@@ -37,8 +40,9 @@ abstract class Joint {
       context.save();
       transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
       context.beginPath();
-      context.arc(0, 0, 3, 0, 2*PI);
-      context.setFillColorRgb(0, 200, 0);
+      context.arc(0, 0, roadEnd.road.width / 2, 0, 2*PI);
+      context.setFillColorRgb(labelCircleColor.r, labelCircleColor.g,
+          labelCircleColor.b);
       context.fill();
       context.textAlign = "center";
       context.textBaseline = "middle";
@@ -117,7 +121,7 @@ class SourceJoint extends Joint {
       context.save();
       transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
       context.beginPath();
-      context.arc(0, 0, 5, 0, 2*PI);
+      context.arc(0, 0, roadEnd.road.width / 2 + 2, 0, 2*PI);
       if (_opacity >= 0) {
         context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * camera.dt);
         context.fill();
