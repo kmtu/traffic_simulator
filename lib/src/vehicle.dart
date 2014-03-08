@@ -41,7 +41,7 @@ class Vehicle implements Backtraceable {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
     context.save();
 
-    transformContext(context, preTranslate(transformMatrix, pos + vel * world.dt, 0.0));
+    transformContext(context, preTranslate(transformMatrix, pos + vel * world.dtRender, 0.0));
     // draw as if the reference point of the vehicle is the origin
 
     context.setFillColorRgb(color.r, color.g, color.b);
@@ -50,7 +50,7 @@ class Vehicle implements Backtraceable {
   }
 
   void update() {
-    double dt = lane.road.world.gameLoop.dt;
+    double dt = world.dtUpdate;
     vel += acc*dt;
     if (vel > velMax) {
       vel = velMax;

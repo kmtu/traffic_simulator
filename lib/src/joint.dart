@@ -151,7 +151,7 @@ class SourceJoint extends Joint {
       context.beginPath();
       context.arc(0, 0, roadEnd.road.width / 2 + 2, 0, 2*PI);
       if (_opacity >= 0) {
-        context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * world.dt);
+        context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * world.dtRender);
         context.fill();
       }
       context.restore();
