@@ -15,7 +15,8 @@ class Driver {
 
   void update() {
     if (nextAvailableLane == null) {
-      nextAvailableLane = vehicle.lane.laneEnd.last.joint.getRandomAvailableOutwardLane();
+      nextAvailableLane = vehicle.lane.laneEnd.last.joint.
+          getRandomAvailableOutwardLane(vehicle: vehicle, exceptRoadEnd: [vehicle.lane.laneEnd.last]);
     }
     double distance;
     Vehicle nextVehicle;
