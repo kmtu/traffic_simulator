@@ -10,6 +10,7 @@ class Lane implements Backtraceable {
   /// The direction of a lane is always from laneEnd[0] to laneEnd[1]
   List<RoadEnd> laneEnd;
   DoubleLinkedQueueEntry<Lane> entry;
+  bool locked = false;
 
   Lane(this.road, this.direction, {this.width: 3.5}) {
     if (direction == Road.FORWARD) {
@@ -204,6 +205,10 @@ class Lane implements Backtraceable {
   }
 
   bool availableForAddVehicle({Vehicle vehicle}) {
+    if (locked) {
+      return false;
+    }
+
     if (this.vehicle.isEmpty) {
       return true;
     }

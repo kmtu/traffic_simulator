@@ -14,45 +14,49 @@ class Driver {
   }
 
   void update() {
-    if (nextAvailableLane == null) {
-      nextAvailableLane = vehicle.lane.laneEnd.last.joint.
-          getRandomAvailableOutwardLane(vehicle: vehicle, exceptRoadEnd: [vehicle.lane.laneEnd.last]);
-    }
+    safeDistance = vehicle.vel * vehicle.vel / (2 * vehicle.accMax) + safeDistanceMin;
     double distance;
     Vehicle nextVehicle;
-    if (nextAvailableLane == null) {
-      // unable to find nextLane, maybe a dead end or every lane is jammed
-      distance = vehicle.lane.road.length - vehicle.pos;
+    DoubleLinkedQueueEntry<Vehicle> nextVehicleEntry = vehicle.entry.nextEntry();
+    if (nextVehicleEntry != null) {
+      // This is not a leading vehicle
+      nextVehicle = nextVehicleEntry.element;
+      distance = nextVehicle.pos - nextVehicle.length - vehicle.pos;
     }
     else {
-      DoubleLinkedQueueEntry<Vehicle> nextVehicleEntry = vehicle.entry.nextEntry();
-      if (nextVehicleEntry != null) {
-        nextVehicle = nextVehicleEntry.element;
-        distance = nextVehicle.pos - nextVehicle.length - vehicle.pos;
-      }
-      else {
-        // no vehicle ahead in this lane
-        if (nextAvailableLane.vehicle.isNotEmpty) {
-          nextVehicle = nextAvailableLane.vehicle.first;
-          distance = nextVehicle.pos - nextVehicle.length +
-              vehicle.lane.road.length - vehicle.pos;
+      // This is a leading vehicle
+      double distanceToRoadEnd = vehicle.lane.road.length - vehicle.pos;
+      if (distanceToRoadEnd < safeDistance) {
+        // The road end is close, watch out!
+        if (nextAvailableLane == null) {
+          nextAvailableLane = vehicle.lane.laneEnd.last.joint.
+              getRandomAvailableOutwardLane(vehicle: vehicle,
+                  exceptRoadEnd: [vehicle.lane.laneEnd.last]);
+        }
+
+        if (nextAvailableLane == null) {
+          // Unable to find an availabe lane, must prepare to stop before the road end
+          distance = distanceToRoadEnd;
         }
         else {
-          distance = vehicle.lane.road.length + nextAvailableLane.road.length;
+          // Find an available lane
+          nextAvailableLane.locked = true;
+          if (nextAvailableLane.vehicle.isNotEmpty) {
+            // There is vehicle on the next lane
+            nextVehicle = nextAvailableLane.vehicle.first;
+            distance = nextVehicle.pos - nextVehicle.length + distanceToRoadEnd;
+          }
+          else {
+            // No vehicle ahead on the next lane!
+            distance = distanceToRoadEnd + nextAvailableLane.road.length;
+          }
         }
       }
-
-      if (vehicle.pos - vehicle.length > vehicle.lane.road.length) {
-        if (vehicle.lane.removeLastVehicle() != this.vehicle) {
-          throw new StateError("The last removed vehicle must be the one who "
-                               "goes over the road end first.");
-        }
-        nextAvailableLane.addFirstVehicle(vehicle);
-        nextAvailableLane = null;
+      else {
+        // The road end is still far away, just drive!!
+        distance = distanceToRoadEnd;
       }
     }
-
-    safeDistance = vehicle.vel * vehicle.vel / (2 * vehicle.accMax) + safeDistanceMin;
 
     if (distance < safeDistance && vehicle.vel > 0) {
       vehicle.acc = -vehicle.accMax;
@@ -63,6 +67,22 @@ class Driver {
     else
     {
       vehicle.acc = 0.0;
+    }
+
+    if (vehicle.pos - vehicle.length > vehicle.lane.road.length) {
+      if (vehicle.lane.removeLastVehicle() != this.vehicle) {
+        throw new StateError("The last removed vehicle must be the one who "
+                             "goes over the road end first.");
+      }
+      if (nextAvailableLane == null) {
+        throw new StateError("Don't break the traffic rule! "
+            "There is no available lane but you still cross the road!");
+      }
+      else {
+        nextAvailableLane.locked = false;
+        nextAvailableLane.addFirstVehicle(vehicle);
+        nextAvailableLane = null;
+      }
     }
   }
 }
