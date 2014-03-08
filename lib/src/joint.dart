@@ -1,6 +1,6 @@
 part of traffic_simulator;
 
-abstract class Joint {
+class Joint {
   Set<RoadEnd> roadEnd = new Set<RoadEnd>();
   Set<RoadEnd> _inwardRoadEnd =  new Set<RoadEnd>();
   Set<RoadEnd> _outwardRoadEnd =  new Set<RoadEnd>();
@@ -32,7 +32,9 @@ abstract class Joint {
     }
   }
 
-  void draw(Camera camera);
+  void draw(Camera camera) {
+    drawLabel(camera);
+  }
 
   void drawLabel(Camera camera) {
     CanvasRenderingContext2D context = camera.worldCanvas.context2D;
@@ -89,7 +91,8 @@ abstract class Joint {
     }
   }
 
-  void update();
+  void update() {
+  }
 }
 
 class SourceJoint extends Joint {
@@ -109,7 +112,7 @@ class SourceJoint extends Joint {
   void update() {
     if (maxDispatch > 0) {
       if (accumulatedTime < spawnInterval) {
-        accumulatedTime += world.gameLoop.dt;
+        accumulatedTime += world.dtUpdate;
       }
       else {
         accumulatedTime = 0.0;
@@ -123,7 +126,7 @@ class SourceJoint extends Joint {
   }
 
   void _updateBlink() {
-    _opacity += opacityFreq * world.gameLoop.dt;
+    _opacity += opacityFreq * world.dtUpdate;
     if (_opacity > maxOpacity) {
       _opacity = maxOpacity;
       opacityFreq *= -1;
@@ -135,10 +138,11 @@ class SourceJoint extends Joint {
   }
 
   void randomDispatch() {
+    var vehicle = world.requestVehicle();
     // Randomly pick a lane to add
-    Lane lane = getRandomAvailableOutwardLane();
+    Lane lane = getRandomAvailableOutwardLane(vehicle: vehicle);
     if (lane != null) {
-      lane.addFirstVehicle(world.requestVehicle());
+      lane.addFirstVehicle(vehicle);
       maxDispatch--;
     }
   }
