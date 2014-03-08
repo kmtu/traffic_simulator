@@ -23,16 +23,16 @@ void main() {
 
   Vector2 worldSize = new Vector2(120.0, 90.0); // in meters
   world = new TrafficSimulator(worldSize, gameLoop);
-  camera = new Camera(film, world);
+  camera = new Camera(film, world, worldPixelPerMeter: 5.0);
 
-  List<Joint> joint = [new SourceJoint("A"), new SourceJoint("B"), new SourceJoint("C")];
+  List<Joint> joint = [new SourceJoint("A"), new Joint("B"), new Joint("C")];
   List<Road> road
       = [new Road([new Vector2(20.0, 70.0), new Vector2(100.0, 70.0)],
-            numForwardLane: 2, numBackwardLane: 1),
+            numForwardLane: 2, numBackwardLane: 2),
          new Road([new Vector2(105.0, 65.0), new Vector2(65.0, 20.0)],
-            numForwardLane: 2, numBackwardLane: 1),
+            numForwardLane: 2, numBackwardLane: 2),
          new Road([new Vector2(60.0, 20.0), new Vector2(15.0, 55.0)],
-            numForwardLane: 2, numBackwardLane: 1)
+            numForwardLane: 2, numBackwardLane: 2)
         ];
   road[0].attachJoint(joint[0], Road.BEGIN_SIDE);
   road[0].attachJoint(joint[1], Road.END_SIDE);
