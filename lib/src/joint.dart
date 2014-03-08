@@ -60,20 +60,33 @@ abstract class Joint {
     }
   }
 
-  Lane getRandomAvailableOutwardLane() {
-    Iterable<RoadEnd> roadEnd = getAvailableOutwardRoadEnd();
+  Lane getRandomAvailableOutwardLane({Vehicle vehicle, List<RoadEnd> exceptRoadEnd,
+                                      List<Lane> exceptLane}) {
+    Iterable<RoadEnd> roadEnd = getAvailableOutwardRoadEnd(vehicle: vehicle,
+        exceptRoadEnd: exceptRoadEnd);
     if (roadEnd.isNotEmpty) {
       Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)).
-          getAvailableOutwardLane();
-      return lane.elementAt(world.random.nextInt(lane.length));
+            getAvailableOutwardLane(exceptLane: exceptLane);
+      if (lane.isNotEmpty) {
+        return lane.elementAt(world.random.nextInt(lane.length));
+      }
+      else {
+        return null;
+      }
     }
     else {
       return null;
     }
   }
 
-  Iterable<RoadEnd> getAvailableOutwardRoadEnd() {
-    return _outwardRoadEnd.where((r) => r.hasAvailableOutwardLane());
+  Iterable<RoadEnd> getAvailableOutwardRoadEnd({Vehicle vehicle, List<RoadEnd> exceptRoadEnd}) {
+    if (exceptRoadEnd == null) {
+      return _outwardRoadEnd.where((r) => r.hasAvailableOutwardLane(vehicle: vehicle));
+    }
+    else {
+      return _outwardRoadEnd.where((r) =>
+          (!exceptRoadEnd.contains(r)) && r.hasAvailableOutwardLane(vehicle: vehicle));
+    }
   }
 
   void update();

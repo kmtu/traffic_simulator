@@ -318,11 +318,16 @@ class RoadEnd {
     }
   }
 
-  Iterable<Lane> getAvailableOutwardLane() {
-    return outwardLane.where((l) => l.availableForAddVehicle());
+  Iterable<Lane> getAvailableOutwardLane({List<Lane> exceptLane}) {
+    if (exceptLane == null) {
+      return outwardLane.where((l) => l.availableForAddVehicle());
+   }
+    else {
+      return outwardLane.where((l) => (!exceptLane.contains(l)) && l.availableForAddVehicle());
+    }
   }
 
-  bool hasAvailableOutwardLane() {
-    return outwardLane.any((l) => l.availableForAddVehicle());
+  bool hasAvailableOutwardLane({Vehicle vehicle}) {
+    return outwardLane.any((l) => l.availableForAddVehicle(vehicle: vehicle));
   }
 }

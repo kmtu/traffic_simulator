@@ -202,12 +202,17 @@ class Lane implements Backtraceable {
     return this.vehicle.removeLast();
   }
 
-  bool availableForAddVehicle() {
-    if (vehicle.isEmpty) {
+  bool availableForAddVehicle({Vehicle vehicle}) {
+    if (this.vehicle.isEmpty) {
       return true;
     }
     else {
-      if (vehicle.first.pos - vehicle.first.length > 0) {
+      double space = this.vehicle.first.pos - this.vehicle.first.length;
+      if (vehicle != null) {
+        space -= vehicle.length;
+      }
+
+      if (space > 0) {
         return true;
       }
       else {
