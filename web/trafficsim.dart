@@ -7,8 +7,8 @@ GameLoopHtml gameLoop;
 TrafficSimulator world;
 Camera camera;
 
-const int WIDTH = 800;
-const int HEIGHT = 600;
+const int WIDTH = 960;
+const int HEIGHT = 720;
 DivElement fpsDiv = querySelector("#fps");
 
 FPS fps = new FPS(fpsDiv);
@@ -23,9 +23,9 @@ void main() {
 
   Vector2 worldSize = new Vector2(120.0, 90.0); // in meters
   world = new TrafficSimulator(worldSize, gameLoop);
-  camera = new Camera(film, world, worldPixelPerMeter: 5.0);
+  camera = new Camera(film, world, worldPixelPerMeter: 10.0);
 
-  List<Joint> joint = [new SourceJoint("A"), new Joint("B"), new Joint("C")];
+  List<Joint> joint = [new SourceJoint("A"), new SourceJoint("B"), new SourceJoint("C")];
   List<Road> road
       = [new Road([new Vector2(20.0, 70.0), new Vector2(100.0, 70.0)],
             numForwardLane: 2, numBackwardLane: 2),
