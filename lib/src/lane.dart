@@ -30,7 +30,7 @@ class Lane implements Backtraceable {
         // before that, swap the begin and end of the lane
         tm = tm * postTranslate(makeInvertXMatrix3(), road.length, 0.0);
       }
-      veh.draw(camera, tm);
+      veh.draw(camera, tm, this);
     }
   }
 
@@ -186,17 +186,17 @@ class Lane implements Backtraceable {
     vehicle.forEach((v) => v.update());
   }
 
-  bool requestAddVehicle(Vehicle vehicle) {
-    // TODO: add checking condition if a vehicle can be added
-    vehicle.pos = 0.0;
-    vehicle.lane = this;
-    this.vehicle.addFirst(vehicle);
-    return true;
-  }
-
-  void addFirstVehicle(Vehicle vehicle) {
-    vehicle.pos = 0.0;
-    vehicle.lane = this;
+  void addFirstVehicle(Vehicle vehicle, {double position}) {
+    if (position == null) {
+      position = 0.0;
+    }
+    else {
+      if (this.vehicle.isNotEmpty && (position > this.vehicle.first.posOnLane[this])) {
+        throw new ArgumentError("The vehicle to addFirst must be added to the most "
+            "front end side of a lane");
+      }
+    }
+    vehicle.addLaneOnPosition(this, position);
     this.vehicle.addFirst(vehicle);
   }
 
@@ -205,6 +205,7 @@ class Lane implements Backtraceable {
   }
 
   bool availableForAddVehicle({Vehicle vehicle}) {
+    // TODO: modify for multilane vehicle
     if (queue.isNotEmpty && queue.first != vehicle) {
       return false;
     }
@@ -213,7 +214,7 @@ class Lane implements Backtraceable {
       return true;
     }
     else {
-      double space = this.vehicle.first.pos - this.vehicle.first.length;
+      double space = this.vehicle.first.posOnLane[this] - this.vehicle.first.length;
       if (vehicle != null) {
         space -= vehicle.length;
       }
