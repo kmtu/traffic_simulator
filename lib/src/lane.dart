@@ -1,7 +1,7 @@
 part of traffic_simulator;
 
 class Lane implements Backtraceable {
-  BacktraceReversibleDBLQ<Vehicle> vehicle = new BacktraceReversibleDBLQ<Vehicle>();
+  DoubleLinkedQueue<Vehicle> vehicle = new DoubleLinkedQueue<Vehicle>();
   Road road;
   final double width;
   /// Direction of this lane, can be [Road.FORWARD] or [Road.BACKWARD]
@@ -196,12 +196,16 @@ class Lane implements Backtraceable {
             "front end side of a lane");
       }
     }
-    vehicle.addLaneOnPosition(this, position);
     this.vehicle.addFirst(vehicle);
+    vehicle.posOnLane[this] = position;
+    vehicle.entryOnLane[this] = this.vehicle.firstEntry();
   }
 
   Vehicle removeLastVehicle() {
-    return this.vehicle.removeLast();
+    var lastVehicle = this.vehicle.removeLast();
+    lastVehicle.posOnLane.remove(this);
+    lastVehicle.entryOnLane.remove(this);
+    return lastVehicle;
   }
 
   bool availableForAddVehicle({Vehicle vehicle}) {

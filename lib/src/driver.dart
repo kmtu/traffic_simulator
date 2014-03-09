@@ -17,7 +17,10 @@ class Driver {
   void update() {
     safeDistance = vehicle.vel * vehicle.vel / (2 * vehicle.accMax) + safeDistanceMin;
     double distance;
-    Vehicle nextVehicle;
+
+    vehicle.entryOnLane.forEach((lane, vehicleEntry) {
+      Vehicle nextVehicle;
+
     DoubleLinkedQueueEntry<Vehicle> nextVehicleEntry = vehicle.entry.nextEntry();
     if (nextVehicleEntry != null) {
       // This is not a leading vehicle

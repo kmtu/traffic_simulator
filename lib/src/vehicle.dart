@@ -1,16 +1,18 @@
 part of traffic_simulator;
 
-class Vehicle implements Backtraceable {
+class Vehicle {
   double vel = 10.0;
   double acc = 0.0;
   double accMax;
   double velMax;
   /// Key = occupied lane, Value = position on that lane
-  final Map<Lane, double> posOnLane =  new Map<Lane, double>();
+  final Map<Lane, double> posOnLane = new Map<Lane, double>();
+  final Map<Lane, DoubleLinkedQueueEntry> entryOnLane =
+      new Map<Lane, DoubleLinkedQueueEntry>();
   Driver driver;
   double width;
   double length;
-  DoubleLinkedQueueEntry entry;
+
   TrafficSimulator world;
   Color color;
 
@@ -49,10 +51,6 @@ class Vehicle implements Backtraceable {
     context.restore();
   }
 
-  void addLaneOnPosition(Lane lane, double position) {
-    this.posOnLane[lane] = position;
-  }
-
   void update() {
     double dt = world.dtUpdate;
     vel += acc*dt;
@@ -62,4 +60,6 @@ class Vehicle implements Backtraceable {
     this.posOnLane.forEach((lane, pos) => posOnLane[lane] += vel * dt);
     driver.update();
   }
+
+
 }
