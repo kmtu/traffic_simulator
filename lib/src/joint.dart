@@ -124,6 +124,11 @@ class Joint {
 
   void update() {
   }
+
+  double getDistanceBetweenLane(Lane l1, Lane l2) {
+    // TODO
+    return 0.0;
+  }
 }
 
 class SourceJoint extends Joint {
