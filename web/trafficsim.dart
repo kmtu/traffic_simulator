@@ -25,21 +25,30 @@ void main() {
   world = new TrafficSimulator(worldSize, gameLoop);
   camera = new Camera(film, world, worldPixelPerMeter: 10.0);
 
-  List<Joint> joint = [new SourceJoint("A"), new SourceJoint("B"), new SourceJoint("C")];
+  List<Joint> joint = [new SourceJoint("0"), new Joint("1"),
+                       new Joint("2"), new Joint("3")];
   List<Road> road
-      = [new Road([new Vector2(20.0, 70.0), new Vector2(100.0, 70.0)],
-            numForwardLane: 2, numBackwardLane: 2),
+      = [new Road([new Vector2(20.0, 70.0), new Vector2(55.0, 70.0)],
+            numForwardLane: 1, numBackwardLane: 0),
+         new Road([new Vector2(60.0, 70.0), new Vector2(105.0, 70.0)],
+            numForwardLane: 1, numBackwardLane: 0),
          new Road([new Vector2(105.0, 65.0), new Vector2(65.0, 20.0)],
-            numForwardLane: 2, numBackwardLane: 2),
-         new Road([new Vector2(60.0, 20.0), new Vector2(15.0, 55.0)],
-            numForwardLane: 2, numBackwardLane: 2)
+            numForwardLane: 1, numBackwardLane: 0),
+         new Road([new Vector2(60.0, 20.0), new Vector2(20.0, 65.0)],
+            numForwardLane: 1, numBackwardLane: 0),
+         new Road([new Vector2(62.5, 25.0), new Vector2(57.5, 65.0)],
+         numForwardLane: 1, numBackwardLane: 0)
         ];
   road[0].attachJoint(joint[0], Road.BEGIN_SIDE);
   road[0].attachJoint(joint[1], Road.END_SIDE);
   road[1].attachJoint(joint[1], Road.BEGIN_SIDE);
   road[1].attachJoint(joint[2], Road.END_SIDE);
   road[2].attachJoint(joint[2], Road.BEGIN_SIDE);
-  road[2].attachJoint(joint[0], Road.END_SIDE);
+  road[2].attachJoint(joint[3], Road.END_SIDE);
+  road[3].attachJoint(joint[3], Road.BEGIN_SIDE);
+  road[3].attachJoint(joint[0], Road.END_SIDE);
+  road[4].attachJoint(joint[3], Road.BEGIN_SIDE);
+  road[4].attachJoint(joint[1], Road.END_SIDE);
 
   world.addRoad(road);
   gameLoop.state = runningState;
