@@ -63,12 +63,12 @@ class Joint {
   }
 
   Lane getRandomAvailableOutwardLane({Vehicle vehicle, List<RoadEnd> exceptRoadEnd,
-                                      List<Lane> exceptLane}) {
+                                      List<Lane> excludeLane}) {
     Iterable<RoadEnd> roadEnd = getAvailableOutwardRoadEnd(vehicle: vehicle,
-        exceptRoadEnd: exceptRoadEnd);
+        excludeRoadEnd: exceptRoadEnd);
     if (roadEnd.isNotEmpty) {
       Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)).
-            getAvailableOutwardLane(exceptLane: exceptLane);
+            getAvailableOutwardLane(vehicle: vehicle, excludeLane: excludeLane);
       if (lane.isNotEmpty) {
         return lane.elementAt(world.random.nextInt(lane.length));
       }
@@ -81,13 +81,35 @@ class Joint {
     }
   }
 
-  Iterable<RoadEnd> getAvailableOutwardRoadEnd({Vehicle vehicle, List<RoadEnd> exceptRoadEnd}) {
-    if (exceptRoadEnd == null) {
+  Lane getRandomLeastQueueOutwardLane({Iterable<RoadEnd> excludeRoadEnd,
+                                       Iterable<Lane> excludeLane}) {
+    if (this._outwardRoadEnd.isNotEmpty) {
+      Iterable roadEnd = _outwardRoadEnd;
+      if (excludeRoadEnd != null) {
+        roadEnd = roadEnd.where((r) => !excludeRoadEnd.contains(r));
+      }
+      Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)).
+            getLeastQueueOutwardLane(excludeLane: excludeLane);
+      if (lane.isNotEmpty) {
+        return lane.elementAt(world.random.nextInt(lane.length));
+      }
+      else {
+        return null;
+      }
+    }
+    else {
+      return null;
+    }
+  }
+
+
+  Iterable<RoadEnd> getAvailableOutwardRoadEnd({Vehicle vehicle, List<RoadEnd> excludeRoadEnd}) {
+    if (excludeRoadEnd == null) {
       return _outwardRoadEnd.where((r) => r.hasAvailableOutwardLane(vehicle: vehicle));
     }
     else {
       return _outwardRoadEnd.where((r) =>
-          (!exceptRoadEnd.contains(r)) && r.hasAvailableOutwardLane(vehicle: vehicle));
+          (!excludeRoadEnd.contains(r)) && r.hasAvailableOutwardLane(vehicle: vehicle));
     }
   }
 

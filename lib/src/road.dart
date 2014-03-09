@@ -318,16 +318,30 @@ class RoadEnd {
     }
   }
 
-  Iterable<Lane> getAvailableOutwardLane({List<Lane> exceptLane}) {
-    if (exceptLane == null) {
-      return outwardLane.where((l) => l.availableForAddVehicle());
+  Iterable<Lane> getAvailableOutwardLane({Vehicle vehicle, List<Lane> excludeLane}) {
+    if (excludeLane == null) {
+      return outwardLane.where((l) => l.availableForAddVehicle(vehicle: vehicle));
    }
     else {
-      return outwardLane.where((l) => (!exceptLane.contains(l)) && l.availableForAddVehicle());
+      return outwardLane.where((l) => (!excludeLane.contains(l)) && l.availableForAddVehicle(vehicle: vehicle));
     }
   }
 
   bool hasAvailableOutwardLane({Vehicle vehicle}) {
     return outwardLane.any((l) => l.availableForAddVehicle(vehicle: vehicle));
+  }
+
+  Iterable<Lane> getLeastQueueOutwardLane({Iterable<Lane> excludeLane}) {
+    if (excludeLane == null) {
+      int min = outwardLane.fold(outwardLane.first.queue.length, (v, l) =>
+          l.queue.length <= v ? l.queue.length : v);
+      return outwardLane.where((l) => l.queue.length == min);
+   }
+    else {
+      int min = outwardLane.fold(outwardLane.first.queue.length, (v, l) =>
+          l.queue.length <= v ? l.queue.length : v);
+      return outwardLane.where((l) => (l.queue.length == min) &&
+          (!excludeLane.contains(l)));
+    }
   }
 }
