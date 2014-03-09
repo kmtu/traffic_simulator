@@ -62,10 +62,10 @@ class Joint {
     }
   }
 
-  Lane getRandomAvailableOutwardLane({Vehicle vehicle, List<RoadEnd> exceptRoadEnd,
+  Lane getRandomAvailableOutwardLane({Vehicle vehicle, List<RoadEnd> excludeRoadEnd,
                                       List<Lane> excludeLane}) {
     Iterable<RoadEnd> roadEnd = getAvailableOutwardRoadEnd(vehicle: vehicle,
-        excludeRoadEnd: exceptRoadEnd);
+        excludeRoadEnd: excludeRoadEnd);
     if (roadEnd.isNotEmpty) {
       Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)).
             getAvailableOutwardLane(vehicle: vehicle, excludeLane: excludeLane);
@@ -110,6 +110,15 @@ class Joint {
     else {
       return _outwardRoadEnd.where((r) =>
           (!excludeRoadEnd.contains(r)) && r.hasAvailableOutwardLane(vehicle: vehicle));
+    }
+  }
+
+  Iterable<RoadEnd> getOutwardRoadEnd({List<RoadEnd> excludeRoadEnd}) {
+    if (excludeRoadEnd == null) {
+      return _outwardRoadEnd;
+    }
+    else {
+      return _outwardRoadEnd.where((r) => !excludeRoadEnd.contains(r));
     }
   }
 
