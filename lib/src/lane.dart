@@ -226,4 +226,8 @@ class Lane implements Backtraceable {
       }
     }
   }
+
+  int get index {
+    return laneEnd.first.outwardLane.toList(growable: false).indexOf(this);
+  }
 }
