@@ -33,7 +33,7 @@ class Driver {
           // See if there is an immediately available lane now
           nextAvailableLane = vehicle.lane.laneEnd.last.joint.
               getRandomAvailableOutwardLane(vehicle: vehicle,
-                  exceptRoadEnd: [vehicle.lane.laneEnd.last]);
+                  excludeRoadEnd: [vehicle.lane.laneEnd.last]);
         }
 
         if (nextAvailableLane == null) {
