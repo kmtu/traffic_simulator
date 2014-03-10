@@ -1,18 +1,9 @@
 part of traffic_simulator;
 
-class Vehicle implements Backtraceable {
-  double pos = 0.0;
-  double vel = 10.0;
-  double acc = 0.0;
-  double accMax;
-  double velMax;
-  Lane lane;
-  Driver driver;
-  double width;
-  double length;
-  DoubleLinkedQueueEntry entry;
-  TrafficSimulator world;
-  Color color;
+class Vehicle implements Controller {
+  World world;
+  VehicleModel model;
+  VehicleView view;
 
   Vehicle(this.world, {this.width: 1.6, this.length: 3.5, this.accMax,
                        this.velMax, this.color, this.driver}) {
@@ -36,18 +27,9 @@ class Vehicle implements Backtraceable {
     }
   }
 
-  void draw(Camera camera, Matrix3 transformMatrix) {
-    // the lane center is x-aixs, lane begins from origin to the positive x
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
-    context.save();
-
-    transformContext(context, preTranslate(transformMatrix, pos + vel * world.dtRender, 0.0));
-    // draw as if the reference point of the vehicle is the origin
-
-    context.setFillColorRgb(color.r, color.g, color.b);
-    context.fillRect(-length, -width / 2, length, width);
-    context.restore();
-  }
+  double get pos => model.pos;
+  set pos(double pos) => model.pos = pos;
+  set lane(Lane lane) => model.lane = lane;
 
   void update() {
     double dt = world.dtUpdate;

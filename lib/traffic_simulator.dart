@@ -6,78 +6,31 @@ import 'dart:collection';
 import 'package:vector_math/vector_math.dart';
 import 'package:game_loop/game_loop_html.dart';
 
-part 'src/driver.dart';
-part 'src/road.dart';
-part 'src/vehicle.dart';
-part 'src/joint.dart';
-part 'src/lane.dart';
-part 'src/utility.dart';
-part 'src/camera.dart';
-part 'src/data_structure.dart';
+part 'src/utility/utility.dart';
 
-abstract class World {
-  Vector2 dimension;
-  void draw(Camera camera);
-  GameLoopHtml gameLoop;
-}
+part 'src/mvc.dart';
 
-class TrafficSimulator implements World {
-  final Set<Road> road = new Set<Road>();
-  final Set<Vehicle> vehicle = new Set<Vehicle>();
-  final Queue<Vehicle> garage = new Queue<Vehicle>();
-  final Set<Joint> joint = new Set<Joint>();
-  Vector2 dimension; // meter
-  GameLoopHtml gameLoop;
-  double dtRender = 0.0;
-  double dtUpdate;
-  Random random;
-  bool pause = false;
+part 'src/controller/world.dart';
+part 'src/model/world.model.dart';
+part 'src/view/world.view.dart';
 
-  TrafficSimulator(this.dimension, this.gameLoop, [this.random]) {
-    if (random == null) {
-      random = new Random(new DateTime.now().millisecondsSinceEpoch);
-    }
-    dtUpdate = gameLoop.dt;
-  }
+part 'src/controller/road.dart';
+part 'src/model/road.model.dart';
+part 'src/view/road.view.dart';
 
-  void addRoad(Iterable<Road> road) {
-    for (Road rd in road) {
-      rd.world = this;
-      this.road.add(rd);
-      for (RoadEnd re in rd.roadEnd) {
-        if (re.joint != null) {
-          re.joint.world = this;
-          this.joint.add(re.joint);
-        }
-      }
-    }
-  }
+part 'src/controller/road_end.dart';
+part 'src/model/road_end.model.dart';
+part 'src/view/road_end.view.dart';
 
-  void update() {
-    road.forEach((r) => r.update());
-    joint.forEach((j) => j.update());
-  }
+part 'src/controller/joint.dart';
+part 'src/model/joint.model.dart';
+part 'src/view/joint.view.dart';
 
-  void draw(Camera camera) {
-    if (pause == false) {
-      dtRender = dtUpdate * gameLoop.renderInterpolationFactor;
-    }
+part 'src/controller/lane.dart';
+part 'src/model/lane.model.dart';
+part 'src/view/lane.view.dart';
 
-    for (Road rd in road) {
-      rd.draw(camera);
-    }
+part 'src/controller/vehicle.dart';
+part 'src/model/vehicle.model.dart';
+part 'src/view/vehicle.view.dart';
 
-    for (Joint joint in this.joint) {
-      joint.draw(camera);
-    }
-  }
-
-  Vehicle requestVehicle() {
-    if (garage.isEmpty) {
-      return new Vehicle(this);
-    }
-    else {
-      return garage.removeLast();
-    }
-  }
-}
