@@ -11,7 +11,7 @@ class Joint {
     labelCircleColor = new Color.random(min: 100);
   }
 
-  TrafficSimulator world;
+  World world;
 
   void addRoadEnd(RoadEnd roadEnd) {
     this.roadEnd.add(roadEnd);
@@ -37,7 +37,7 @@ class Joint {
   }
 
   void drawLabel(Camera camera) {
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    CanvasRenderingContext2D context = camera.buffer.context2D;
     for (var roadEnd in this.roadEnd) {
       context.save();
       transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
@@ -179,14 +179,14 @@ class SourceJoint extends Joint {
   }
 
   void draw(Camera camera) {
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    CanvasRenderingContext2D context = camera.buffer.context2D;
     for (var roadEnd in this.roadEnd) {
       context.save();
       transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
       context.beginPath();
       context.arc(0, 0, roadEnd.road.width / 2 + 2, 0, 2*PI);
       if (_opacity >= 0) {
-        context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * world.dtRender);
+        context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * world.view.dtRender);
         context.fill();
       }
       context.restore();

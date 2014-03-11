@@ -4,7 +4,7 @@ import 'package:vector_math/vector_math.dart';
 import 'package:traffic_simulator/traffic_simulator.dart';
 
 GameLoopHtml gameLoop;
-TrafficSimulator world;
+World world;
 Camera camera;
 
 const int WIDTH = 960;
@@ -16,14 +16,13 @@ PauseState pauseState = new PauseState();
 RunningState runningState = new RunningState();
 
 void main() {
-  CanvasElement film = querySelector(".game-element");
-  film.width = WIDTH;
-  film.height = HEIGHT;
-  gameLoop = new GameLoopHtml(film);
+  CanvasElement canvas = querySelector(".game-element");
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+  gameLoop = new GameLoopHtml(canvas);
 
-  Vector2 worldSize = new Vector2(120.0, 90.0); // in meters
-  world = new TrafficSimulator(worldSize, gameLoop);
-  camera = new Camera(film, world, worldPixelPerMeter: 10.0);
+  world = new World(gameLoop);
+  camera = new Camera(canvas, world, pixelPerMeter: 8.0);
 
   List<Joint> joint = [new SourceJoint("0"), new Joint("1"),
                        new Joint("2"), new Joint("3")];
@@ -58,7 +57,7 @@ void main() {
 // Create a simple state implementing only the handlers you care about
 class PauseState extends SimpleHtmlState {
   void onRender(GameLoop gameLoop) {
-    camera.shoot();
+    camera.draw();
     fps.sampleFPS();
     if (fps.lastShowPassedDuration.inMilliseconds > 500) {
       fps.showFPS();
@@ -131,7 +130,7 @@ class FPS {
 
 class RunningState extends SimpleHtmlState {
   void onRender(GameLoop gameLoop) {
-    camera.shoot();
+    camera.draw();
     fps.sampleFPS();
     if (fps.lastShowPassedDuration.inMilliseconds > 500) {
       fps.showFPS();

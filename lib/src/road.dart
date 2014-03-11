@@ -42,7 +42,7 @@ class Road {
   double width = 0.0;
   double boundaryLineWidth = 1.0;
 
-  TrafficSimulator world;
+  World world;
 
   Road(List<Vector2> end, {int numForwardLane: 1, int numBackwardLane: 1, this.drivingHand: RHT}) {
     if (end.length != 2) {
@@ -92,7 +92,7 @@ class Road {
   }
 
   void draw(Camera camera) {
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    CanvasRenderingContext2D context = camera.buffer.context2D;
     context.save();
     if (forwardLane.isEmpty && backwardLane.isEmpty) {
       _drawMiddleLine(camera);
@@ -128,7 +128,7 @@ class Road {
   }
 
   void _drawBoundary(Camera camera) {
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    CanvasRenderingContext2D context = camera.buffer.context2D;
     context.save();
 
     transformContext(context, transformMatrix);
@@ -154,7 +154,7 @@ class Road {
 
   void _drawMiddleLine(Camera camera) {
     //Draw a line if the road contains no lane
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    CanvasRenderingContext2D context = camera.buffer.context2D;
     context.save();
     transformContext(context, transformMatrix);
     // draw as if the center of the road aligns to the x-axis

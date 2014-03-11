@@ -35,7 +35,7 @@ class Lane implements Backtraceable {
   }
 
   void drawLane(Camera camera, Matrix3 transformMatrix) {
-    CanvasRenderingContext2D context = camera.worldCanvas.context2D;
+    CanvasRenderingContext2D context = camera.buffer.context2D;
     context.save();
 
     // top of this lane is aligned to x-axis
@@ -46,7 +46,7 @@ class Lane implements Backtraceable {
     context.fillStyle = "black";
     context.fillRect(0, 0, road.length, width);
     context.setStrokeColorRgb(0, 0, 0);
-    context.lineWidth = 1 / camera.worldPixelPerMeter;
+    context.lineWidth = 1 / camera.pixelPerMeter;
     context.strokeRect(0, 0, road.length, width);
 
     // lanes are ordered as inner-lane first

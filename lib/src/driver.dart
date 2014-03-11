@@ -3,7 +3,7 @@ part of traffic_simulator;
 
 class Driver {
   final Vehicle vehicle;
-  TrafficSimulator world;
+  World world;
   double safeDistance;
   double safeDistanceMin;
   Lane nextAvailableLane;

@@ -6,6 +6,8 @@ import 'dart:collection';
 import 'package:vector_math/vector_math.dart';
 import 'package:game_loop/game_loop_html.dart';
 
+part 'src/world.dart';
+part 'src/world.view.dart';
 part 'src/driver.dart';
 part 'src/road.dart';
 part 'src/vehicle.dart';
@@ -15,69 +17,14 @@ part 'src/utility.dart';
 part 'src/camera.dart';
 part 'src/data_structure.dart';
 
-abstract class World {
-  Vector2 dimension;
-  void draw(Camera camera);
-  GameLoopHtml gameLoop;
-}
+/*abstract class View<E> {
+  E model;
+  final Matrix3 transformMatrix = new Matrix3.identity();
 
-class TrafficSimulator implements World {
-  final Set<Road> road = new Set<Road>();
-  final Set<Vehicle> vehicle = new Set<Vehicle>();
-  final Queue<Vehicle> garage = new Queue<Vehicle>();
-  final Set<Joint> joint = new Set<Joint>();
-  Vector2 dimension; // meter
-  GameLoopHtml gameLoop;
-  double dtRender = 0.0;
-  double dtUpdate;
-  Random random;
-  bool pause = false;
+  /**
+   * [dt] is for interpolation drawing
+   */
+  void draw(CanvasElement canvas, double dt);
 
-  TrafficSimulator(this.dimension, this.gameLoop, [this.random]) {
-    if (random == null) {
-      random = new Random(new DateTime.now().millisecondsSinceEpoch);
-    }
-    dtUpdate = gameLoop.dt;
-  }
-
-  void addRoad(Iterable<Road> road) {
-    for (Road rd in road) {
-      rd.world = this;
-      this.road.add(rd);
-      for (RoadEnd re in rd.roadEnd) {
-        if (re.joint != null) {
-          re.joint.world = this;
-          this.joint.add(re.joint);
-        }
-      }
-    }
-  }
-
-  void update() {
-    road.forEach((r) => r.update());
-    joint.forEach((j) => j.update());
-  }
-
-  void draw(Camera camera) {
-    if (pause == false) {
-      dtRender = dtUpdate * gameLoop.renderInterpolationFactor;
-    }
-
-    for (Road rd in road) {
-      rd.draw(camera);
-    }
-
-    for (Joint joint in this.joint) {
-      joint.draw(camera);
-    }
-  }
-
-  Vehicle requestVehicle() {
-    if (garage.isEmpty) {
-      return new Vehicle(this);
-    }
-    else {
-      return garage.removeLast();
-    }
-  }
-}
+  View(this.model);
+}*/
