@@ -3,6 +3,7 @@ part of traffic_simulator;
 class Camera {
   Vector2 pos = new Vector2.zero(); // top-left corner
   Vector2 vel = new Vector2.zero();
+  Vector2 center = new Vector2.zero();
   double acc = 30.0;
   double maxSpeed = 60.0; // meter per click
   double height; // meters
@@ -17,12 +18,15 @@ class Camera {
   double dt;
   Matrix3 transformMatrix;
 
-  Camera(this.canvas, this.world, {this.pixelPerMeter: 10.0}) {
+  Camera(this.canvas, this.world, {this.pixelPerMeter: 10.0, this.center}) {
     ratio = canvas.width / canvas.height;
     height = canvas.height.toDouble() / pixelPerMeter;
     buffer = new CanvasElement()
         ..width = canvas.width
         ..height = canvas.height;
+    if (center == null) center = new Vector2.zero();
+    setCenter(center.x, center.y);
+    pos = center;
   }
 
   void draw() {
@@ -129,6 +133,23 @@ class Camera {
       pos.y = maxHeight;
       vel.y = 0.0;
     }*/
+  }
+
+  void reset() {
+    zoom(1 / zoomFactor);
+    vel.setZero();
+    pos.setFrom(center);
+  }
+
+  void toCenter() {
+    var zm = zoomFactor;
+    reset();
+    zoom(zm);
+  }
+
+  setCenter(num x, num y) {
+    center.setValues(x.toDouble() - canvas.width / (2* pixelPerMeter),
+        y.toDouble() - canvas.height / (2* pixelPerMeter));
   }
 }
 

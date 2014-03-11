@@ -7,8 +7,6 @@ GameLoopHtml gameLoop;
 World world;
 Camera camera;
 
-const int WIDTH = 960;
-const int HEIGHT = 720;
 DivElement fpsDiv = querySelector("#fps");
 
 FPS fps = new FPS(fpsDiv);
@@ -17,13 +15,14 @@ RunningState runningState = new RunningState();
 
 void main() {
   CanvasElement canvas = querySelector(".game-element");
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
+  canvas.width = 960;
+  canvas.height = 720;
   gameLoop = new GameLoopHtml(canvas);
 
   world = new World(gameLoop);
-  camera = new Camera(canvas, world, pixelPerMeter: 8.0);
 
+  Vector2 center = new Vector2(20.0, 70.0);
+  camera = new Camera(canvas, world, pixelPerMeter: 15.0, center: center);
   List<Joint> joint = [new SourceJoint("0"), new Joint("1"),
                        new Joint("2"), new Joint("3")];
   List<Road> road
@@ -71,6 +70,9 @@ class PauseState extends SimpleHtmlState {
   void onKeyDown(KeyboardEvent event) {
     event.preventDefault();
     switch (event.keyCode) {
+      case Keyboard.C:
+        camera.toCenter();
+        break;
       case Keyboard.W:
         camera.moveUp();
         break;
@@ -145,6 +147,9 @@ class RunningState extends SimpleHtmlState {
   void onKeyDown(KeyboardEvent event) {
     event.preventDefault();
     switch (event.keyCode) {
+      case Keyboard.C:
+        camera.toCenter();
+        break;
       case Keyboard.W:
         camera.moveUp();
         break;
