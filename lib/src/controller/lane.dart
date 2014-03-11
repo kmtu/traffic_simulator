@@ -1,44 +1,37 @@
 part of traffic_simulator;
 
-class Lane implements Controller {
-  LaneModel model;
+class LaneController implements Controller {
+  Lane _model;
   LaneView view;
 
-  Lane(Road road, int direction, {double width}) {
+  LaneController(Road road, int direction, {double width}) {
     if (width == null) width = 3.5;
-    model = new LaneModel(road, direction, width);
+    _model = new Lane(road, direction, width);
 
     if (direction == Road.FORWARD) {
-      model.laneEnd = model.road.roadEnd;
+      _model.laneEnd = _model.road.roadEnd;
     }
     else {
-      model.laneEnd = road.roadEnd.reversed.toList(growable: false);
+      _model.laneEnd = road.roadEnd.reversed.toList(growable: false);
     }
   }
 
-  int get direction => model.direction;
-  set road(Road road) => model.road = road;
-  Road get road => model.road;
-  double get width => model.width;
-  DoubleLinkedQueueEntry<Lane> get entry => model.entry;
-  set entry(DoubleLinkedQueueEntry<Lane> entry) => model.entry = entry;
-  Queue<Vehicle> get queue => model.queue;
-
-  void render() => view.render();
-
-  void addView(LaneView view) {
-    this.view = view;
-    view.update();
-  }
+  int get direction => _model.direction;
+  set road(Road road) => _model.road = road;
+  Road get road => _model.road;
+  double get width => _model.width;
+  DoubleLinkedQueueEntry<LaneController> get entry => _model.entry;
+  set entry(DoubleLinkedQueueEntry<LaneController> entry) => _model.entry = entry;
+  Queue<VehicleController> get queue => _model.queue;
 
   void update() {
-    model.vehicle.forEach((v) => v.update());
+    _model.vehicle.forEach((v) => v.update());
   }
 
-  void addFirstVehicle(Vehicle vehicle) {
+  void addFirstVehicle(VehicleController vehicle) {
     vehicle.pos = 0.0;
     vehicle.lane = this;
-    model.vehicle.addFirst(vehicle);
+    _model.vehicle.addFirst(vehicle);
   }
 
 }

@@ -1,7 +1,7 @@
 part of traffic_simulator;
 
-class VehicleView extends View<Vehicle> {
-  VehicleView(CanvasElement canvas) : super(canvas);
+class VehicleView extends View<VehicleController> {
+  VehicleView(CanvasElement canvas, VehicleController vehicle) : super(canvas, vehicle);
 
   @override
   void update() {

@@ -4,7 +4,7 @@ import 'package:vector_math/vector_math.dart';
 import 'package:traffic_simulator/traffic_simulator.dart';
 
 GameLoopHtml gameLoop;
-World world;
+WorldController simulator;
 
 const int WIDTH = 960;
 const int HEIGHT = 720;
@@ -20,11 +20,14 @@ void main() {
   canvas.height = HEIGHT;
   gameLoop = new GameLoopHtml(canvas);
 
-  world = new World(gameLoop);
-  world.view = new WorldView(canvas, world);
+  simulator = new WorldController(gameLoop);
+  World world = new World();
+  WorldView camera = new WorldView(canvas, simulator);
+  simulator.model = world;
+  simulator.view.add(camera);
 
-  List<Joint> joint = [new Joint("0"), new Joint("1"),
-                       new Joint("2"), new Joint("3")];
+  List<JointController> joint = [new JointController("0"), new JointController("1"),
+                       new JointController("2"), new JointController("3")];
   List<Road> road
       = [new Road([new Vector2(20.0, 70.0), new Vector2(55.0, 70.0)],
             numForwardLane: 1, numBackwardLane: 0),
@@ -48,7 +51,7 @@ void main() {
   road[4].attachJoint(joint[3], Road.BEGIN_SIDE);
   road[4].attachJoint(joint[1], Road.END_SIDE);
 
-  world.addRoad(road);
+  simulator.addRoad(road);
   gameLoop.state = runningState;
   gameLoop.start();
 }
@@ -56,7 +59,7 @@ void main() {
 // Create a simple state implementing only the handlers you care about
 class PauseState extends SimpleHtmlState {
   void onRender(GameLoop gameLoop) {
-    world.render();
+    simulator.render();
     fps.sampleFPS();
     if (fps.lastShowPassedDuration.inMilliseconds > 500) {
       fps.showFPS();
@@ -68,7 +71,7 @@ class PauseState extends SimpleHtmlState {
 
   void onKeyDown(KeyboardEvent event) {
     event.preventDefault();
-/*    switch (event.keyCode) {
+    switch (event.keyCode) {
       case Keyboard.W:
         camera.moveUp();
         break;
@@ -92,8 +95,8 @@ class PauseState extends SimpleHtmlState {
         break;
       default:
         gameLoop.state = runningState;
-        world.pause = false;
-    }*/
+        simulator.pause = false;
+    }
   }
 }
 
@@ -128,7 +131,7 @@ class FPS {
 
 class RunningState extends SimpleHtmlState {
   void onRender(GameLoop gameLoop) {
-    world.render();
+    simulator.render();
     fps.sampleFPS();
     if (fps.lastShowPassedDuration.inMilliseconds > 500) {
       fps.showFPS();
@@ -136,12 +139,12 @@ class RunningState extends SimpleHtmlState {
   }
 
   void onUpdate(GameLoop gameLoop) {
-    world.update();
+    simulator.update();
   }
 
   void onKeyDown(KeyboardEvent event) {
     event.preventDefault();
-/*    switch (event.keyCode) {
+    switch (event.keyCode) {
       case Keyboard.W:
         camera.moveUp();
         break;
@@ -165,7 +168,7 @@ class RunningState extends SimpleHtmlState {
         break;
       default:
         gameLoop.state = pauseState;
-        world.pause = true;
-    }*/
+        simulator.pause = true;
+    }
   }
 }

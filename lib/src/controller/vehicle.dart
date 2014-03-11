@@ -1,11 +1,11 @@
 part of traffic_simulator;
 
-class Vehicle implements Controller {
-  World world;
-  VehicleModel model;
+class VehicleController implements Controller {
+  WorldController world;
+  Vehicle _model;
   VehicleView view;
 
-  Vehicle(this.world, {this.width: 1.6, this.length: 3.5, this.accMax,
+  VehicleController(this.world, {this.width: 1.6, this.length: 3.5, this.accMax,
                        this.velMax, this.color, this.driver}) {
     if (driver == null) {
       this.driver = new Driver(world, vehicle: this);
@@ -27,9 +27,9 @@ class Vehicle implements Controller {
     }
   }
 
-  double get pos => model.pos;
-  set pos(double pos) => model.pos = pos;
-  set lane(Lane lane) => model.lane = lane;
+  double get pos => _model.pos;
+  set pos(double pos) => _model.pos = pos;
+  set lane(LaneController lane) => _model.lane = lane;
 
   void update() {
     double dt = world.dtUpdate;

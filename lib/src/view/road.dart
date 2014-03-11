@@ -1,13 +1,28 @@
 part of traffic_simulator;
 
 class RoadView extends View<Road> {
-  RoadView(CanvasElement canvas, Controller controller) :
-      super(canvas, controller);
+  final List<RoadEndView> roadEndView = new List<RoadEndView>(2);
+  /// Lanes in the upper part of this road. For drawing purpose.
+  DoubleLinkedQueue<LaneView> upperLaneView;
+  /// Lanes in the upper part of this road. For drawing purpose.
+  DoubleLinkedQueue<LaneView> lowerLaneView;
 
-  /// Lanes in the upper part of this road. For drawing purpose.
-  DoubleLinkedQueue<Lane> _upperLane;
-  /// Lanes in the upper part of this road. For drawing purpose.
-  DoubleLinkedQueue<Lane> _lowerLane;
+  /// Lanes which direction are [Road.FORWARD]
+  /// First added will be drawn as inner lanes
+  final DoubleLinkedQueue<LaneView> forwardLaneView = new DoubleLinkedQueue<LaneView>();
+
+  /// Lanes which direction are [Road.BACKWARD]
+  /// First added will be drawn as inner lanes
+  final DoubleLinkedQueue<LaneView> backwardLaneView = new DoubleLinkedQueue<LaneView>();
+
+  RoadView(CanvasElement canvas, Road road) :
+      super(canvas, road) {
+    this.roadEndView[0] = new RoadEndView(canvas, road.roadEnd[0]);
+    this.roadEndView[1] = new RoadEndView(canvas, road.roadEnd[1]);
+    road.forwardLane.forEach((l) => this.forwardLaneView.add(new LaneView(canvas, l)));
+    road.backwardLane.forEach((l) => this.backwardLaneView.add(new LaneView(canvas, l)));
+    update();
+  }
 
 
   double get _halfTotalLaneWidth =>
@@ -16,12 +31,12 @@ class RoadView extends View<Road> {
   @override
   void update() {
     if (controller.drivingHand == Road.RHT) {
-      _upperLane = controller.backwardLane;
-      _lowerLane = controller.forwardLane;
+      upperLaneView = backwardLaneView;
+      lowerLaneView = forwardLaneView;
     }
     else {
-      _upperLane = controller.forwardLane;
-      _lowerLane = controller.backwardLane;
+      upperLaneView = forwardLaneView;
+      lowerLaneView = backwardLaneView;
     }
 
     // rotate first then translate
@@ -40,7 +55,7 @@ class RoadView extends View<Road> {
   void updateUpperLane() {
     double cumWidth_ = 0.0;
     // update from outer lane
-    forEachEntryFromLast(this._upperLane, (laneEntry){
+    forEachEntryFromLast(this.upperLaneView, (laneEntry){
       laneEntry.element.view.transformMatrix = preTranslate(
           transformMatrix, 0.0, -_halfTotalLaneWidth + cumWidth_);
       cumWidth_ += laneEntry.element.width;
@@ -50,7 +65,7 @@ class RoadView extends View<Road> {
   void updateLowerLane() {
     double cumWidth_ = 0.0;
     // update from outer lane
-    forEachEntryFromLast(this._lowerLane, (laneEntry){
+    forEachEntryFromLast(this.lowerLaneView, (laneEntry){
       cumWidth_ += laneEntry.element.width;
       laneEntry.element.view.transformMatrix = preTranslate(
           transformMatrix, 0.0, _halfTotalLaneWidth - cumWidth_);
@@ -65,20 +80,21 @@ class RoadView extends View<Road> {
       _drawMiddleLine();
     }
     else {
-      _drawUpperLane(_upperLane);
-      _drawLowerLane(_lowerLane);
+      _drawUpperLane(upperLaneView);
+      _drawLowerLane(lowerLaneView);
       _drawBoundary();
     }
+    roadEndView.forEach((re) => re.render());
     context.restore();
   }
 
-  void _drawUpperLane(DoubleLinkedQueue<Lane> lane) {
+  void _drawUpperLane(DoubleLinkedQueue<LaneView> lane) {
     double cumWidth_ = 0.0;
     // draw from outer lane
     forEachEntryFromLast(lane, (laneEntry) => laneEntry.element.render());
   }
 
-  void _drawLowerLane(DoubleLinkedQueue<Lane> lane) {
+  void _drawLowerLane(DoubleLinkedQueue<LaneView> lane) {
     double cumWidth_ = 0.0;
     // draw from outer lane
     forEachEntryFromLast(lane, (laneEntry) => laneEntry.element.render());

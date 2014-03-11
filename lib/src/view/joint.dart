@@ -1,6 +1,6 @@
 part of traffic_simulator;
 
-class JointView extends View<Joint> {
+class JointView extends View<JointController> {
   JointView(CanvasElement canvas, Controller controller) :
       super(canvas, controller);
 
@@ -17,7 +17,7 @@ class JointView extends View<Joint> {
 
   void drawLabel() {
     CanvasRenderingContext2D context = canvas.context2D;
-    for (var roadEnd in controller.roadEnd) {
+    for (var roadEnd in roadEnd) {
       context.save();
       transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
       context.beginPath();

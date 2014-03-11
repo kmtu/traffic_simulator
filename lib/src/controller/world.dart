@@ -1,10 +1,13 @@
 part of traffic_simulator;
 
-class World implements Controller {
-  WorldModel model = new WorldModel();
-  WorldView view;
+class WorldController extends Controller {
+  World _model;
+  List<WorldView> view;
 
-  final Queue<Vehicle> garage = new Queue<Vehicle>();
+  final Set<RoadController> road = new Set<RoadController>();
+  final Set<VehicleController> vehicle = new Set<VehicleController>();
+  final Queue<VehicleController> garage = new Queue<VehicleController>();
+  final Set<JointController> joint = new Set<JointController>();
 
   GameLoopHtml gameLoop;
   double pixelPerMeter = 10.0;
@@ -12,37 +15,43 @@ class World implements Controller {
   double dtUpdate;
   bool pause;
 
-  get road => model.road;
-  get joint => model.joint;
+  get model => _model;
+  set model(World world) {
+    this._model = world;
+    view.forEach((v) => v.setWorld(world));
+  }
 
-  World(this.gameLoop, {Random random, double pixelPerMeter: 10.0}) {
+  WorldController(this.gameLoop, {Random random, double pixelPerMeter: 10.0}) {
     if (random == null) {
       random = new Random(new DateTime.now().millisecondsSinceEpoch);
     }
     dtUpdate = gameLoop.dt;
   }
 
-  Random get random => model.random;
-  void render() => view.render();
+  Random get random => _model.random;
+  void render() => view.forEach((v) => v.render());
 
   void addRoad(Iterable<Road> road) {
+    if (model == null) throw new StateError("A model must be set before this controller can work.");
+    model.addRoad(road);
+    view.forEach((v) => v.addRoad(road));
+    road.forEach((r) => this.road.add(new RoadController(model: r, view: view)));
+
     for (Road rd in road) {
-      rd.world = this;
-      rd.addView(new RoadView(view.canvas, rd));
-      model.road.add(rd);
-      for (RoadEnd re in rd.roadEnd) {
+      for (RoadEndController re in rd.roadEnd) {
         if (re.joint != null) {
           re.joint.world = this;
-          re.joint.view = new JointView(view.canvas, re.joint);
+          view.forEach((v) => v.addJoint(joint));
+//          re.joint.view = new JointView(view.canvas, re.joint);
           model.joint.add(re.joint);
         }
       }
     }
   }
 
-  Vehicle requestVehicle() {
+  VehicleController requestVehicle() {
     if (garage.isEmpty) {
-      return new Vehicle(this);
+      return new VehicleController(this);
     }
     else {
       return garage.removeLast();

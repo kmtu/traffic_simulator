@@ -1,44 +1,43 @@
 part of traffic_simulator;
 
-class Joint implements Controller {
-  World world;
-  JointModel model = new JointModel();
+class JointController implements Controller {
+  WorldController world;
+  Joint _model = new Joint();
   JointView view;
 
-  Joint(String label) {
-    model.label = label;
-    model.labelCircleColor = new Color.random(min: 100);
+  JointController(String label) {
+    _model.label = label;
+    _model.labelCircleColor = new Color.random(min: 100);
   }
 
-  Set<RoadEnd> get roadEnd => model.roadEnd;
-  String get label => model.label;
-  Color get labelCircleColor => model.labelCircleColor;
+  Set<RoadEndController> get roadEnd => _model.roadEnd;
+  String get label => _model.label;
+  Color get labelCircleColor => _model.labelCircleColor;
 
-  void render() => view.render();
   void update() {}
 
-  void addRoadEnd(RoadEnd roadEnd) {
-    model.roadEnd.add(roadEnd);
+  void addRoadEnd(RoadEndController roadEnd) {
+    _model.roadEnd.add(roadEnd);
     updateOnRoadChange();
   }
 
-  void removeRoadEnd(RoadEnd end) {
-    model.roadEnd.remove(end);
+  void removeRoadEnd(RoadEndController end) {
+    _model.roadEnd.remove(end);
     updateOnRoadChange();
   }
 
   void updateOnRoadChange() {
-    model.inwardRoadEnd.clear();
-    model.outwardRoadEnd.clear();
-    for (var roadEnd in model.roadEnd) {
-      if (roadEnd.outwardLane.length > 0) model.outwardRoadEnd.add(roadEnd);
-      if (roadEnd.inwardLane.length > 0) model.inwardRoadEnd.add(roadEnd);
+    _model.inwardRoadEnd.clear();
+    _model.outwardRoadEnd.clear();
+    for (var roadEnd in _model.roadEnd) {
+      if (roadEnd.outwardLane.length > 0) _model.outwardRoadEnd.add(roadEnd);
+      if (roadEnd.inwardLane.length > 0) _model.inwardRoadEnd.add(roadEnd);
     }
   }
 
-  Lane getRandomAvailableOutwardLane({Vehicle vehicle, List<RoadEnd> excludeRoadEnd,
-                                      List<Lane> excludeLane}) {
-    Iterable<RoadEnd> roadEnd = getAvailableOutwardRoadEnd(vehicle: vehicle,
+  LaneController getRandomAvailableOutwardLane({VehicleController vehicle, List<RoadEndController> excludeRoadEnd,
+                                      List<LaneController> excludeLane}) {
+    Iterable<RoadEndController> roadEnd = getAvailableOutwardRoadEnd(vehicle: vehicle,
         excludeRoadEnd: excludeRoadEnd);
     if (roadEnd.isNotEmpty) {
       Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)).
@@ -55,10 +54,10 @@ class Joint implements Controller {
     }
   }
 
-  Lane getRandomLeastQueueOutwardLane({Iterable<RoadEnd> excludeRoadEnd,
-                                       Iterable<Lane> excludeLane}) {
-    if (model.outwardRoadEnd.isNotEmpty) {
-      Iterable roadEnd = model.outwardRoadEnd;
+  LaneController getRandomLeastQueueOutwardLane({Iterable<RoadEndController> excludeRoadEnd,
+                                       Iterable<LaneController> excludeLane}) {
+    if (_model.outwardRoadEnd.isNotEmpty) {
+      Iterable roadEnd = _model.outwardRoadEnd;
       if (excludeRoadEnd != null) {
         roadEnd = roadEnd.where((r) => !excludeRoadEnd.contains(r));
       }
@@ -76,22 +75,22 @@ class Joint implements Controller {
     }
   }
 
-  Iterable<RoadEnd> getAvailableOutwardRoadEnd({Vehicle vehicle, List<RoadEnd> excludeRoadEnd}) {
+  Iterable<RoadEndController> getAvailableOutwardRoadEnd({VehicleController vehicle, List<RoadEndController> excludeRoadEnd}) {
     if (excludeRoadEnd == null) {
-      return model.outwardRoadEnd.where((r) => r.hasAvailableOutwardLane(vehicle: vehicle));
+      return _model.outwardRoadEnd.where((r) => r.hasAvailableOutwardLane(vehicle: vehicle));
     }
     else {
-      return model.outwardRoadEnd.where((r) =>
+      return _model.outwardRoadEnd.where((r) =>
           (!excludeRoadEnd.contains(r)) && r.hasAvailableOutwardLane(vehicle: vehicle));
     }
   }
 
-  Iterable<RoadEnd> getOutwardRoadEnd({List<RoadEnd> excludeRoadEnd}) {
+  Iterable<RoadEndController> getOutwardRoadEnd({List<RoadEndController> excludeRoadEnd}) {
     if (excludeRoadEnd == null) {
-      return model.outwardRoadEnd;
+      return _model.outwardRoadEnd;
     }
     else {
-      return model.outwardRoadEnd.where((r) => !excludeRoadEnd.contains(r));
+      return _model.outwardRoadEnd.where((r) => !excludeRoadEnd.contains(r));
     }
   }
 }

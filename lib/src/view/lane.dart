@@ -1,12 +1,12 @@
 part of traffic_simulator;
 
-class LaneView extends View<Lane> {
+class LaneView extends View<LaneController> {
   LaneView(CanvasElement canvas, Controller controller) :
       super(canvas, controller);
 
   Road get _road => controller.road;
   double get _width => controller.width;
-  DoubleLinkedQueueEntry<Lane> get _entry => controller.entry;
+  DoubleLinkedQueueEntry<LaneController> get _entry => controller.entry;
   int get _direction => controller.direction;
 
   @override
