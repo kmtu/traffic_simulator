@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'package:game_loop/game_loop_html.dart';
 import 'package:vector_math/vector_math.dart';
-import 'package:driversim/traffic_simulator.dart';
+import 'package:traffic_simulator/traffic_simulator.dart';
 
 GameLoopHtml gameLoop;
 TrafficSimulator world;
