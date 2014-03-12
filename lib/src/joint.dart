@@ -4,10 +4,10 @@ class Joint {
   Set<RoadEnd> roadEnd = new Set<RoadEnd>();
   Set<RoadEnd> _inwardRoadEnd =  new Set<RoadEnd>();
   Set<RoadEnd> _outwardRoadEnd =  new Set<RoadEnd>();
-  String label = "";
+  String label;
   Color labelCircleColor;
 
-  Joint(String this.label) {
+  Joint({this.label: ""}) {
     labelCircleColor = new Color.random(min: 100);
   }
 
@@ -133,9 +133,9 @@ class SourceJoint extends Joint {
   double opacityFreq = 0.5;
   double maxOpacity = 0.5;
   double minOpacity = 0.1;
-  int maxDispatch = 20;
+  int maxDispatch = 100;
 
-  SourceJoint(String label) : super(label) {
+  SourceJoint({String label, maxDispatch: 10}) : super(label: label) {
     _opacity = maxOpacity;
   }
 
