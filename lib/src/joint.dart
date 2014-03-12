@@ -133,9 +133,9 @@ class SourceJoint extends Joint {
   double opacityFreq = 0.5;
   double maxOpacity = 0.5;
   double minOpacity = 0.1;
-  int maxDispatch = 100;
+  int maxDispatch;
 
-  SourceJoint({String label, maxDispatch: 10}) : super(label: label) {
+  SourceJoint({String label, this.maxDispatch: 10}) : super(label: label) {
     _opacity = maxOpacity;
   }
 
@@ -186,7 +186,7 @@ class SourceJoint extends Joint {
       context.beginPath();
       context.arc(0, 0, roadEnd.road.width / 2 + 2, 0, 2*PI);
       if (_opacity >= 0) {
-        context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * world.view.dtRender);
+        context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * world.view.dt);
         context.fill();
       }
       context.restore();
