@@ -43,7 +43,11 @@ void main() {
   p[8] = new Vector2(502.5, -490.0);
   p[9] = new Vector2(502.5, -5.0);
 
-  camera.center = p[1];
+  // You can scale all the points at once
+  p.forEach((p) => p.setFrom(p / 2.0));
+
+  // Set the starting position for the camera
+  camera.center = p[9];
 
   List<Road> road = new List<Road>(5);
   road[0] = new Road(p[0], p[1], numForwardLane: 3, numBackwardLane: 0)
