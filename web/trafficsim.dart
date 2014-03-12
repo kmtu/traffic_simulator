@@ -8,16 +8,18 @@ World world;
 Camera camera;
 
 DivElement fpsDiv = querySelector("#fps");
+DivElement top = querySelector("#top-panel");
+DivElement container = querySelector("#game-container");
+CanvasElement canvas = querySelector("#game-element");
 
 FPS fps = new FPS(fpsDiv);
 PauseState pauseState = new PauseState();
 RunningState runningState = new RunningState();
 
 void main() {
-  CanvasElement canvas = querySelector(".game-element");
-  canvas.width = 800;
-  canvas.height = 600;
-  gameLoop = new GameLoopHtml(canvas);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  gameLoop = new GameLoopHtml(document.body);
   gameLoop.processAllKeyboardEvents = false;
   gameLoop.pointerLock.lockOnClick = false;
   world = new World(gameLoop);
@@ -158,7 +160,12 @@ class FPS {
 }
 
 class RunningState extends SimpleHtmlState {
-  void onRender(GameLoop gameLoop) {
+  void onResize(GameLoopHtml gameLoop) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    camera.onResize();
+  }
+  void onRender(GameLoopHtml gameLoop) {
     camera.draw();
     fps.sampleFPS();
     if (fps.lastShowPassedDuration.inMilliseconds > 500) {

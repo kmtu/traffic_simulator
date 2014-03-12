@@ -33,6 +33,13 @@ class Camera {
     pos = this.center;
   }
 
+  void onResize() {
+    ratio = canvas.width / canvas.height;
+    height = canvas.height.toDouble() / pixelPerMeter;
+    buffer ..width = canvas.width
+           ..height = canvas.height;
+  }
+
   void set center(Vector2 c) {
     this._center.setValues(c.x - canvas.width / (2* pixelPerMeter),
         c.y - canvas.height / (2* pixelPerMeter));

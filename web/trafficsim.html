@@ -7,13 +7,12 @@
     <link rel="stylesheet" href="trafficsim.css">
   </head>
   <body>
-    <h1>Traffic Simulator</h1>
-    
-    <div class="game-container">
-      <canvas class="game-element"></canvas>
+    <div id="game-container">
+      <canvas id="game-element"></canvas>
     </div>
-    <div id="fps"></div>
-    
+    <div id="top-panel">
+      <div id="fps"></div>
+    </div>        
     <script type="application/dart" src="trafficsim.dart"></script>
     <script src="packages/browser/dart.js"></script>
   </body>
