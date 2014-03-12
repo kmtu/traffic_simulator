@@ -21,26 +21,28 @@ void main() {
 
   world = new World(gameLoop);
 
-  Vector2 center = new Vector2(61.0, 45.0);
-  camera = new Camera(canvas, world, pixelPerMeter: 10.0, center: center);
+  camera = new Camera(canvas, world, pixelPerMeter: 10.0);
 
   List<Joint> joint = [new SourceJoint("0"), new Joint("1"),
                        new Joint("2"), new Joint("3")];
 
-  List<Vector2> p = [new Vector2(20.0, 70.0), new Vector2(55.0, 70.0),
-                     new Vector2(60.0, 70.0), new Vector2(105.0, 70.0),
-                     new Vector2(105.0, 65.0), new Vector2(65.0, 20.0),
-                     new Vector2(60.0, 20.0), new Vector2(20.0, 65.0),
-                     new Vector2(62.5, 25.0), new Vector2(57.5, 65.0),
+  List<Vector2> p = [new Vector2(0.0, 0.0), new Vector2(500.0, 0.0),
+                     new Vector2(505.0, 0.0), new Vector2(1000.0, 0.0),
+                     new Vector2(1000.0, 5.0), new Vector2(505.0, -500.0),
+                     new Vector2(500.0, -500.0), new Vector2(0.0, -5.0),
+                     new Vector2(502.5, -495.0), new Vector2(502.5, 5.0),
                      ];
 
+  camera.setCenter(p[1]);
+
   List<Road> road
-      = [new Road(p[0], p[1], numForwardLane: 1, numBackwardLane: 0),
-         new Road(p[2], p[3], numForwardLane: 1, numBackwardLane: 0),
-         new Road(p[4], p[5], numForwardLane: 1, numBackwardLane: 0),
-         new Road(p[6], p[7], numForwardLane: 1, numBackwardLane: 0),
-         new Road(p[8], p[9], numForwardLane: 1, numBackwardLane: 0)
+      = [new Road(p[0], p[1], numForwardLane: 3, numBackwardLane: 0),
+         new Road(p[2], p[3], numForwardLane: 3, numBackwardLane: 0),
+         new Road(p[4], p[5], numForwardLane: 3, numBackwardLane: 0),
+         new Road(p[6], p[7], numForwardLane: 3, numBackwardLane: 0),
+         new Road(p[8], p[9], numForwardLane: 3, numBackwardLane: 0)
         ];
+
   road[0].attachJoint(joint[0], Road.BEGIN_SIDE);
   road[0].attachJoint(joint[1], Road.END_SIDE);
   road[1].attachJoint(joint[1], Road.BEGIN_SIDE);

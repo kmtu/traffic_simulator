@@ -25,7 +25,7 @@ class Camera {
         ..width = canvas.width
         ..height = canvas.height;
     if (center == null) center = new Vector2.zero();
-    setCenter(center.x, center.y);
+    setCenter(center);
     pos = center;
   }
 
@@ -147,9 +147,9 @@ class Camera {
     zoom(zm);
   }
 
-  setCenter(num x, num y) {
-    center.setValues(x.toDouble() - canvas.width / (2* pixelPerMeter),
-        y.toDouble() - canvas.height / (2* pixelPerMeter));
+  setCenter(Vector2 c) {
+    this.center.setValues(c.x - canvas.width / (2* pixelPerMeter),
+        c.y - canvas.height / (2* pixelPerMeter));
   }
 }
 
