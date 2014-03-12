@@ -44,12 +44,9 @@ class Road {
 
   World world;
 
-  Road(List<Vector2> end, {int numForwardLane: 1, int numBackwardLane: 1, this.drivingHand: RHT}) {
-    if (end.length != 2) {
-      throw new ArgumentError("Road: there must be two and only two ends in a road.");
-    }
-    roadEnd[0] = new RoadEnd(this, Road.BEGIN_SIDE, end[0], forwardLane, backwardLane);
-    roadEnd[1] = new RoadEnd(this, Road.END_SIDE, end[1], backwardLane, forwardLane);
+  Road(Vector2 begin, Vector2 end, {int numForwardLane: 1, int numBackwardLane: 1, this.drivingHand: RHT}) {
+    roadEnd[0] = new RoadEnd(this, Road.BEGIN_SIDE, begin, forwardLane, backwardLane);
+    roadEnd[1] = new RoadEnd(this, Road.END_SIDE, end, backwardLane, forwardLane);
     updateOnEndChange();
     addLane(numForwardLane, numBackwardLane);
   }
