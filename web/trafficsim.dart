@@ -20,27 +20,26 @@ void main() {
   gameLoop = new GameLoopHtml(canvas);
   gameLoop.processAllKeyboardEvents = false;
   gameLoop.pointerLock.lockOnClick = false;
-
   world = new World(gameLoop);
 
   camera = new Camera(canvas, world, pixelPerMeter: 10.0);
 
   List<Joint> joint = new List<Joint>(4);
-  joint[0] = new SourceJoint(label: "0", maxDispatch: 1);
+  joint[0] = new SourceJoint(label: "0", maxDispatch: 1000);
   joint[1] = new Joint(label: "1");
-  joint[2] = new SourceJoint(label: "2", maxDispatch: 2);
-  joint[3] = new SourceJoint(label: "3", maxDispatch: 3);
+  joint[2] = new SourceJoint(label: "2", maxDispatch: 1000);
+  joint[3] = new SourceJoint(label: "3", maxDispatch: 1000);
 
   List<Vector2> p = new List<Vector2>(10);
   p[0] = new Vector2(0.0, 0.0);
   p[1] = new Vector2(500.0, 0.0);
   p[2] = new Vector2(505.0, 0.0);
   p[3] = new Vector2(1000.0, 0.0);
-  p[4] = new Vector2(1000.0, 5.0);
+  p[4] = new Vector2(1000.0, -10.0);
   p[5] = new Vector2(505.0, -500.0);
   p[6] = new Vector2(500.0, -500.0);
-  p[7] = new Vector2(0.0, -5.0);
-  p[8] = new Vector2(502.5, -495.0);
+  p[7] = new Vector2(0.0, -10.0);
+  p[8] = new Vector2(502.5, -490.0);
   p[9] = new Vector2(502.5, -5.0);
 
   camera.center = p[1];
