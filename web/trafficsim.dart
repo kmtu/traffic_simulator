@@ -8,7 +8,6 @@ World world;
 Camera camera;
 
 DivElement fpsDiv = querySelector("#fps");
-DivElement top = querySelector("#top-panel");
 DivElement container = querySelector("#game-container");
 CanvasElement canvas = querySelector("#game-element");
 
