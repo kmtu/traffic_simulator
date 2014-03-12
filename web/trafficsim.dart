@@ -21,8 +21,8 @@ void main() {
 
   world = new World(gameLoop);
 
-  Vector2 center = new Vector2(20.0, 70.0);
-  camera = new Camera(canvas, world, pixelPerMeter: 15.0, center: center);
+  Vector2 center = new Vector2(60.0, 45.0);
+  camera = new Camera(canvas, world, pixelPerMeter: 10.0, center: center);
   List<Joint> joint = [new SourceJoint("0"), new Joint("1"),
                        new Joint("2"), new Joint("3")];
   List<Road> road
