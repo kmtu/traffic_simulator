@@ -3,7 +3,7 @@ part of traffic_simulator;
 class Camera {
   Vector2 pos = new Vector2.zero(); // top-left corner
   Vector2 vel = new Vector2.zero();
-  Vector2 center = new Vector2.zero();
+  Vector2 _center = new Vector2.zero();
   double acc = 30.0;
   double maxSpeed = 60.0; // meter per click
   double height; // meters
@@ -18,16 +18,27 @@ class Camera {
   double dt;
   Matrix3 transformMatrix;
 
-  Camera(this.canvas, this.world, {this.pixelPerMeter: 10.0, this.center}) {
+  Camera(this.canvas, this.world, {this.pixelPerMeter: 10.0, Vector2 center}) {
     ratio = canvas.width / canvas.height;
     height = canvas.height.toDouble() / pixelPerMeter;
     buffer = new CanvasElement()
         ..width = canvas.width
         ..height = canvas.height;
-    if (center == null) center = new Vector2.zero();
-    setCenter(center);
-    pos = center;
+    if (center == null) {
+      this.center = new Vector2.zero();
+    }
+    else {
+      this.center = center;
+    }
+    pos = this.center;
   }
+
+  void set center(Vector2 c) {
+    this._center.setValues(c.x - canvas.width / (2* pixelPerMeter),
+        c.y - canvas.height / (2* pixelPerMeter));
+  }
+
+  Vector2 get center => this._center;
 
   void draw() {
     dt = world.gameLoop.dt * world.gameLoop.renderInterpolationFactor;
@@ -138,18 +149,13 @@ class Camera {
   void reset() {
     zoom(1 / zoomFactor);
     vel.setZero();
-    pos.setFrom(center);
+    pos.setFrom(_center);
   }
 
   void toCenter() {
     var zm = zoomFactor;
     reset();
     zoom(zm);
-  }
-
-  setCenter(Vector2 c) {
-    this.center.setValues(c.x - canvas.width / (2* pixelPerMeter),
-        c.y - canvas.height / (2* pixelPerMeter));
   }
 }
 
