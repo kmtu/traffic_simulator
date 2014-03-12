@@ -12,22 +12,21 @@ class Camera {
   double pixelPerMeter;
   CanvasElement canvas, buffer;
   double minZoomFactor = 0.2;
-      // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
+  // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
   double zoomFactor = 1.0;
-  double get width => height * ratio;
+  double get width => height * ratio; // meters
   double dt;
   Matrix3 transformMatrix;
+  int maxHeightPixel;
+  int maxWidthPixel;
 
-  Camera(this.canvas, this.world, {this.pixelPerMeter: 10.0, Vector2 center}) {
-    ratio = canvas.width / canvas.height;
-    height = canvas.height.toDouble() / pixelPerMeter;
-    buffer = new CanvasElement()
-        ..width = canvas.width
-        ..height = canvas.height;
+  Camera(this.canvas, this.world, {this.pixelPerMeter: 10.0, Vector2
+      center, this.maxHeightPixel: 0, this.maxWidthPixel: 0}) {
+    buffer = new CanvasElement();
+    onResize();
     if (center == null) {
       this.center = new Vector2.zero();
-    }
-    else {
+    } else {
       this.center = center;
     }
     pos = this.center;
@@ -35,22 +34,72 @@ class Camera {
 
   void onResize() {
     ratio = canvas.width / canvas.height;
-    height = canvas.height.toDouble() / pixelPerMeter;
-    buffer ..width = canvas.width
-           ..height = canvas.height;
+    if (maxHeightPixel > 0) {
+      if (maxWidthPixel > 0) {
+        // Choose the limiting one
+        if (ratio < 1)  {
+          // canvas.width < canvas.height, limit height
+          if (canvas.height > maxHeightPixel) {
+            buffer.height = maxHeightPixel;
+          }
+          else {
+            buffer.height = canvas.height;
+          }
+          buffer.width = (buffer.height * ratio).toInt();
+        }
+        else {
+          // canvas.width > canvas.height, limit width
+          if (canvas.width > maxWidthPixel) {
+            buffer.width = maxWidthPixel;
+          }
+          else {
+            buffer.width = canvas.width;
+          }
+          buffer.height = (buffer.width ~/ ratio);
+        }
+      }
+      else {
+        // Only maxHeightPixel is given, limit height
+        if (canvas.height > maxHeightPixel) {
+          buffer.height = maxHeightPixel;
+        }
+        else {
+          buffer.height = canvas.height;
+        }
+        buffer.width = (buffer.height * ratio).toInt();
+      }
+    }
+    else {
+      if (maxWidthPixel > 0) {
+        // Only maxWidthPixel is given, limit width
+        if (canvas.width > maxWidthPixel) {
+          buffer.width = maxWidthPixel;
+        }
+        else {
+          buffer.width = canvas.width;
+        }
+        buffer.height = (buffer.width ~/ ratio);
+      }
+      else {
+        // No limit, use the original resolution of the device
+        buffer
+            ..width = canvas.width
+            ..height = canvas.height;
+      }
+    }
+    height = buffer.height.toDouble() / pixelPerMeter;
   }
 
   void set center(Vector2 c) {
-    this._center.setValues(c.x - canvas.width / (2* pixelPerMeter),
-        c.y - canvas.height / (2* pixelPerMeter));
+    this._center.setValues(c.x - width / 2, c.y - height / 2);
   }
 
   Vector2 get center => this._center;
 
   void draw() {
     dt = world.gameLoop.dt * world.gameLoop.renderInterpolationFactor;
-    transformMatrix = preTranslate(makeScaleMatrix3(pixelPerMeter),
-          -(pos.x + vel.x * dt), -(pos.y + vel.y * dt));
+    transformMatrix = preTranslate(makeScaleMatrix3(pixelPerMeter), -(pos.x +
+        vel.x * dt), -(pos.y + vel.y * dt));
     var bufferContext = buffer.context2D;
     bufferContext.clearRect(0, 0, buffer.width, buffer.height);
     bufferContext.save();
@@ -59,7 +108,8 @@ class Camera {
     world.draw(this);
     bufferContext.restore();
     canvas.context2D.clearRect(0, 0, canvas.width, canvas.height);
-    canvas.context2D.drawImage(buffer, 0 , 0);
+    //    canvas.context2D.drawImage(buffer, 0 , 0);
+    canvas.context2D.drawImageScaled(buffer, 0, 0, canvas.width, canvas.height);
   }
 
   /*  void drawWorldBoundary() {
@@ -77,16 +127,16 @@ class Camera {
   void zoom(double factor) {
     // prevent camera from zooming out of the world canvas
     double zoomFactorTest = zoomFactor * factor;
-//    if (zoomFactorTest >= minZoomFactor) {
-      zoomFactor = zoomFactorTest;
-      maxSpeed *= factor;
-      acc *= factor;
-      double dy = height * (1 - factor) / 2.0;
-      height *= factor;
-      pos.y += dy;
-      pos.x += dy * ratio;
-      pixelPerMeter /= factor;
-//    }
+    //    if (zoomFactorTest >= minZoomFactor) {
+    zoomFactor = zoomFactorTest;
+    maxSpeed *= factor;
+    acc *= factor;
+    double dy = height * (1 - factor) / 2.0;
+    height *= factor;
+    pos.y += dy;
+    pos.x += dy * ratio;
+    pixelPerMeter /= factor;
+    //    }
   }
 
   void zoomIn(double factor) => zoom(1.0 / factor);
