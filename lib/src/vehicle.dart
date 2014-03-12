@@ -41,7 +41,7 @@ class Vehicle implements Backtraceable {
     CanvasRenderingContext2D context = camera.buffer.context2D;
     context.save();
 
-    transformContext(context, preTranslate(transformMatrix, pos + vel * world.view.dtRender, 0.0));
+    transformContext(context, preTranslate(transformMatrix, pos + vel * world.view.dt, 0.0));
     // draw as if the reference point of the vehicle is the origin
 
     context.setFillColorRgb(color.r, color.g, color.b);
