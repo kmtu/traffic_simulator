@@ -47,3 +47,12 @@ void transformContext(CanvasRenderingContext2D context, Matrix3 M) {
 /*void translateMatrix(Matrix3 M, double dx, double dy) {
   M.setColumn(2, new Vector3(dx, dy, 1.0));
 }*/
+
+void forEachEntryFromLast(DoubleLinkedQueue dlq, f(DoubleLinkedQueueEntry element)) {
+  DoubleLinkedQueueEntry entry = dlq.lastEntry();
+  while (entry != null) {
+    DoubleLinkedQueueEntry previousEntry = entry.previousEntry();
+    f(entry);
+    entry = previousEntry;
+  }
+}

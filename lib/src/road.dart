@@ -20,11 +20,11 @@ class Road {
 
   /// Lanes which direction are [Road.FORWARD]
   /// First added will be drawn as inner lanes
-  final BacktraceReversibleDBLQ<Lane> forwardLane = new BacktraceReversibleDBLQ<Lane>();
+  final DoubleLinkedQueue<Lane> forwardLane = new DoubleLinkedQueue<Lane>();
 
   /// Lanes which direction are [Road.BACKWARD]
   /// First added will be drawn as inner lanes
-  final BacktraceReversibleDBLQ<Lane> backwardLane = new BacktraceReversibleDBLQ<Lane>();
+  final DoubleLinkedQueue<Lane> backwardLane = new DoubleLinkedQueue<Lane>();
 
   /// Position of the two [roadEnd] of this road
   final List<RoadEnd> roadEnd = new List<RoadEnd>(2);
@@ -71,9 +71,11 @@ class Road {
   void _addLane(Lane ln) {
     if (ln.direction == FORWARD) {
       forwardLane.add(ln);
+      ln.entry = forwardLane.lastEntry();
     }
     else if (ln.direction == BACKWARD) {
       backwardLane.add(ln);
+      ln.entry = backwardLane.lastEntry();
     }
     else {
       throw new ArgumentError("A lane must have a valid direction when added to road.");
@@ -104,7 +106,7 @@ class Road {
     }
   }
 
-  BacktraceReversibleDBLQ<Lane> _getOppositeLane(Lane lane) {
+  DoubleLinkedQueue<Lane> _getOppositeLane(Lane lane) {
     if (lane.direction == Road.FORWARD) return backwardLane;
     else return forwardLane;
   }
@@ -199,10 +201,10 @@ class RoadEnd {
   final int side;
   /// Outward means go onto the road,
   /// in order to be consistent with Joint's point of view.
-  final BacktraceReversibleDBLQ<Lane> outwardLane;
+  final DoubleLinkedQueue<Lane> outwardLane;
   /// Inward means leave the road,
   /// in order to be consistent with Joint's point of view.
-  final BacktraceReversibleDBLQ<Lane> inwardLane;
+  final DoubleLinkedQueue<Lane> inwardLane;
 
   Joint joint;
 
