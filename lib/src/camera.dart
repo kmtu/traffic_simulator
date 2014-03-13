@@ -219,9 +219,15 @@ class Color {
 
   Color(this.r, this.g, this.b, [this.a]);
 
-  Color.red() {
+  Color.red([this.a]) {
     r = 255;
     g = 0;
+    b = 0;
+  }
+
+  Color.yellow([this.a]) {
+    r = 255;
+    g = 255;
     b = 0;
   }
 
