@@ -40,16 +40,18 @@ class Road {
   World world;
 
   Road(Vector2 begin, Vector2 end, {int numForwardLane: 1, int numBackwardLane: 1,
-      int drivingHand: RHT, this.view}) {
+      int drivingSide: Road.RHT, this.view}) {
     roadEnd[0] = new RoadEnd(this, Road.BEGIN_SIDE, begin, forwardLane, backwardLane);
     roadEnd[1] = new RoadEnd(this, Road.END_SIDE, end, backwardLane, forwardLane);
     updateOnEndChange();
-    if (drivingHand == null) {
-      this.drivingSide = Road.RHT;
-    }
+    _drivingSide = drivingSide;
     addLane(numForwardLane, numBackwardLane);
     if (view == null) {
       view = new RoadView(this);
+    }
+    else {
+      view.updateDrivingSide();
+      view.updateTransformMatrix();
     }
   }
 
@@ -78,17 +80,16 @@ class Road {
       throw new ArgumentError("A lane must have a valid direction when added to road.");
     }
     ln.road = this;
-    updateOnLaneChange();
   }
 
-  Road addLane(int numForward, int numBackword) {
+  void addLane(int numForward, int numBackword) {
     for (int i = 0; i < numForward; i++) {
       this._addLane(new Lane(this, FORWARD));
     }
     for (int i = 0; i < numBackword; i++) {
       this._addLane(new Lane(this, BACKWARD));
     }
-    return this;
+    updateOnLaneChange();
   }
 
   void attachJoint(Joint joint, int side) {
