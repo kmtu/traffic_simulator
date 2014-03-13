@@ -13,7 +13,7 @@ class WorldView {
     }
 
     for (Road rd in world.road) {
-      rd.draw(camera);
+      rd.view.draw(camera);
     }
 
     for (Joint joint in world.joint) {

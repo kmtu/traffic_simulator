@@ -16,6 +16,8 @@ class Road {
   /// Both inner lanes and outer lane are fine
   static const int RANDOM_LANE = 22;
 
+  RoadView view;
+
   /// Lanes which direction are [Road.FORWARD]
   /// First added will be drawn as inner lanes
   final BacktraceReversibleDBLQ<Lane> forwardLane = new BacktraceReversibleDBLQ<Lane>();
@@ -24,32 +26,42 @@ class Road {
   /// First added will be drawn as inner lanes
   final BacktraceReversibleDBLQ<Lane> backwardLane = new BacktraceReversibleDBLQ<Lane>();
 
-  /// Lanes in the upper part of this road. For drawing purpose.
-  DoubleLinkedQueue<Lane> _upperLane;
-  /// Lanes in the upper part of this road. For drawing purpose.
-  DoubleLinkedQueue<Lane> _lowerLane;
-
   /// Position of the two [roadEnd] of this road
   final List<RoadEnd> roadEnd = new List<RoadEnd>(2);
 
   /// Length of this road in meters
   double length;
-  Matrix3 transformMatrix;
   /// Right-Hand Traffic or Left-Hand Traffic.
   /// Can be [Road.RHT] or [Road.LHT].
-  int drivingHand;
+  int _drivingHand;
 
   double width = 0.0;
-  double boundaryLineWidth = 1.0;
 
   World world;
 
-  Road(Vector2 begin, Vector2 end, {int numForwardLane: 1, int numBackwardLane: 1, this.drivingHand: RHT}) {
+  Road(Vector2 begin, Vector2 end, {int numForwardLane: 1, int numBackwardLane: 1,
+      int drivingHand: RHT, this.view}) {
     roadEnd[0] = new RoadEnd(this, Road.BEGIN_SIDE, begin, forwardLane, backwardLane);
     roadEnd[1] = new RoadEnd(this, Road.END_SIDE, end, backwardLane, forwardLane);
     updateOnEndChange();
+    if (drivingHand == null) {
+      this.drivingHand = Road.RHT;
+    }
     addLane(numForwardLane, numBackwardLane);
+    if (view == null) {
+      view = new RoadView(this);
+    }
   }
+
+  void set drivingHand(int drivingHand) {
+    this._drivingHand = drivingHand;
+    if (view != null) {
+      view.updateDrivingHand();
+    }
+  }
+
+  int get drivingHand => this._drivingHand;
+
 
   void _addLane(Lane ln) {
     if (ln.direction == FORWARD) {
@@ -88,83 +100,6 @@ class Road {
     }
   }
 
-  void draw(Camera camera) {
-    CanvasRenderingContext2D context = camera.buffer.context2D;
-    context.save();
-    if (forwardLane.isEmpty && backwardLane.isEmpty) {
-      _drawMiddleLine(camera);
-    }
-    else {
-      _drawUpperLane(camera, _upperLane);
-      _drawLowerLane(camera, _lowerLane);
-      _drawBoundary(camera);
-    }
-    context.restore();
-  }
-
-  void _drawUpperLane(Camera camera, BacktraceReversibleDBLQ<Lane> lane) {
-    double cumWidth_ = 0.0;
-    double halfTotalLaneWidth = width / 2 - boundaryLineWidth / 2;
-    // draw from outer lane
-    lane.forEachEntryFromLast((laneEntry){
-      laneEntry.element.draw(camera,
-          preTranslate( transformMatrix, 0.0, -halfTotalLaneWidth + cumWidth_));
-      cumWidth_ += laneEntry.element.width;
-    });
-  }
-
-  void _drawLowerLane(Camera camera, BacktraceReversibleDBLQ<Lane> lane) {
-    double cumWidth_ = 0.0;
-    double halfTotalLaneWidth = width / 2 - boundaryLineWidth / 2;
-    // draw from outer lane
-    lane.forEachEntryFromLast((laneEntry){
-      cumWidth_ += laneEntry.element.width;
-      laneEntry.element.draw(camera,
-          preTranslate( transformMatrix, 0.0, halfTotalLaneWidth - cumWidth_));
-    });
-  }
-
-  void _drawBoundary(Camera camera) {
-    CanvasRenderingContext2D context = camera.buffer.context2D;
-    context.save();
-
-    transformContext(context, transformMatrix);
-    // draw as if the center of the road aligns to the x-axis
-
-    context.beginPath();
-
-    // draw top boundary line
-    double totalHalfLaneWidth = width / 2 - boundaryLineWidth / 2;
-    context.moveTo(0, -totalHalfLaneWidth);
-    context.lineTo(length, -totalHalfLaneWidth);
-
-    // draw bottom boundary line
-    context.moveTo(0, totalHalfLaneWidth);
-    context.lineTo(length, totalHalfLaneWidth);
-
-    context.setStrokeColorRgb(100, 100, 100);
-    context.lineWidth = boundaryLineWidth;
-    context.stroke();
-
-    context.restore();
-  }
-
-  void _drawMiddleLine(Camera camera) {
-    //Draw a line if the road contains no lane
-    CanvasRenderingContext2D context = camera.buffer.context2D;
-    context.save();
-    transformContext(context, transformMatrix);
-    // draw as if the center of the road aligns to the x-axis
-
-    context.beginPath();
-    context.moveTo(0, 0);
-    context.lineTo(length, 0);
-    context.setStrokeColorRgb(255, 0, 0, 0.5);
-    context.lineWidth = 1;
-    context.stroke();
-    context.restore();
-  }
-
   BacktraceReversibleDBLQ<Lane> _getOppositeLane(Lane lane) {
     if (lane.direction == Road.FORWARD) return backwardLane;
     else return forwardLane;
@@ -175,32 +110,15 @@ class Road {
    */
   void updateOnEndChange() {
     length = roadEnd[0].pos.distanceTo(roadEnd[1].pos).toDouble();
-
-    // rotate first then translate
-    // [trans matrix]*[rot matrix]*<old vector> = <new vector>
-    // one needs to post-multiply this transformMatrix with a tranlsate Matrix, first
-    // to align the object's rotation point with the origin before doing the rotation.
-    Vector2 d = roadEnd[1].pos - roadEnd[0].pos;
-    double angle = atan2(d.y, d.x);
-    transformMatrix = new Matrix3.rotationZ(angle);
-    transformMatrix = postTranslate(transformMatrix, roadEnd[0].pos.x, roadEnd[0].pos.y);
+    if (view != null) {
+      view.updateTransformMatrix();
+    }
   }
 
   void updateOnLaneChange() {
-    width = boundaryLineWidth;
+    width = 0.0;
     forwardLane.forEach((l) => width += l.width);
     backwardLane.forEach((l) => width += l.width);
-
-    if (drivingHand == Road.RHT) {
-      _upperLane = backwardLane;
-      _lowerLane = forwardLane;
-
-    }
-    else {
-      _upperLane = forwardLane;
-      _lowerLane = backwardLane;
-    }
-
     roadEnd.forEach((e) => e.updateOnLaneChange());
   }
 

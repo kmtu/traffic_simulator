@@ -10,6 +10,7 @@ part 'src/world.dart';
 part 'src/world.view.dart';
 part 'src/driver.dart';
 part 'src/road.dart';
+part 'src/road.view.dart';
 part 'src/vehicle.dart';
 part 'src/joint.dart';
 part 'src/lane.dart';
