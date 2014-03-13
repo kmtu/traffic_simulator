@@ -33,7 +33,7 @@ class Road {
   double length;
   /// Right-Hand Traffic or Left-Hand Traffic.
   /// Can be [Road.RHT] or [Road.LHT].
-  int _drivingHand;
+  int _drivingSide;
 
   double width = 0.0;
 
@@ -45,7 +45,7 @@ class Road {
     roadEnd[1] = new RoadEnd(this, Road.END_SIDE, end, backwardLane, forwardLane);
     updateOnEndChange();
     if (drivingHand == null) {
-      this.drivingHand = Road.RHT;
+      this.drivingSide = Road.RHT;
     }
     addLane(numForwardLane, numBackwardLane);
     if (view == null) {
@@ -53,14 +53,18 @@ class Road {
     }
   }
 
-  void set drivingHand(int drivingHand) {
-    this._drivingHand = drivingHand;
+  /**
+   *  Set the [drivingSide] of this road
+   *  Can be [Road.RHT] or [Road.LHT].
+   */
+  void set drivingSide(int drivingSide) {
+    this._drivingSide = drivingSide;
     if (view != null) {
-      view.updateDrivingHand();
+      view.updateDrivingSide();
     }
   }
 
-  int get drivingHand => this._drivingHand;
+  int get drivingSide => this._drivingSide;
 
 
   void _addLane(Lane ln) {

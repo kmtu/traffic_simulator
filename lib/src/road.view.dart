@@ -4,7 +4,7 @@ class RoadView {
   Road model;
   RoadView(this.model) {
     updateTransformMatrix();
-    updateDrivingHand();
+    updateDrivingSide();
   }
   Matrix3 transformMatrix;
 
@@ -102,8 +102,8 @@ class RoadView {
     transformMatrix = postTranslate(transformMatrix, model.roadEnd[0].pos.x, model.roadEnd[0].pos.y);
   }
 
-  void updateDrivingHand() {
-    if (model.drivingHand == Road.RHT) {
+  void updateDrivingSide() {
+    if (model.drivingSide == Road.RHT) {
       _upperLane = model.backwardLane;
       _lowerLane = model.forwardLane;
 

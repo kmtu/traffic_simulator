@@ -8,16 +8,16 @@ class Lane implements Backtraceable {
   final int direction;
 
   /// The direction of a lane is always from laneEnd[0] to laneEnd[1]
-  List<RoadEnd> laneEnd;
+  final List<RoadEnd> laneEnd = new List<RoadEnd>(2);
   DoubleLinkedQueueEntry<Lane> entry;
   final Queue<Vehicle> queue = new Queue<Vehicle>();
 
   Lane(this.road, this.direction, {this.width: 3.5}) {
     if (direction == Road.FORWARD) {
-      laneEnd = road.roadEnd;
+      laneEnd.setAll(0, road.roadEnd);
     }
     else {
-      laneEnd = road.roadEnd.reversed.toList(growable: false);
+      laneEnd.setAll(0, road.roadEnd.reversed);
     }
   }
 
@@ -118,8 +118,8 @@ class Lane implements Backtraceable {
 
   void _beginPathInsideLine(CanvasRenderingContext2D context) {
     context.beginPath();
-    if ((direction == Road.FORWARD && road.drivingHand == Road.RHT) ||
-        (direction == Road.BACKWARD && road.drivingHand == Road.LHT)) {
+    if ((direction == Road.FORWARD && road.drivingSide == Road.RHT) ||
+        (direction == Road.BACKWARD && road.drivingSide == Road.LHT)) {
       // Inside is top
       _traceLineAtY(context, 0.0);
     }
@@ -132,8 +132,8 @@ class Lane implements Backtraceable {
   void _beginPathInsideDash(CanvasRenderingContext2D context,
                             double solidLength, double gapLength) {
     context.beginPath();
-    if ((direction == Road.FORWARD && road.drivingHand == Road.RHT) ||
-        (direction == Road.BACKWARD && road.drivingHand == Road.LHT)) {
+    if ((direction == Road.FORWARD && road.drivingSide == Road.RHT) ||
+        (direction == Road.BACKWARD && road.drivingSide == Road.LHT)) {
       // Inside is top
       _traceDashAtY(context, solidLength, gapLength, 0.0);
     }
@@ -145,8 +145,8 @@ class Lane implements Backtraceable {
 
   void _beginPathOutsideLine(CanvasRenderingContext2D context) {
     context.beginPath();
-    if ((direction == Road.FORWARD && road.drivingHand == Road.LHT) ||
-        (direction == Road.BACKWARD && road.drivingHand == Road.RHT)) {
+    if ((direction == Road.FORWARD && road.drivingSide == Road.LHT) ||
+        (direction == Road.BACKWARD && road.drivingSide == Road.RHT)) {
       // Outside is top
       _traceLineAtY(context, 0.0);
     }
@@ -159,8 +159,8 @@ class Lane implements Backtraceable {
   void _beginPathOutsideDash(CanvasRenderingContext2D context,
                              double solidLength, double gapLength) {
     context.beginPath();
-    if ((direction == Road.FORWARD && road.drivingHand == Road.LHT) ||
-        (direction == Road.BACKWARD && road.drivingHand == Road.RHT)) {
+    if ((direction == Road.FORWARD && road.drivingSide == Road.LHT) ||
+        (direction == Road.BACKWARD && road.drivingSide == Road.RHT)) {
       // Outside is top
       _traceDashAtY(context, solidLength, gapLength, 0.0);
     }
