@@ -16,7 +16,9 @@ class World {
       random = new Random(new DateTime.now().millisecondsSinceEpoch);
     }
     dtUpdate = gameLoop.dt;
-    view = new WorldView(this);
+    if (view == null) {
+      view = new WorldView(this);
+    }
   }
 
   void addRoad(Iterable<Road> road) {
