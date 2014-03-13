@@ -34,7 +34,7 @@ class RoadView {
     double halfTotalLaneWidth = model.width / 2;
     // draw from outer lane
     lane.forEachEntryFromLast((laneEntry){
-      laneEntry.element.draw(camera,
+      laneEntry.element.view.draw(camera,
           preTranslate( transformMatrix, 0.0, -halfTotalLaneWidth + cumWidth_));
       cumWidth_ += laneEntry.element.width;
     });
@@ -46,7 +46,7 @@ class RoadView {
     // draw from outer lane
     lane.forEachEntryFromLast((laneEntry){
       cumWidth_ += laneEntry.element.width;
-      laneEntry.element.draw(camera,
+      laneEntry.element.view.draw(camera,
           preTranslate( transformMatrix, 0.0, halfTotalLaneWidth - cumWidth_));
     });
   }
