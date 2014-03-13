@@ -143,34 +143,30 @@ class Camera {
   void zoomOut(double factor) => zoom(factor);
 
   void moveRight() {
+    vel.x += acc;
     if (vel.x >= maxSpeed) {
       vel.x = maxSpeed;
-    } else {
-      vel.x += acc;
     }
   }
 
   void moveLeft() {
+    vel.x -= acc;
     if (vel.x < -maxSpeed) {
       vel.x = -maxSpeed;
-    } else {
-      vel.x -= acc;
     }
   }
 
   void moveUp() {
+    vel.y -= acc;
     if (vel.y < -maxSpeed) {
       vel.y = -maxSpeed;
-    } else {
-      vel.y -= acc;
     }
   }
 
   void moveDown() {
+    vel.y += acc;
     if (vel.y > maxSpeed) {
       vel.y = maxSpeed;
-    } else {
-      vel.y += acc;
     }
   }
 
