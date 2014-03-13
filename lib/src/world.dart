@@ -11,15 +11,13 @@ class World {
   Random random;
   bool pause = false;
 
-  World(this.gameLoop, [this.random]) {
+  World(this.gameLoop, {this.random, this.view}) {
     if (random == null) {
       random = new Random(new DateTime.now().millisecondsSinceEpoch);
     }
     dtUpdate = gameLoop.dt;
     view = new WorldView(this);
   }
-
-  void draw(Camera camera) => view.draw(camera);
 
   void addRoad(Iterable<Road> road) {
     for (Road rd in road) {

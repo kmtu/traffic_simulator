@@ -105,7 +105,7 @@ class Camera {
     bufferContext.save();
     // align the top left corner of the canvas to camera.pos
     transformContext(bufferContext, transformMatrix);
-    world.draw(this);
+    world.view.draw(this);
     bufferContext.restore();
     canvas.context2D.clearRect(0, 0, canvas.width, canvas.height);
     //    canvas.context2D.drawImage(buffer, 0 , 0);
