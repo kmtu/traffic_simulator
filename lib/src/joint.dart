@@ -1,14 +1,16 @@
 part of traffic_simulator;
 
 class Joint {
+  View<Joint> view;
   Set<RoadEnd> roadEnd = new Set<RoadEnd>();
-  Set<RoadEnd> _inwardRoadEnd =  new Set<RoadEnd>();
-  Set<RoadEnd> _outwardRoadEnd =  new Set<RoadEnd>();
+  Set<RoadEnd> _inwardRoadEnd = new Set<RoadEnd>();
+  Set<RoadEnd> _outwardRoadEnd = new Set<RoadEnd>();
   String label;
-  Color labelCircleColor;
 
-  Joint({this.label: ""}) {
-    labelCircleColor = new Color.random(min: 100);
+  Joint({this.label: "", this.view}) {
+    if (view == null) {
+      view = new JointView(this);
+    }
   }
 
   World world;
@@ -32,92 +34,59 @@ class Joint {
     }
   }
 
-  void draw(Camera camera) {
-    drawLabel(camera);
-  }
 
-  void drawLabel(Camera camera) {
-    CanvasRenderingContext2D context = camera.buffer.context2D;
-    for (var roadEnd in this.roadEnd) {
-      context.save();
-      transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
-      context.beginPath();
-      context.arc(0, 0, roadEnd.road.width / 2, 0, 2*PI);
-      context.setFillColorRgb(labelCircleColor.r, labelCircleColor.g,
-          labelCircleColor.b, 0.9);
-      context.fill();
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.setFillColorRgb(0, 0, 0);
-
-      // Use larger font first then scale down to workaround the
-      // minimum font size problem in Chrome
-      context.save();
-      context.scale(0.25, 0.25);
-      context.font = "16px arial";
-      context.fillText(label, 0, 0);
-      context.restore();
-
-      context.restore();
-    }
-  }
-
-  Lane getRandomAvailableOutwardLane({Vehicle vehicle, List<RoadEnd> excludeRoadEnd,
-                                      List<Lane> excludeLane}) {
+  Lane getRandomAvailableOutwardLane({Vehicle vehicle, List<RoadEnd>
+      excludeRoadEnd, List<Lane> excludeLane}) {
     Iterable<RoadEnd> roadEnd = getAvailableOutwardRoadEnd(vehicle: vehicle,
         excludeRoadEnd: excludeRoadEnd);
     if (roadEnd.isNotEmpty) {
-      Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)).
-            getAvailableOutwardLane(vehicle: vehicle, excludeLane: excludeLane);
+      Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)
+          ).getAvailableOutwardLane(vehicle: vehicle, excludeLane: excludeLane);
       if (lane.isNotEmpty) {
         return lane.elementAt(world.random.nextInt(lane.length));
-      }
-      else {
+      } else {
         return null;
       }
-    }
-    else {
+    } else {
       return null;
     }
   }
 
-  Lane getRandomLeastQueueOutwardLane({Iterable<RoadEnd> excludeRoadEnd,
-                                       Iterable<Lane> excludeLane}) {
+  Lane getRandomLeastQueueOutwardLane({Iterable<RoadEnd>
+      excludeRoadEnd, Iterable<Lane> excludeLane}) {
     if (this._outwardRoadEnd.isNotEmpty) {
       Iterable roadEnd = _outwardRoadEnd;
       if (excludeRoadEnd != null) {
         roadEnd = roadEnd.where((r) => !excludeRoadEnd.contains(r));
       }
-      Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)).
-            getLeastQueueOutwardLane(excludeLane: excludeLane);
+      Iterable lane = roadEnd.elementAt(world.random.nextInt(roadEnd.length)
+          ).getLeastQueueOutwardLane(excludeLane: excludeLane);
       if (lane.isNotEmpty) {
         return lane.elementAt(world.random.nextInt(lane.length));
-      }
-      else {
+      } else {
         return null;
       }
-    }
-    else {
+    } else {
       return null;
     }
   }
 
 
-  Iterable<RoadEnd> getAvailableOutwardRoadEnd({Vehicle vehicle, List<RoadEnd> excludeRoadEnd}) {
+  Iterable<RoadEnd> getAvailableOutwardRoadEnd({Vehicle vehicle, List<RoadEnd>
+      excludeRoadEnd}) {
     if (excludeRoadEnd == null) {
-      return _outwardRoadEnd.where((r) => r.hasAvailableOutwardLane(vehicle: vehicle));
-    }
-    else {
-      return _outwardRoadEnd.where((r) =>
-          (!excludeRoadEnd.contains(r)) && r.hasAvailableOutwardLane(vehicle: vehicle));
+      return _outwardRoadEnd.where((r) => r.hasAvailableOutwardLane(vehicle:
+          vehicle));
+    } else {
+      return _outwardRoadEnd.where((r) => (!excludeRoadEnd.contains(r)) &&
+          r.hasAvailableOutwardLane(vehicle: vehicle));
     }
   }
 
   Iterable<RoadEnd> getOutwardRoadEnd({List<RoadEnd> excludeRoadEnd}) {
     if (excludeRoadEnd == null) {
       return _outwardRoadEnd;
-    }
-    else {
+    } else {
       return _outwardRoadEnd.where((r) => !excludeRoadEnd.contains(r));
     }
   }
@@ -127,16 +96,16 @@ class Joint {
 }
 
 class SourceJoint extends Joint {
+  @override
+  View<SourceJoint> view;
+
   double spawnInterval = 1.0;
   double accumulatedTime = 0.0;
-  double _opacity;
-  double opacityFreq = 0.5;
-  double maxOpacity = 0.5;
-  double minOpacity = 0.1;
   int maxDispatch;
 
-  SourceJoint({String label, this.maxDispatch: 10}) : super(label: label) {
-    _opacity = maxOpacity;
+  SourceJoint({String label, this.maxDispatch: 10, this.view}): super(label:
+      label, view: null) {
+      view = new SourceJointView(this);
   }
 
   @override
@@ -144,27 +113,10 @@ class SourceJoint extends Joint {
     if (maxDispatch > 0) {
       if (accumulatedTime < spawnInterval) {
         accumulatedTime += world.dtUpdate;
-      }
-      else {
+      } else {
         accumulatedTime = 0.0;
         randomDispatch();
       }
-      _updateBlink();
-    }
-    else {
-      _opacity = -1.0;
-    }
-  }
-
-  void _updateBlink() {
-    _opacity += opacityFreq * world.dtUpdate;
-    if (_opacity > maxOpacity) {
-      _opacity = maxOpacity;
-      opacityFreq *= -1;
-    }
-    else if (_opacity < minOpacity) {
-      _opacity = minOpacity;
-      opacityFreq *= -1;
     }
   }
 
@@ -175,22 +127,7 @@ class SourceJoint extends Joint {
     if (lane != null) {
       lane.addFirstVehicle(vehicle);
       maxDispatch--;
+      view.update();
     }
-  }
-
-  void draw(Camera camera) {
-    CanvasRenderingContext2D context = camera.buffer.context2D;
-    for (var roadEnd in this.roadEnd) {
-      context.save();
-      transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
-      context.beginPath();
-      context.arc(0, 0, roadEnd.road.width / 2 + 2, 0, 2*PI);
-      if (_opacity >= 0) {
-        context.setFillColorRgb(200, 0, 0, _opacity + opacityFreq * world.view.dt);
-        context.fill();
-      }
-      context.restore();
-    }
-    drawLabel(camera);
   }
 }

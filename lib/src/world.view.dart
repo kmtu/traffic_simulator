@@ -1,23 +1,25 @@
 part of traffic_simulator;
 
-class WorldView {
-  World world;
-  WorldView(this.world);
+class WorldView implements View {
+  World model;
+  WorldView(this.model);
   double dt = 0.0;
 
   void draw(Camera camera) {
     var context = camera.buffer.context2D;
 
-    if (world.pause == false) {
+    if (model.pause == false) {
       dt = camera.dt;
     }
 
-    for (Road rd in world.road) {
+    for (Road rd in model.road) {
       rd.view.draw(camera);
     }
 
-    for (Joint joint in world.joint) {
-      joint.draw(camera);
+    for (Joint joint in model.joint) {
+      joint.view.draw(camera);
     }
   }
+
+  void update() {}
 }

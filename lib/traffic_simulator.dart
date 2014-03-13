@@ -15,18 +15,16 @@ part 'src/lane.dart';
 part 'src/lane.view.dart';
 part 'src/vehicle.dart';
 part 'src/joint.dart';
+part 'src/joint.view.dart';
 part 'src/utility.dart';
 part 'src/camera.dart';
 part 'src/data_structure.dart';
 
-/*abstract class View<E> {
+abstract class View<E> {
   E model;
-  final Matrix3 transformMatrix = new Matrix3.identity();
-
-  /**
-   * [dt] is for interpolation drawing
-   */
-  void draw(CanvasElement canvas, double dt);
-
   View(this.model);
-}*/
+
+  void draw(Camera camera);
+  void update();
+
+}
