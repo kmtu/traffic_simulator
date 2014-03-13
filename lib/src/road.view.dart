@@ -3,9 +3,10 @@ part of traffic_simulator;
 class RoadView {
   Road model;
   RoadView(this.model) {
-    updateTransformMatrix();
     updateDrivingSide();
+    updateTransformMatrix();
   }
+
   Matrix3 transformMatrix;
 
   /// Lanes in the upper part of this road. For drawing purpose.
@@ -60,7 +61,7 @@ class RoadView {
     context.beginPath();
 
     // draw top boundary line
-    double totalHalfLaneWidth = model.width / 2;
+    double totalHalfLaneWidth = model.width / 2 + boundaryLineWidth / 2;
     context.moveTo(0, -totalHalfLaneWidth);
     context.lineTo(model.length, -totalHalfLaneWidth);
 

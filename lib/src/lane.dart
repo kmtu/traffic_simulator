@@ -52,7 +52,7 @@ class Lane implements Backtraceable {
     // lanes are ordered as inner-lane first
     if (entry.nextEntry() == null) {
       if (entry.previousEntry() == null) {
-        if (road._getOppositeLane(this).firstEntry() == null) {
+        if (road._getOppositeLane(this).isEmpty) {
           // Single lane road
         }
         else {
