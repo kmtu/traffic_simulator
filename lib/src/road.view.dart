@@ -1,10 +1,9 @@
 part of traffic_simulator;
 
-class RoadView {
+class RoadView implements View {
   Road model;
   RoadView(this.model) {
-    updateDrivingSide();
-    updateTransformMatrix();
+    update();
   }
 
   Matrix3 transformMatrix;
@@ -22,33 +21,11 @@ class RoadView {
       _drawMiddleLine(camera);
     }
     else {
-      _drawUpperLane(camera, _upperLane);
-      _drawLowerLane(camera, _lowerLane);
+      _upperLane.forEach((l) => l.view.draw(camera));
+      _lowerLane.forEach((l) => l.view.draw(camera));
       _drawBoundary(camera);
     }
     context.restore();
-  }
-
-  void _drawUpperLane(Camera camera, BacktraceReversibleDBLQ<Lane> lane) {
-    double cumWidth_ = 0.0;
-    double halfTotalLaneWidth = model.width / 2;
-    // draw from outer lane
-    lane.forEachEntryFromLast((laneEntry){
-      laneEntry.element.view.draw(camera,
-          preTranslate( transformMatrix, 0.0, -halfTotalLaneWidth + cumWidth_));
-      cumWidth_ += laneEntry.element.width;
-    });
-  }
-
-  void _drawLowerLane(Camera camera, BacktraceReversibleDBLQ<Lane> lane) {
-    double cumWidth_ = 0.0;
-    double halfTotalLaneWidth = model.width / 2;
-    // draw from outer lane
-    lane.forEachEntryFromLast((laneEntry){
-      cumWidth_ += laneEntry.element.width;
-      laneEntry.element.view.draw(camera,
-          preTranslate( transformMatrix, 0.0, halfTotalLaneWidth - cumWidth_));
-    });
   }
 
   void _drawBoundary(Camera camera) {
@@ -92,7 +69,13 @@ class RoadView {
     context.restore();
   }
 
-  void updateTransformMatrix() {
+  void update() {
+    _updateTransformMatrix();
+    _updateDrivingSide();
+    _updateLaneTransformMatrix();
+  }
+
+  void _updateTransformMatrix() {
     // rotate first then translate
     // [trans matrix]*[rot matrix]*<old vector> = <new vector>
     // one needs to post-multiply this transformMatrix with a tranlsate Matrix, first
@@ -103,7 +86,7 @@ class RoadView {
     transformMatrix = postTranslate(transformMatrix, model.roadEnd[0].pos.x, model.roadEnd[0].pos.y);
   }
 
-  void updateDrivingSide() {
+  void _updateDrivingSide() {
     if (model.drivingSide == Road.RHT) {
       _upperLane = model.backwardLane;
       _lowerLane = model.forwardLane;
@@ -113,5 +96,24 @@ class RoadView {
       _upperLane = model.forwardLane;
       _lowerLane = model.backwardLane;
     }
+  }
+
+  void _updateLaneTransformMatrix() {
+    // _upperLane
+    double cumWidth_ = 0.0;
+    double halfTotalLaneWidth = model.width / 2;
+    forEachEntryFromLast(_upperLane, (laneEntry){
+      laneEntry.element.view.transformMatrix =
+          preTranslate(transformMatrix, 0.0, -halfTotalLaneWidth + cumWidth_);
+      cumWidth_ += laneEntry.element.width;
+    });
+
+    // _lowerLane
+    cumWidth_ = 0.0;
+    forEachEntryFromLast(_lowerLane, (laneEntry){
+      cumWidth_ += laneEntry.element.width;
+      laneEntry.element.view.transformMatrix =
+          preTranslate(transformMatrix, 0.0, halfTotalLaneWidth - cumWidth_);
+    });
   }
 }

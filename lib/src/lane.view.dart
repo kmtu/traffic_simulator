@@ -1,11 +1,12 @@
 part of traffic_simulator;
 
-class LaneView {
+class LaneView implements View {
   Lane model;
   LaneView(this.model);
+  Matrix3 transformMatrix;
 
-  void draw(Camera camera, Matrix3 transformMatrix) {
-    drawLane(camera, transformMatrix);
+  void draw(Camera camera) {
+    _drawLane(camera);
     for (var veh in model.vehicle) {
       // align the center of this lane to the x-axis
       Matrix3 tm = preTranslate(transformMatrix, 0.0, model.width / 2);
@@ -17,7 +18,7 @@ class LaneView {
     }
   }
 
-  void drawLane(Camera camera, Matrix3 transformMatrix) {
+  void _drawLane(Camera camera) {
     CanvasRenderingContext2D context = camera.buffer.context2D;
     context.save();
 
@@ -163,5 +164,10 @@ class LaneView {
     context.setStrokeColorRgb(200, 200, 200);
     context.lineWidth = 0.4;
     context.stroke();
+  }
+
+  @override
+  void update() {
+    // TODO: implement update
   }
 }

@@ -50,8 +50,7 @@ class Road {
       view = new RoadView(this);
     }
     else {
-      view.updateDrivingSide();
-      view.updateTransformMatrix();
+      view.update();
     }
   }
 
@@ -62,7 +61,7 @@ class Road {
   void set drivingSide(int drivingSide) {
     this._drivingSide = drivingSide;
     if (view != null) {
-      view.updateDrivingSide();
+      view.update();
     }
   }
 
@@ -116,7 +115,7 @@ class Road {
   void updateOnEndChange() {
     length = roadEnd[0].pos.distanceTo(roadEnd[1].pos).toDouble();
     if (view != null) {
-      view.updateTransformMatrix();
+      view.update();
     }
   }
 
@@ -125,6 +124,9 @@ class Road {
     forwardLane.forEach((l) => width += l.width);
     backwardLane.forEach((l) => width += l.width);
     roadEnd.forEach((e) => e.updateOnLaneChange());
+    if (view != null) {
+      view.update();
+    }
   }
 
   void update() {
