@@ -19,6 +19,8 @@ class Controller {
 
     pauseState = new PauseState(this);
     runningState = new RunningState(this);
+    pauseState.nextState = runningState;
+    runningState.nextState = pauseState;
 
     gameLoop.state = runningState;
 
@@ -28,85 +30,6 @@ class Controller {
 
   void start() {
     gameLoop.start();
-  }
-}
-
-class State extends SimpleHtmlState {
-  World model;
-  Camera camera;
-  GameLoopHtml gameLoop;
-  Controller controller;
-  State(this.controller) {
-    model = controller.model;
-    camera = controller.view;
-    gameLoop = controller.gameLoop;
-  }
-
-  void onRender(GameLoop gameLoop) {
-    camera.draw();
-    controller.fps.sampleFPS();
-    if (controller.fps.lastShowPassedDuration.inMilliseconds > 500) {
-      controller.fps.showFPS();
-    }
-  }
-}
-
-// Create a simple state implementing only the handlers you care about
-class PauseState extends State {
-  PauseState(Controller controller) : super(controller);
-
-  void onUpdate(GameLoop gameLoop) {
-    camera.update();
-  }
-
-  void onResize(GameLoopHtml gameLoop) {
-    controller.view.canvas.width = window.innerWidth;
-    controller.view.canvas.height = window.innerHeight;
-    camera.onResize();
-  }
-
-  void onKeyDown(KeyboardEvent event) {
-    //    event.preventDefault();
-    switch (event.keyCode) {
-      case Keyboard.C:
-        event.preventDefault();
-        camera.toCenter();
-        break;
-      case Keyboard.W:
-        event.preventDefault();
-        camera.moveUp();
-        break;
-      case Keyboard.S:
-        event.preventDefault();
-        camera.moveDown();
-        break;
-      case Keyboard.A:
-        event.preventDefault();
-        camera.moveLeft();
-        break;
-      case Keyboard.D:
-        event.preventDefault();
-        camera.moveRight();
-        break;
-      case Keyboard.Z:
-        event.preventDefault();
-        camera.zoomIn(1.5);
-        break;
-      case Keyboard.X:
-        event.preventDefault();
-        camera.zoomOut(1.5);
-        break;
-      case Keyboard.SPACE:
-        event.preventDefault();
-        camera.stopMove();
-        break;
-      case Keyboard.TAB:
-        event.preventDefault();
-        gameLoop.state = controller.runningState;
-        model.pause = false;
-        break;
-      default:
-    }
   }
 }
 
@@ -138,18 +61,24 @@ class FPS {
   }
 }
 
-class RunningState extends State {
-  RunningState(Controller controller) : super(controller);
-
-  void onResize(GameLoopHtml gameLoop) {
-    controller.view.canvas.width = window.innerWidth;
-    controller.view.canvas.height = window.innerHeight;
-    camera.onResize();
+class State extends SimpleHtmlState {
+  World model;
+  Camera camera;
+  GameLoopHtml gameLoop;
+  Controller controller;
+  State nextState;
+  State(this.controller) {
+    model = controller.model;
+    camera = controller.view;
+    gameLoop = controller.gameLoop;
   }
 
-  void onUpdate(GameLoop gameLoop) {
-    model.update();
-    camera.update();
+  void onRender(GameLoop gameLoop) {
+    camera.draw();
+    controller.fps.sampleFPS();
+    if (controller.fps.lastShowPassedDuration.inMilliseconds > 500) {
+      controller.fps.showFPS();
+    }
   }
 
   void onKeyDown(KeyboardEvent event) {
@@ -189,10 +118,58 @@ class RunningState extends State {
         break;
       case Keyboard.TAB:
         event.preventDefault();
-        gameLoop.state = controller.pauseState;
-        model.pause = true;
+        gameLoop.state = nextState;
         break;
       default:
+    }
+  }
+
+  void onResize(GameLoopHtml gameLoop) {
+    controller.view.canvas.width = window.innerWidth;
+    controller.view.canvas.height = window.innerHeight;
+    camera.onResize();
+  }
+}
+
+// Create a simple state implementing only the handlers you care about
+class PauseState extends State {
+  PauseState(Controller controller) : super(controller);
+
+  void onUpdate(GameLoop gameLoop) {
+    camera.update();
+  }
+
+  void onKeyDown(KeyboardEvent event) {
+    //    event.preventDefault();
+    switch (event.keyCode) {
+      case Keyboard.TAB:
+        event.preventDefault();
+        model.pause = false;
+        super.onKeyDown(event);
+        break;
+      default:
+        super.onKeyDown(event);
+    }
+  }
+}
+
+class RunningState extends State {
+  RunningState(Controller controller) : super(controller);
+
+  void onUpdate(GameLoop gameLoop) {
+    model.update();
+    camera.update();
+  }
+
+  void onKeyDown(KeyboardEvent event) {
+    switch (event.keyCode) {
+      case Keyboard.TAB:
+        event.preventDefault();
+        model.pause = true;
+        super.onKeyDown(event);
+        break;
+      default:
+        super.onKeyDown(event);
     }
   }
 }
