@@ -3,7 +3,7 @@ part of traffic_simulator;
 class Camera {
   Vector2 pos = new Vector2.zero(); // top-left corner
   Vector2 vel = new Vector2.zero();
-  Vector2 center = new Vector2.zero();
+  Vector2 _center;
   double acc = 60.0;
   double maxSpeed = 180.0; // meter per click
   double height; // meters
@@ -11,7 +11,7 @@ class Camera {
   World model;
   double pixelPerMeter;
   CanvasElement canvas, buffer;
-  double minZoomFactor = 0.2;
+//  double minZoomFactor = 0.2;
   // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
   double zoomFactor = 1.0;
   double dt;
@@ -20,15 +20,30 @@ class Camera {
   int maxWidthPixel;
 
   Camera(this.canvas, {this.pixelPerMeter:
-      10.0, this.center, this.maxHeightPixel: 0, this.maxWidthPixel: 0}) {
+      10.0, Vector2 center, this.maxHeightPixel: 0, this.maxWidthPixel: 0}) {
+    if (center == null) {
+      this._center = new Vector2.zero();
+    }
+    else {
+      this.center = center;
+    }
     buffer = new CanvasElement();
     onResize();
   }
 
   double get width => height * ratio; // meters
-  Vector2 get center2pos => new Vector2(center.x - width / 2, center.y - height / 2);
+  Vector2 get _center2pos => new Vector2(_center.x - width / 2, _center.y - height / 2);
+  void set center(Vector2 c) {
+    this._center = c;
+    pos = _center2pos;
+  }
 
   void onResize() {
+    var oldHeight, oldWidth;
+    if (ratio != null) {
+      oldHeight = height;
+      oldWidth = width;
+    }
     ratio = canvas.width / canvas.height;
     if (maxHeightPixel > 0) {
       if (maxWidthPixel > 0) {
@@ -75,11 +90,12 @@ class Camera {
             ..height = canvas.height;
       }
     }
-    if (height != null) {
+    if (oldHeight != null) {
       height = buffer.height.toDouble() / pixelPerMeter;
-      pos = center2pos;
+      pos.setValues(pos.x + (oldWidth - width) / 2, pos.y + (oldHeight - height) / 2);
     } else {
       height = buffer.height.toDouble() / pixelPerMeter;
+      pos = _center2pos;
     }
   }
 
@@ -189,7 +205,7 @@ class Camera {
   void reset() {
     zoom(1 / zoomFactor);
     vel.setZero();
-    pos.setFrom(center2pos);
+    pos.setFrom(_center2pos);
   }
 
   void toCenter() {
