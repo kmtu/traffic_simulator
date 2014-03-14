@@ -1,6 +1,7 @@
 part of traffic_simulator;
 
 class Vehicle implements Backtraceable {
+  View view;
   double pos = 0.0;
   double vel = 10.0;
   double acc = 0.0;
@@ -15,7 +16,7 @@ class Vehicle implements Backtraceable {
   Color color;
 
   Vehicle(this.world, {this.width: 1.6, this.length: 3.5, this.accMax,
-                       this.velMax, this.color, this.driver}) {
+                       this.velMax, this.color, this.driver, this.view}) {
     if (driver == null) {
       this.driver = new Driver(world, vehicle: this);
     }
@@ -34,19 +35,10 @@ class Vehicle implements Backtraceable {
     if (velMax == null) {
       velMax = world.random.nextDouble() * 20 + 10;
     }
-  }
 
-  void draw(Camera camera, Matrix3 transformMatrix) {
-    // the lane center is x-aixs, lane begins from origin to the positive x
-    CanvasRenderingContext2D context = camera.buffer.context2D;
-    context.save();
-
-    transformContext(context, preTranslate(transformMatrix, pos + vel * world.view.dt, 0.0));
-    // draw as if the reference point of the vehicle is the origin
-
-    context.setFillColorRgb(color.r, color.g, color.b);
-    context.fillRect(-length, -width / 2, length, width);
-    context.restore();
+    if (view == null) {
+      view = new VehicleView(this);
+    }
   }
 
   void update() {
@@ -55,7 +47,10 @@ class Vehicle implements Backtraceable {
     if (vel > velMax) {
       vel = velMax;
     }
-    pos += vel*dt;
+    if (vel != 0) {
+      pos += vel*dt;
+      view.update();
+    }
     driver.update();
   }
 }

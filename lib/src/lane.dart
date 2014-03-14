@@ -41,6 +41,7 @@ class Lane implements Backtraceable {
   void addFirstVehicle(Vehicle vehicle) {
     vehicle.pos = 0.0;
     vehicle.lane = this;
+    vehicle.view.update();
     this.vehicle.addFirst(vehicle);
   }
 

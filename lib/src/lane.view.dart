@@ -8,13 +8,7 @@ class LaneView implements View {
   void draw(Camera camera) {
     _drawLane(camera);
     for (var veh in model.vehicle) {
-      // align the center of this lane to the x-axis
-      Matrix3 tm = preTranslate(transformMatrix, 0.0, model.width / 2);
-      if (model.direction == Road.BACKWARD) {
-        // before that, swap the begin and end of the lane
-        tm = tm * postTranslate(makeInvertXMatrix3(), model.road.length, 0.0);
-      }
-      veh.draw(camera, tm);
+      veh.view.draw(camera);
     }
   }
 
