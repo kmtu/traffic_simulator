@@ -32,34 +32,30 @@ class LaneView implements View {
       if (model.entry.previousEntry() == null) {
         if (model.road._getOppositeLane(model).isEmpty) {
           // Single lane road
-        }
-        else {
+        } else {
           // Only single lane with this direction,
           // Next to its "inside" is an opposite-direction lane
           // Draw: insdie yellow line
           _beginPathInsideLine(context);
           _strokeSingleYellowLine(context);
         }
-      }
-      else {
+      } else {
         // Outermost lane with another same-direction lane inside
         // Draw: inside white line
-//        _beginPathInsideLine(context);
+        //        _beginPathInsideLine(context);
         _beginPathInsideDash(context, 5.0, 5.0);
         _strokeWhiteLine(context);
       }
-    }
-    else {
+    } else {
       if (model.entry.previousEntry() == null) {
         if (model.road._getOppositeLane(model).isEmpty) {
           // Outermost lane next to another same-directional lane.
           // This is a one-way traffic road with multiple lanes
-//        _beginPathInsideLine(context);
+          //        _beginPathInsideLine(context);
           _beginPathInsideDash(context, 5.0, 5.0);
           _beginPathOutsideDash(context, 5.0, 5.0);
           _strokeWhiteLine(context);
-        }
-        else {
+        } else {
           // Middle road with its "inside" next to an opposite-direction lane
           // Draw: inside yello line, outside white line
           _beginPathInsideLine(context);
@@ -67,10 +63,10 @@ class LaneView implements View {
           _beginPathOutsideDash(context, 5.0, 5.0);
           _strokeWhiteLine(context);
         }
-      }
-      else {
+      } else {
         // God bless it's just a simple middle lane!
         _beginPathInsideDash(context, 5.0, 5.0);
+        _strokeWhiteLine(context);
         _beginPathOutsideDash(context, 5.0, 5.0);
         _strokeWhiteLine(context);
       }
@@ -79,13 +75,22 @@ class LaneView implements View {
     context.restore();
   }
 
-  void _traceDashAtY(CanvasRenderingContext2D context,
-                   double solidLength, double gapLength, double height) {
+  void _traceDashAtY(CanvasRenderingContext2D context, double
+      solidLength, double gapLength, double height) {
     double p = 0.0;
     context.moveTo(0, height);
-    while (p < model.road.length) {
-      context.lineTo(p += solidLength, height);
-      context.moveTo(p += gapLength, height);
+    while (true) {
+      if ((p += solidLength) > model.road.length) {
+        context.lineTo(model.road.length, height);
+        break;
+      } else {
+        context.lineTo(p, height);
+      }
+      if ((p += gapLength) > model.road.length) {
+        break;
+      } else {
+        context.moveTo(p, height);
+      }
     }
   }
 
@@ -96,26 +101,24 @@ class LaneView implements View {
 
   void _beginPathInsideLine(CanvasRenderingContext2D context) {
     context.beginPath();
-    if ((model.direction == Road.FORWARD && model.road.drivingSide == Road.RHT) ||
-        (model.direction == Road.BACKWARD && model.road.drivingSide == Road.LHT)) {
+    if ((model.direction == Road.FORWARD && model.road.drivingSide == Road.RHT)
+        || (model.direction == Road.BACKWARD && model.road.drivingSide == Road.LHT)) {
       // Inside is top
       _traceLineAtY(context, 0.0);
-    }
-    else {
+    } else {
       // Inside is bottom
       _traceLineAtY(context, model.width);
     }
   }
 
-  void _beginPathInsideDash(CanvasRenderingContext2D context,
-                            double solidLength, double gapLength) {
+  void _beginPathInsideDash(CanvasRenderingContext2D context, double
+      solidLength, double gapLength) {
     context.beginPath();
-    if ((model.direction == Road.FORWARD && model.road.drivingSide == Road.RHT) ||
-        (model.direction == Road.BACKWARD && model.road.drivingSide == Road.LHT)) {
+    if ((model.direction == Road.FORWARD && model.road.drivingSide == Road.RHT)
+        || (model.direction == Road.BACKWARD && model.road.drivingSide == Road.LHT)) {
       // Inside is top
       _traceDashAtY(context, solidLength, gapLength, 0.0);
-    }
-    else {
+    } else {
       // Inside is bottom
       _traceDashAtY(context, solidLength, gapLength, model.width);
     }
@@ -123,26 +126,24 @@ class LaneView implements View {
 
   void _beginPathOutsideLine(CanvasRenderingContext2D context) {
     context.beginPath();
-    if ((model.direction == Road.FORWARD && model.road.drivingSide == Road.LHT) ||
-        (model.direction == Road.BACKWARD && model.road.drivingSide == Road.RHT)) {
+    if ((model.direction == Road.FORWARD && model.road.drivingSide == Road.LHT)
+        || (model.direction == Road.BACKWARD && model.road.drivingSide == Road.RHT)) {
       // Outside is top
       _traceLineAtY(context, 0.0);
-    }
-    else {
+    } else {
       // Outside is bottom
       _traceLineAtY(context, model.width);
     }
   }
 
-  void _beginPathOutsideDash(CanvasRenderingContext2D context,
-                             double solidLength, double gapLength) {
+  void _beginPathOutsideDash(CanvasRenderingContext2D context, double
+      solidLength, double gapLength) {
     context.beginPath();
-    if ((model.direction == Road.FORWARD && model.road.drivingSide == Road.LHT) ||
-        (model.direction == Road.BACKWARD && model.road.drivingSide == Road.RHT)) {
+    if ((model.direction == Road.FORWARD && model.road.drivingSide == Road.LHT)
+        || (model.direction == Road.BACKWARD && model.road.drivingSide == Road.RHT)) {
       // Outside is top
       _traceDashAtY(context, solidLength, gapLength, 0.0);
-    }
-    else {
+    } else {
       // Outside is bottom
       _traceDashAtY(context, solidLength, gapLength, model.width);
     }
