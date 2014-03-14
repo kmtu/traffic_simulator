@@ -7,15 +7,19 @@ void main() {
   CanvasElement canvas = querySelector("#game-element");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  Camera camera = new Camera(canvas, pixelPerMeter: 2.0, maxWidthPixel: 0,
+  Camera camera = new Camera(canvas, pixelPerMeter: 2.5, maxWidthPixel: 0,
       maxHeightPixel: 0);
 
-  Vector2 origin = new Vector2.zero();
-  var roadGrid = createRoadGrid(p0: origin, row: 6, col: 8, gap: 80.0,
-      forwardLane: 2, backwardLane: 2);
+  int row = 4;
+  int col = 6;
+  double gap = 100.0;
+  int forward = 2;
+  int backward = 2;
+  var roadGrid = createRoadGrid(row: row, col: col, gap: gap,
+      forwardLane: forward, backwardLane: backward);
 
   // Set the starting position for the camera
-  camera.center = origin;
+  camera.center = new Vector2((col-1)*gap / 2, (row-1)*gap / 2);
 
   // Creates a world
   World world = new World();
