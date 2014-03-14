@@ -4,8 +4,8 @@ class Camera {
   Vector2 pos = new Vector2.zero(); // top-left corner
   Vector2 vel = new Vector2.zero();
   Vector2 _center = new Vector2.zero();
-  double acc = 30.0;
-  double maxSpeed = 60.0; // meter per click
+  double acc = 60.0;
+  double maxSpeed = 180.0; // meter per click
   double height; // meters
   double ratio; // = width / height
   World model;
