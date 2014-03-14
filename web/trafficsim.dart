@@ -7,58 +7,93 @@ void main() {
   CanvasElement canvas = querySelector("#game-element");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  Camera camera = new Camera(canvas, pixelPerMeter: 10.0);
+  Camera camera = new Camera(canvas, pixelPerMeter: 2.0, maxWidthPixel: 0,
+      maxHeightPixel: 0);
 
-  List<Joint> joint = new List<Joint>(4);
-  joint[0] = new SourceJoint(label: "0", maxDispatch: 100);
-  joint[1] = new Joint(label: "1");
-  joint[2] = new SourceJoint(label: "2", maxDispatch: 100);
-  joint[3] = new SourceJoint(label: "3", maxDispatch: 100);
-
-  List<Vector2> p = new List<Vector2>(10);
-  p[0] = new Vector2(0.0, 0.0);
-  p[1] = new Vector2(500.0, 0.0);
-  p[2] = new Vector2(505.0, 0.0);
-  p[3] = new Vector2(1000.0, 0.0);
-  p[4] = new Vector2(1000.0, -10.0);
-  p[5] = new Vector2(505.0, -500.0);
-  p[6] = new Vector2(500.0, -500.0);
-  p[7] = new Vector2(0.0, -10.0);
-  p[8] = new Vector2(502.5, -490.0);
-  p[9] = new Vector2(502.5, -6.0);
-
-  // You can scale all the points at once
-  p.forEach((p) => p.setFrom(p / 1.0));
+  Vector2 origin = new Vector2.zero();
+  var roadGrid = createRoadGrid(p0: origin, row: 5, col: 5, gap: 50.0);
 
   // Set the starting position for the camera
-  camera.center = p[9];
-
-  List<Road> road = new List<Road>(5);
-  road[0] = new Road(p[0], p[1], numForwardLane: 2, numBackwardLane: 2)
-          ..attachJoint(joint[0], Road.BEGIN_SIDE)
-          ..attachJoint(joint[1], Road.END_SIDE);
-
-  road[1] = new Road(p[2], p[3], numForwardLane: 2, numBackwardLane: 2)
-          ..attachJoint(joint[1], Road.BEGIN_SIDE)
-          ..attachJoint(joint[2], Road.END_SIDE);
-
-  road[2] = new Road(p[4], p[5], numForwardLane: 2, numBackwardLane: 2)
-          ..attachJoint(joint[2], Road.BEGIN_SIDE)
-          ..attachJoint(joint[3], Road.END_SIDE);
-
-  road[3] = new Road(p[6], p[7], numForwardLane: 2, numBackwardLane: 2)
-          ..attachJoint(joint[3], Road.BEGIN_SIDE)
-          ..attachJoint(joint[0], Road.END_SIDE);
-
-  road[4] = new Road(p[8], p[9], numForwardLane: 2, numBackwardLane: 2)
-          ..attachJoint(joint[3], Road.BEGIN_SIDE)
-          ..attachJoint(joint[1], Road.END_SIDE);
+  camera.center = origin;
 
   // Creates a world
   World world = new World();
-  world.addRoad(road);
+  roadGrid.forEach((rl) => world.addRoad(rl));
 
   // Combines the world and view
   Controller controller = new Controller(world, camera);
   controller.start();
+}
+
+List<List<Road>> createRoadGrid({Vector2 p0, double gap: 50.0, int row: 5, int
+    col: 5}) {
+  if (p0 == null) {
+    p0 = new Vector2.zero();
+  }
+  int numGridRow = row;
+  int numGridCol = col;
+  int indexPoint(int r, int c) {
+    return c * numGridRow + r;
+  }
+  int indexRoad(int r, int c) {
+    return c * (numGridRow - 1) + r;
+  }
+
+  List<Vector2> p = new List<Vector2>(numGridRow * numGridCol);
+  for (var c = 0; c < numGridCol; c++) {
+    for (var r = 0; r < numGridRow; r++) {
+      p[indexPoint(r, c)] = new Vector2(p0.x + c * gap, p0.y + r * gap);
+    }
+  }
+
+  //  int numRoad = (numGridRow - 1) + (numGridCol - 1) + 2 * (numGridRow - 1) *
+  //      (numGridCol - 1);
+  List<List<Road>> roadGrid = new List<List<Road>>((numGridRow - 1) *
+      (numGridCol - 1));
+  for (var c = 0; c < numGridCol - 1; c++) {
+    for (var r = 0; r < numGridRow - 1; r++) {
+      var roadList = new List<Road>();
+      var pp = p[indexPoint(r, c)].clone();
+      Road road;
+      if (c == 0) {
+        road = new Road(pp, new Vector2(pp.x, pp.y + gap), numForwardLane: 2,
+            numBackwardLane: 2);
+        roadList.add(road);
+      }
+      if (r == 0) {
+        road = new Road(pp, new Vector2(pp.x + gap, pp.y), numForwardLane: 2,
+            numBackwardLane: 2);
+        roadList.add(road);
+      }
+      road = new Road(new Vector2(pp.x + gap, pp.y), new Vector2(pp.x + gap,
+          pp.y + gap), numForwardLane: 2, numBackwardLane: 2);
+      roadList.add(road);
+      road = new Road(new Vector2(pp.x, pp.y + gap), new Vector2(pp.x + gap,
+          pp.y + gap), numForwardLane: 2, numBackwardLane: 2);
+      roadList.add(road);
+      roadGrid[indexRoad(r, c)] = roadList;
+    }
+  }
+
+  List<Joint> joint = new List<Joint>(p.length);
+  for (var i = 0; i < joint.length; i++) {
+    if (i == 0) {
+      joint[i] = new SourceJoint(label: "$i", maxDispatch: 100);
+    } else {
+      joint[i] = new Joint(label: "$i");
+    }
+  }
+
+  for (var c = 0; c < numGridCol - 1; c++) {
+    for (var r = 0; r < numGridRow - 1; r++) {
+      roadGrid[indexRoad(r, c)].forEach((r) {
+        r.roadEnd.asMap().forEach((side, re) {
+          r.attachJoint(joint[p.indexOf(p.singleWhere((p) => (re.pos.x == p.x)
+              && (re.pos.y == p.y)))], side);
+        });
+      });
+    }
+  }
+
+  return roadGrid;
 }

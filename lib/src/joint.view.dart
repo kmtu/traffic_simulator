@@ -47,7 +47,7 @@ class SourceJointView extends JointView implements View {
   final Color basicColor = new Color.yellow(0.8);
   final Color spawningColor = new Color.red(0.8);
   Color color;
-  double blinkPeriod = 0.5;
+  double blinkPeriod = 0.3;
   double _accumulatedTime = 0.0;
   bool _finished = false;
   bool _spawning = false;
