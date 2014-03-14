@@ -3,7 +3,7 @@ part of traffic_simulator;
 class Camera {
   Vector2 pos = new Vector2.zero(); // top-left corner
   Vector2 vel = new Vector2.zero();
-  Vector2 _center = new Vector2.zero();
+  Vector2 center = new Vector2.zero();
   double acc = 60.0;
   double maxSpeed = 180.0; // meter per click
   double height; // meters
@@ -14,87 +14,74 @@ class Camera {
   double minZoomFactor = 0.2;
   // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
   double zoomFactor = 1.0;
-  double get width => height * ratio; // meters
   double dt;
   Matrix3 transformMatrix;
   int maxHeightPixel;
   int maxWidthPixel;
 
-  Camera(this.canvas, {this.pixelPerMeter: 10.0, Vector2
-      center, this.maxHeightPixel: 0, this.maxWidthPixel: 0}) {
+  Camera(this.canvas, {this.pixelPerMeter:
+      10.0, this.center, this.maxHeightPixel: 0, this.maxWidthPixel: 0}) {
     buffer = new CanvasElement();
     onResize();
-    if (center == null) {
-      this.center = new Vector2.zero();
-    } else {
-      this.center = center;
-    }
-    pos = this.center;
   }
+
+  double get width => height * ratio; // meters
+  Vector2 get center2pos => new Vector2(center.x - width / 2, center.y - height / 2);
 
   void onResize() {
     ratio = canvas.width / canvas.height;
     if (maxHeightPixel > 0) {
       if (maxWidthPixel > 0) {
         // Choose the limiting one
-        if (ratio < 1)  {
+        if (ratio < 1) {
           // canvas.width < canvas.height, limit height
           if (canvas.height > maxHeightPixel) {
             buffer.height = maxHeightPixel;
-          }
-          else {
+          } else {
             buffer.height = canvas.height;
           }
           buffer.width = (buffer.height * ratio).toInt();
-        }
-        else {
+        } else {
           // canvas.width > canvas.height, limit width
           if (canvas.width > maxWidthPixel) {
             buffer.width = maxWidthPixel;
-          }
-          else {
+          } else {
             buffer.width = canvas.width;
           }
           buffer.height = (buffer.width ~/ ratio);
         }
-      }
-      else {
+      } else {
         // Only maxHeightPixel is given, limit height
         if (canvas.height > maxHeightPixel) {
           buffer.height = maxHeightPixel;
-        }
-        else {
+        } else {
           buffer.height = canvas.height;
         }
         buffer.width = (buffer.height * ratio).toInt();
       }
-    }
-    else {
+    } else {
       if (maxWidthPixel > 0) {
         // Only maxWidthPixel is given, limit width
         if (canvas.width > maxWidthPixel) {
           buffer.width = maxWidthPixel;
-        }
-        else {
+        } else {
           buffer.width = canvas.width;
         }
         buffer.height = (buffer.width ~/ ratio);
-      }
-      else {
+      } else {
         // No limit, use the original resolution of the device
         buffer
             ..width = canvas.width
             ..height = canvas.height;
       }
     }
-    height = buffer.height.toDouble() / pixelPerMeter;
+    if (height != null) {
+      height = buffer.height.toDouble() / pixelPerMeter;
+      pos = center2pos;
+    } else {
+      height = buffer.height.toDouble() / pixelPerMeter;
+    }
   }
-
-  void set center(Vector2 c) {
-    this._center.setValues(c.x - width / 2, c.y - height / 2);
-  }
-
-  Vector2 get center => this._center;
 
   void draw() {
     dt = model.gameLoop.dt * model.gameLoop.renderInterpolationFactor;
@@ -202,7 +189,7 @@ class Camera {
   void reset() {
     zoom(1 / zoomFactor);
     vel.setZero();
-    pos.setFrom(_center);
+    pos.setFrom(center2pos);
   }
 
   void toCenter() {
