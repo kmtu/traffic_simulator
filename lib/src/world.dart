@@ -11,11 +11,10 @@ class World {
   Random random;
   bool pause = false;
 
-  World(this.gameLoop, {this.random, this.view}) {
+  World({this.random, this.view}) {
     if (random == null) {
       random = new Random(new DateTime.now().millisecondsSinceEpoch);
     }
-    dtUpdate = gameLoop.dt;
     if (view == null) {
       view = new WorldView(this);
     }

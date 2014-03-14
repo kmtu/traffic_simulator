@@ -20,6 +20,7 @@ part 'src/joint.view.dart';
 part 'src/utility.dart';
 part 'src/camera.dart';
 part 'src/data_structure.dart';
+part 'src/controller.dart';
 
 abstract class View<E> {
   E model;

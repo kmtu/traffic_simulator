@@ -8,7 +8,7 @@ class Camera {
   double maxSpeed = 60.0; // meter per click
   double height; // meters
   double ratio; // = width / height
-  World world;
+  World model;
   double pixelPerMeter;
   CanvasElement canvas, buffer;
   double minZoomFactor = 0.2;
@@ -20,7 +20,7 @@ class Camera {
   int maxHeightPixel;
   int maxWidthPixel;
 
-  Camera(this.canvas, this.world, {this.pixelPerMeter: 10.0, Vector2
+  Camera(this.canvas, {this.pixelPerMeter: 10.0, Vector2
       center, this.maxHeightPixel: 0, this.maxWidthPixel: 0}) {
     buffer = new CanvasElement();
     onResize();
@@ -97,7 +97,7 @@ class Camera {
   Vector2 get center => this._center;
 
   void draw() {
-    dt = world.gameLoop.dt * world.gameLoop.renderInterpolationFactor;
+    dt = model.gameLoop.dt * model.gameLoop.renderInterpolationFactor;
     transformMatrix = preTranslate(makeScaleMatrix3(pixelPerMeter), -(pos.x +
         vel.x * dt), -(pos.y + vel.y * dt));
     var bufferContext = buffer.context2D;
@@ -105,7 +105,7 @@ class Camera {
     bufferContext.save();
     // align the top left corner of the canvas to camera.pos
     transformContext(bufferContext, transformMatrix);
-    world.view.draw(this);
+    model.view.draw(this);
     bufferContext.restore();
     canvas.context2D.clearRect(0, 0, canvas.width, canvas.height);
     //    canvas.context2D.drawImage(buffer, 0 , 0);
@@ -175,7 +175,7 @@ class Camera {
   }
 
   void update() {
-    double dt = world.gameLoop.dt;
+    double dt = model.gameLoop.dt;
     pos += vel * dt;
 
     /*    double maxWidth_ = world.dimension.x - width;
