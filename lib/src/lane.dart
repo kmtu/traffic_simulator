@@ -30,14 +30,6 @@ class Lane implements Backtraceable {
     vehicle.forEach((v) => v.update());
   }
 
-  bool requestAddVehicle(Vehicle vehicle) {
-    // TODO: add checking condition if a vehicle can be added
-    vehicle.pos = 0.0;
-    vehicle.lane = this;
-    this.vehicle.addFirst(vehicle);
-    return true;
-  }
-
   void addFirstVehicle(Vehicle vehicle) {
     vehicle.pos = 0.0;
     vehicle.lane = this;

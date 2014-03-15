@@ -135,59 +135,6 @@ class Road {
     forwardLane.forEach((l) => l.update());
     backwardLane.forEach((l) => l.update());
   }
-
-  /**
-   * Returns true if the request for adding a [vehicle] to a [road] is successful
-   *
-   * [preferLane] should be [Road.RANDOM_LANE], [Road.INNER_LANE], or [Road.OUTER_LANE].
-   */
-  bool requestAddVehicle(RoadEnd roadEnd, Vehicle vehicle, int preferLane) {
-    //       RHT         LHT
-    // Begin                   End
-    //0     <----       ---->
-    //1     <----       ---->
-    //2     ---->       <----
-    //3     ---->       <----
-
-    DoubleLinkedQueue<Lane> outwardLane;
-    bool isThisLine = false;
-    if (preferLane == Road.RANDOM_LANE) isThisLine = world.random.nextBool();
-
-    Function reqAddV = (BacktraceReversibleDBLQ<Lane> outwardLane) {
-      if (preferLane == Road.INNER_LANE || isThisLine) {
-        if (outwardLane.firstWhere((l) =>
-            requestAddVehicleOnLane(roadEnd, vehicle, l), orElse: () => null) != null) {
-          return true;
-        }
-        else {
-          // no available lane
-          return false;
-        }
-      }
-      else {
-        if (outwardLane.lastWhereFromLast((l) =>
-            requestAddVehicleOnLane(roadEnd, vehicle, l), orElse: () => null) != null) {
-          return true;
-        }
-        else {
-          // no available lane
-          return false;
-        }
-      }
-    };
-
-    if (roadEnd.side == Road.BEGIN_SIDE) {
-      outwardLane = forwardLane;
-    }
-    else {
-      outwardLane = backwardLane;
-    }
-    return reqAddV(outwardLane);
-  }
-
-  bool requestAddVehicleOnLane(RoadEnd roadEnd, Vehicle vehicle, Lane lane) {
-    return lane.requestAddVehicle(vehicle);
-  }
 }
 
 /**
@@ -209,16 +156,6 @@ class RoadEnd {
   Joint joint;
 
   RoadEnd(this.road, this.side, this.pos, this.outwardLane, this.inwardLane);
-
-  /**
-   * Returns true if the request for adding a [vehicle] to a [road] is successful
-   *
-   * [preferLane] can be provided, which should be
-   * [Road.RANDOM_LANE], [Road.INNER_LANE], or [Road.OUTER_LANE].
-   */
-  bool requestAddVehicle(Vehicle vehicle, {int preferLane: Road.RANDOM_LANE}) {
-    return road.requestAddVehicle(this, vehicle, preferLane);
-  }
 
   void addJoint(Joint joint) {
     if (this.joint != null) {
