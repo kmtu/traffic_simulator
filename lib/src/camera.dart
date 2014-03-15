@@ -5,7 +5,7 @@ class Camera {
   Vector2 vel = new Vector2.zero();
   Vector2 acc = new Vector2.zero();
   Vector2 _center;
-  int _accPressed = 500; // pixel per sec^2
+  int _accPressed = 0; // pixel per sec^2
 
   /// Initial moving speed when move key is pressed
   int _initialSpeed =  500; // pixel per sec
@@ -145,6 +145,7 @@ class Camera {
     height *= factor;
     pos.y += dy;
     pos.x += dy * ratio;
+    vel *= factor;
     //    }
   }
 
