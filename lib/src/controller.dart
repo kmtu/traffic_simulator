@@ -121,11 +121,11 @@ class State extends SimpleHtmlState {
         break;
       case Keyboard.Z:
         event.preventDefault();
-        camera.zoomIn(keyZoomSensitivity);
+        camera.beginZoomIn();
         break;
       case Keyboard.X:
         event.preventDefault();
-        camera.zoomOut(keyZoomSensitivity);
+        camera.beginZoomOut();
         break;
       case Keyboard.TAB:
         event.preventDefault();
@@ -155,11 +155,11 @@ class State extends SimpleHtmlState {
         break;
       case Keyboard.Z:
         event.preventDefault();
-        camera.zoomIn(1.2);
+        camera.stopZoomIn();
         break;
       case Keyboard.X:
         event.preventDefault();
-        camera.zoomOut(1.2);
+        camera.stopZoomOut();
         break;
       default:
     }
