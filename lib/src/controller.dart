@@ -80,7 +80,6 @@ class State extends SimpleHtmlState {
   void onWheel(WheelEvent event) {
     event.preventDefault();
     var factor = exp(-(event.deltaY * wheelZoomSensitivity).abs());
-    print(factor);
     if (event.deltaY > 0) {
       print(factor);
       camera.zoomIn(factor);
