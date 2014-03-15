@@ -3,9 +3,13 @@ part of traffic_simulator;
 class Camera {
   Vector2 pos = new Vector2.zero(); // top-left corner
   Vector2 vel = new Vector2.zero();
+  Vector2 acc = new Vector2.zero();
   Vector2 _center;
-  double acc = 60.0;
-  double maxSpeed = 180.0; // meter per click
+  int _accPressed = 500; // pixel per sec^2
+
+  /// Initial moving speed when move key is pressed
+  int _initialSpeed =  500; // pixel per sec
+  int _maxSpeed = 5000; // pixel per sec
   double height; // meters
   double ratio; // = width / height
   World model;
@@ -30,6 +34,10 @@ class Camera {
     buffer = new CanvasElement();
     onResize();
   }
+
+  double get _accPressedInMeter => _accPressed.toDouble() / pixelPerMeter;
+  double get _initialSpeedInMeter => _initialSpeed.toDouble() / pixelPerMeter;
+  double get _maxSpeedInMeter => _maxSpeed.toDouble() / pixelPerMeter;
 
   double get width => height * ratio; // meters
   Vector2 get _center2pos => new Vector2(_center.x - width / 2, _center.y - height / 2);
@@ -131,14 +139,12 @@ class Camera {
     // prevent camera from zooming out of the world canvas
     double zoomFactorTest = zoomFactor * factor;
     //    if (zoomFactorTest >= minZoomFactor) {
+    pixelPerMeter /= factor;
     zoomFactor = zoomFactorTest;
-    maxSpeed *= factor;
-    acc *= factor;
     double dy = height * (1 - factor) / 2.0;
     height *= factor;
     pos.y += dy;
     pos.x += dy * ratio;
-    pixelPerMeter /= factor;
     //    }
   }
 
@@ -146,39 +152,58 @@ class Camera {
   void zoomOut(double factor) => zoom(factor);
 
   void moveRight() {
-    vel.x += acc;
-    if (vel.x >= maxSpeed) {
-      vel.x = maxSpeed;
+    if (vel.x <= 0) {
+      vel.x = _initialSpeedInMeter;
+      acc.x = _accPressedInMeter;
+    }
+    if (vel.x > _maxSpeedInMeter) {
+      vel.x = _maxSpeedInMeter;
     }
   }
 
   void moveLeft() {
-    vel.x -= acc;
-    if (vel.x < -maxSpeed) {
-      vel.x = -maxSpeed;
+    if (vel.x >= 0) {
+      vel.x = -_initialSpeedInMeter;
+      acc.x = -_accPressedInMeter;
+    }
+    if (vel.x < -_maxSpeedInMeter) {
+      vel.x = -_maxSpeedInMeter;
     }
   }
 
   void moveUp() {
-    vel.y -= acc;
-    if (vel.y < -maxSpeed) {
-      vel.y = -maxSpeed;
+    if (vel.y >= 0) {
+      vel.y = -_initialSpeedInMeter;
+      acc.y = -_accPressedInMeter;
+    }
+    if (vel.y < -_maxSpeedInMeter) {
+      vel.y = -_maxSpeedInMeter;
     }
   }
 
   void moveDown() {
-    vel.y += acc;
-    if (vel.y > maxSpeed) {
-      vel.y = maxSpeed;
+    if (vel.y <= 0) {
+      vel.y = _initialSpeedInMeter;
+      acc.y = _accPressedInMeter;
+    }
+    if (vel.y > _maxSpeedInMeter) {
+      vel.y = _maxSpeedInMeter;
     }
   }
 
-  void stopMove() {
-    vel.setZero();
+  void stopMoveX() {
+    vel.x = 0.0;
+    acc.x = 0.0;
+  }
+
+  void stopMoveY() {
+    vel.y = 0.0;
+    acc.y = 0.0;
   }
 
   void update() {
     double dt = model.gameLoop.dt;
+    vel += acc * dt;
     pos += vel * dt;
 
     /*    double maxWidth_ = world.dimension.x - width;

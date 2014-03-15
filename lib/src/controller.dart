@@ -112,13 +112,39 @@ class State extends SimpleHtmlState {
         event.preventDefault();
         camera.zoomOut(1.2);
         break;
-      case Keyboard.SPACE:
-        event.preventDefault();
-        camera.stopMove();
-        break;
       case Keyboard.TAB:
         event.preventDefault();
         gameLoop.state = nextState;
+        break;
+      default:
+    }
+  }
+
+  void onKeyUp(KeyboardEvent event) {
+    switch (event.keyCode) {
+      case Keyboard.W:
+        event.preventDefault();
+        camera.stopMoveY();
+        break;
+      case Keyboard.S:
+        event.preventDefault();
+        camera.stopMoveY();
+        break;
+      case Keyboard.A:
+        event.preventDefault();
+        camera.stopMoveX();
+        break;
+      case Keyboard.D:
+        event.preventDefault();
+        camera.stopMoveX();
+        break;
+      case Keyboard.Z:
+        event.preventDefault();
+        camera.zoomIn(1.2);
+        break;
+      case Keyboard.X:
+        event.preventDefault();
+        camera.zoomOut(1.2);
         break;
       default:
     }
@@ -172,4 +198,9 @@ class RunningState extends State {
         super.onKeyDown(event);
     }
   }
+}
+
+class MyGameLoopHtml extends GameLoopHtml {
+
+  MyGameLoopHtml(Element element) : super(element);
 }
