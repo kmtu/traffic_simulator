@@ -7,14 +7,14 @@ void main() {
   CanvasElement canvas = querySelector("#game-element");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  Camera camera = new Camera(canvas, pixelPerMeter: 2.5, maxWidthPixel: 0,
+  Camera camera = new Camera(canvas, height: 300.0, maxWidthPixel: 0,
       maxHeightPixel: 0);
 
-  int row = 4;
-  int col = 6;
+  int row = 3;
+  int col = 5;
   double gap = 100.0;
-  int forward = 2;
-  int backward = 2;
+  int forward = 3;
+  int backward = 1;
   var roadGrid = createRoadGrid(row: row, col: col, gap: gap,
       forwardLane: forward, backwardLane: backward);
 

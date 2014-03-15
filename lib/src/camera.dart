@@ -8,14 +8,14 @@ class Camera {
   int _accPressed = 0; // pixel per sec^2
 
   /// Initial moving speed when move key is pressed
-  int _initialSpeed =  500; // pixel per sec
+  int _initialSpeed = 500; // pixel per sec
   int _maxSpeed = 5000; // pixel per sec
   double height; // meters
   double ratio; // = width / height
   World model;
-  double pixelPerMeter;
+  double _pixelPerMeter;
   CanvasElement canvas, buffer;
-//  double minZoomFactor = 0.2;
+  //  double minZoomFactor = 0.2;
   // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
   double zoomFactor = 1.0;
   double dt;
@@ -23,24 +23,32 @@ class Camera {
   int maxHeightPixel;
   int maxWidthPixel;
 
-  Camera(this.canvas, {this.pixelPerMeter:
-      10.0, Vector2 center, this.maxHeightPixel: 0, this.maxWidthPixel: 0}) {
+  double get pixelPerMeter => _pixelPerMeter;
+
+  Camera(this.canvas, {this.height, Vector2 center, this.maxHeightPixel:
+      0, this.maxWidthPixel: 0}) {
     if (center == null) {
       this._center = new Vector2.zero();
-    }
-    else {
+    } else {
       this.center = center;
     }
+
+    if (height == null) {
+      height = canvas.height.toDouble();
+      _pixelPerMeter = canvas.height.toDouble() / height;
+    }
+
     buffer = new CanvasElement();
     onResize();
   }
 
-  double get _accPressedInMeter => _accPressed.toDouble() / pixelPerMeter;
-  double get _initialSpeedInMeter => _initialSpeed.toDouble() / pixelPerMeter;
-  double get _maxSpeedInMeter => _maxSpeed.toDouble() / pixelPerMeter;
+  double get _accPressedInMeter => _accPressed.toDouble() / _pixelPerMeter;
+  double get _initialSpeedInMeter => _initialSpeed.toDouble() / _pixelPerMeter;
+  double get _maxSpeedInMeter => _maxSpeed.toDouble() / _pixelPerMeter;
 
   double get width => height * ratio; // meters
-  Vector2 get _center2pos => new Vector2(_center.x - width / 2, _center.y - height / 2);
+  Vector2 get _center2pos => new Vector2(_center.x - width / 2, _center.y -
+      height / 2);
   void set center(Vector2 c) {
     this._center = c;
     pos = _center2pos;
@@ -99,17 +107,16 @@ class Camera {
       }
     }
     if (oldHeight != null) {
-      height = buffer.height.toDouble() / pixelPerMeter;
       pos.setValues(pos.x + (oldWidth - width) / 2, pos.y + (oldHeight - height) / 2);
     } else {
-      height = buffer.height.toDouble() / pixelPerMeter;
       pos = _center2pos;
     }
+    _pixelPerMeter = buffer.height.toDouble() / height;
   }
 
   void draw() {
     dt = model.gameLoop.dt * model.gameLoop.renderInterpolationFactor;
-    transformMatrix = preTranslate(makeScaleMatrix3(pixelPerMeter), -(pos.x +
+    transformMatrix = preTranslate(makeScaleMatrix3(_pixelPerMeter), -(pos.x +
         vel.x * dt), -(pos.y + vel.y * dt));
     var bufferContext = buffer.context2D;
     bufferContext.clearRect(0, 0, buffer.width, buffer.height);
@@ -139,7 +146,7 @@ class Camera {
     // prevent camera from zooming out of the world canvas
     double zoomFactorTest = zoomFactor * factor;
     //    if (zoomFactorTest >= minZoomFactor) {
-    pixelPerMeter /= factor;
+    _pixelPerMeter /= factor;
     zoomFactor = zoomFactorTest;
     double dy = height * (1 - factor) / 2.0;
     height *= factor;
@@ -204,8 +211,8 @@ class Camera {
 
   void update() {
     double dt = model.gameLoop.dt;
-    vel += acc * dt;
     pos += vel * dt;
+    vel += acc * dt;
 
     /*    double maxWidth_ = world.dimension.x - width;
     double maxHeight = world.dimension.y - height;

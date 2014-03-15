@@ -67,10 +67,25 @@ class State extends SimpleHtmlState {
   GameLoopHtml gameLoop;
   Controller controller;
   State nextState;
+
+  double _wheelSensitivity = 0.0005;
+
   State(this.controller) {
     model = controller.model;
     camera = controller.view;
     gameLoop = controller.gameLoop;
+  }
+
+  void onWheel(WheelEvent event) {
+    event.preventDefault();
+    var factor = exp(-(event.deltaY * _wheelSensitivity).abs());
+    print(factor);
+    if (event.deltaY > 0) {
+      print(factor);
+      camera.zoomIn(factor);
+    } else {
+      camera.zoomOut(factor);
+    }
   }
 
   void onRender(GameLoop gameLoop) {
@@ -198,9 +213,4 @@ class RunningState extends State {
         super.onKeyDown(event);
     }
   }
-}
-
-class MyGameLoopHtml extends GameLoopHtml {
-
-  MyGameLoopHtml(Element element) : super(element);
 }
