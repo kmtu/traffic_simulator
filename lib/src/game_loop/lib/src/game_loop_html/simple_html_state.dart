@@ -82,4 +82,10 @@ class SimpleHtmlState extends GameLoopHtmlState {
    * your behaviour.
    */
   void onUpdate(GameLoop gameLoop) { }
+
+  /**
+   * Calling this handler has no affect. Override this handler to implement
+   * your behaviour.
+   */
+  void onWheel(WheelEvent event) { }
 }

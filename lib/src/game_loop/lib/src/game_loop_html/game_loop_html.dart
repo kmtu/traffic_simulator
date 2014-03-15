@@ -45,6 +45,11 @@ typedef void GameLoopTouchEventFunction(GameLoop gameLoop, GameLoopTouch touch);
  */
 typedef void GameLoopKeyDownHandler(KeyboardEvent event);
 
+/**
+ * Called whenever the mouse wheel is scrolled
+ */
+typedef void GameLoopWheelHandler(WheelEvent event);
+
 /** The game loop */
 class GameLoopHtml extends GameLoop {
   final Element element;
@@ -320,6 +325,9 @@ class GameLoopHtml extends GameLoop {
   }
 
   void _mouseWheel(MouseEvent event) {
+    if (onWheel != null) {
+      onWheel(event);
+    }
     _mouseEvents.add(event);
     event.preventDefault();
   }
@@ -398,6 +406,9 @@ class GameLoopHtml extends GameLoop {
   /** Called when key is up. */
   GameLoopKeyDownHandler onKeyUp;
 
+  /** Called when mouse wheel is scrolled. */
+  GameLoopWheelHandler onWheel;
+
   GameLoopHtmlState _state;
 
   GameLoopState get state => _state;
@@ -413,5 +424,6 @@ class GameLoopHtml extends GameLoop {
                   onResize            = state.onResize;
                   onTouchEnd          = state.onTouchEnd;
                   onTouchStart        = state.onTouchStart;
+                  onWheel             = state.onWheel;
                 }
 }
