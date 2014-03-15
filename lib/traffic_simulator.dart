@@ -4,7 +4,7 @@ import 'dart:html';
 import 'dart:math';
 import 'dart:collection';
 import 'package:vector_math/vector_math.dart';
-import 'package:game_loop/game_loop_html.dart';
+import 'src/game_loop/lib/game_loop_html.dart';
 
 part 'src/world.dart';
 part 'src/world.view.dart';

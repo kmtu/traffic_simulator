@@ -17,4 +17,6 @@ pubspec.lock
 *.sublime-workspace
 *.sublime-project
 
-.swp
+*.swp
+
+lib/src/game_loop/.gitignore
