@@ -68,7 +68,8 @@ class State extends SimpleHtmlState {
   Controller controller;
   State nextState;
 
-  double _wheelSensitivity = 0.0005;
+  double wheelZoomSensitivity = 0.0005;
+  double keyZoomSensitivity = 1.2;
 
   State(this.controller) {
     model = controller.model;
@@ -78,7 +79,7 @@ class State extends SimpleHtmlState {
 
   void onWheel(WheelEvent event) {
     event.preventDefault();
-    var factor = exp(-(event.deltaY * _wheelSensitivity).abs());
+    var factor = exp(-(event.deltaY * wheelZoomSensitivity).abs());
     print(factor);
     if (event.deltaY > 0) {
       print(factor);
@@ -121,11 +122,11 @@ class State extends SimpleHtmlState {
         break;
       case Keyboard.Z:
         event.preventDefault();
-        camera.zoomIn(1.2);
+        camera.zoomIn(keyZoomSensitivity);
         break;
       case Keyboard.X:
         event.preventDefault();
-        camera.zoomOut(1.2);
+        camera.zoomOut(keyZoomSensitivity);
         break;
       case Keyboard.TAB:
         event.preventDefault();
@@ -139,19 +140,19 @@ class State extends SimpleHtmlState {
     switch (event.keyCode) {
       case Keyboard.W:
         event.preventDefault();
-        camera.stopMoveY();
+        camera.stopMoveUp();
         break;
       case Keyboard.S:
         event.preventDefault();
-        camera.stopMoveY();
+        camera.stopMoveDown();
         break;
       case Keyboard.A:
         event.preventDefault();
-        camera.stopMoveX();
+        camera.stopMoveLeft();
         break;
       case Keyboard.D:
         event.preventDefault();
-        camera.stopMoveX();
+        camera.stopMoveRight();
         break;
       case Keyboard.Z:
         event.preventDefault();

@@ -199,14 +199,32 @@ class Camera {
     }
   }
 
-  void stopMoveX() {
-    vel.x = 0.0;
-    acc.x = 0.0;
+  void stopMoveLeft() {
+    if (vel.x < 0) {
+      vel.x = 0.0;
+      acc.x = 0.0;
+    }
   }
 
-  void stopMoveY() {
-    vel.y = 0.0;
-    acc.y = 0.0;
+  void stopMoveRight() {
+    if (vel.x > 0) {
+      vel.x = 0.0;
+      acc.x = 0.0;
+    }
+  }
+
+  void stopMoveUp() {
+    if (vel.y < 0) {
+      vel.y = 0.0;
+      acc.y = 0.0;
+    }
+  }
+
+  void stopMoveDown() {
+    if (vel.y > 0) {
+      vel.y = 0.0;
+      acc.y = 0.0;
+    }
   }
 
   void update() {
