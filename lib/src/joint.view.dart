@@ -63,28 +63,32 @@ class SourceJointView extends JointView implements View {
       context.save();
       transformContext(context, makeTranslateMatrix3(roadEnd.pos.x,
           roadEnd.pos.y));
-      context.beginPath();
-      context.arc(0, 0, 5, 0, 2 * PI);
-      if (!_finished) {
-        if (_spawning) {
-          if (_accumulatedTime > blinkPeriod) {
-            glowColor = basicColor;
-            _spawning = false;
-            if (model.maxSpawn == 0) {
-              _finished = true;
-              glowColor.a = 0.0;
-            }
-          }
-          if (!model.world.pause) {
-            _accumulatedTime = model.accumulatedTime + model.world.view.dt;
-          }
-        }
-      }
-      context.setFillColorRgb(glowColor.r, glowColor.g, glowColor.b, glowColor.a);
-      context.fill();
+//      _paintGlow(context);
       context.restore();
     }
     _drawLabel(camera);
+  }
+
+  void _paintGlow(CanvasRenderingContext2D context) {
+    context.beginPath();
+    context.arc(0, 0, 5, 0, 2 * PI);
+    if (!_finished) {
+      if (_spawning) {
+        if (_accumulatedTime > blinkPeriod) {
+          glowColor = basicColor;
+          _spawning = false;
+          if (model.maxSpawn == 0) {
+            _finished = true;
+            glowColor.a = 0.0;
+          }
+        }
+        if (!model.world.pause) {
+          _accumulatedTime = model.accumulatedTime + model.world.view.dt;
+        }
+      }
+    }
+    context.setFillColorRgb(glowColor.r, glowColor.g, glowColor.b, glowColor.a);
+    context.fill();
   }
 
   void update() {

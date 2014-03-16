@@ -99,7 +99,8 @@ class SourceJoint extends Joint {
   @override
   View<SourceJoint> view;
 
-  bool spawning;
+  bool spawning = false;
+  Lane spawnLane;
   double spawnInterval = 1.0;
   double accumulatedTime = 0.0;
   int maxSpawn;
@@ -134,6 +135,7 @@ class SourceJoint extends Joint {
     // Randomly pick a lane to add
     Lane lane = getRandomAvailableOutwardLane(vehicle: vehicle);
     if (lane != null) {
+      spawnLane = lane;
       lane.addFirstVehicle(vehicle);
       maxSpawn--;
       return true;

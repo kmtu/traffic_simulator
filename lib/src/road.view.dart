@@ -124,6 +124,14 @@ class RoadEndView implements View {
   Color color;
   double _width;
 
+  final Color basicColor = new Color.yellow(0.8);
+  final Color spawningColor = new Color.red(0.8);
+  Color glowColor;
+  double blinkPeriod = 0.3;
+  double _accumulatedTime = 0.0;
+  bool _finished = false;
+  bool _spawning = false;
+
   RoadEndView(this.model) {
     _width = 4.0;
   }
@@ -133,17 +141,19 @@ class RoadEndView implements View {
     context.save();
     if (model.joint != null) {
       transformContext(context, transformMatrix);
-      // Draw as if this is a begin road end, and the beginning of the read is origin,
-      // the center axis of the road is x axis
+      // Draw as if this is a begin road end, and the beginning of the read
+      // is origin, the center axis of the road is x axis
+      if (model.joint is SourceJoint) {
+        _paintGlow(context);
+      }
       context.beginPath();
       context.setFillColorRgb(color.r, color.g, color.b);
       context.fillRect(0, -model.road.width / 2, -_width, model.road.width);
-  //    context.setStrokeColorRgb(0, 0, 0);
-  //    context.lineWidth = 1 / camera.pixelPerMeter;
-  //    context.strokeRect(0, 0, model.road.length, model.width);
+      //    context.setStrokeColorRgb(0, 0, 0);
+      //    context.lineWidth = 1 / camera.pixelPerMeter;
+      //    context.strokeRect(0, 0, model.road.length, model.width);
     }
     context.restore();
-
   }
 
   void update() {
@@ -159,5 +169,39 @@ class RoadEndView implements View {
     if (model.joint != null) {
       color = (model.joint.view as JointView).color;
     }
+
+    if (model.joint is SourceJoint) {
+      var sourceJoint = model.joint as SourceJoint;
+      glowColor = basicColor;
+
+      _spawning = sourceJoint.spawning;
+      if (_spawning && sourceJoint.spawnLane.laneEnd.first == model) {
+        glowColor = spawningColor;
+        _accumulatedTime = sourceJoint.accumulatedTime;
+      }
+    }
+  }
+
+  void _paintGlow(CanvasRenderingContext2D context) {
+    var sourceJoint = model.joint as SourceJoint;
+    if (!_finished) {
+      if (_spawning) {
+        if (_accumulatedTime > blinkPeriod) {
+          glowColor = basicColor;
+          _spawning = false;
+          if (sourceJoint.maxSpawn == 0) {
+            _finished = true;
+            glowColor.a = 0.0;
+          }
+        }
+        if (!sourceJoint.world.pause) {
+          _accumulatedTime = sourceJoint.accumulatedTime +
+              sourceJoint.world.view.dt;
+        }
+      }
+    }
+    context.beginPath();
+    context.setFillColorRgb(glowColor.r, glowColor.g, glowColor.b, glowColor.a);
+    context.fillRect(0, -model.road.width / 2, _width, model.road.width);
   }
 }
