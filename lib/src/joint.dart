@@ -99,35 +99,46 @@ class SourceJoint extends Joint {
   @override
   View<SourceJoint> view;
 
+  bool spawning;
   double spawnInterval = 1.0;
   double accumulatedTime = 0.0;
-  int maxDispatch;
+  int maxSpawn;
 
-  SourceJoint({String label, this.maxDispatch: 10, this.view}): super(label:
-      label, view: null) {
-      view = new SourceJointView(this);
+  SourceJoint({String label, this.maxSpawn: 10, this.view}): super(label: label,
+      view: null) {
+    view = new SourceJointView(this);
   }
 
   @override
   void update() {
-    if (maxDispatch > 0) {
-      if (accumulatedTime < spawnInterval) {
-        accumulatedTime += world.dtUpdate;
+    if (maxSpawn > 0) {
+      if (accumulatedTime >= spawnInterval) {
+        if (randomDispatch()) {
+          // Successfully spawned
+          accumulatedTime = 0.0;
+          spawning = true;
+          view.update();
+          roadEnd.forEach((re) => re.view.update());
+          spawning = false;
+        } else {
+          accumulatedTime += world.dtUpdate;
+        }
       } else {
-        accumulatedTime = 0.0;
-        randomDispatch();
+        accumulatedTime += world.dtUpdate;
       }
     }
   }
 
-  void randomDispatch() {
+  bool randomDispatch() {
     var vehicle = world.requestVehicle();
     // Randomly pick a lane to add
     Lane lane = getRandomAvailableOutwardLane(vehicle: vehicle);
     if (lane != null) {
       lane.addFirstVehicle(vehicle);
-      maxDispatch--;
-      view.update();
+      maxSpawn--;
+      return true;
+    } else {
+      return false;
     }
   }
 }

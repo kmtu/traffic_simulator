@@ -2,10 +2,10 @@ part of traffic_simulator;
 
 class JointView implements View {
   Joint model;
-  Color labelCircleColor;
+  Color color;
 
   JointView(this.model) {
-    labelCircleColor = new Color.random(min: 100);
+    color = new Color.random(min: 100);
   }
 
   void draw(Camera camera) {
@@ -16,11 +16,11 @@ class JointView implements View {
     CanvasRenderingContext2D context = camera.buffer.context2D;
     for (var roadEnd in model.roadEnd) {
       context.save();
-      transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
+      transformContext(context, makeTranslateMatrix3(roadEnd.pos.x,
+          roadEnd.pos.y));
       context.beginPath();
-      context.arc(0, 0, 3, 0, 2*PI);
-      context.setFillColorRgb(labelCircleColor.r, labelCircleColor.g,
-          labelCircleColor.b, 0.9);
+      context.arc(0, 0, 3, 0, 2 * PI);
+      context.setFillColorRgb(color.r, color.g, color.b, 0.9);
       context.fill();
       context.textAlign = "center";
       context.textBaseline = "middle";
@@ -38,7 +38,7 @@ class JointView implements View {
     }
   }
 
-  void update(){}
+  void update() {}
 }
 
 class SourceJointView extends JointView implements View {
@@ -46,14 +46,14 @@ class SourceJointView extends JointView implements View {
 
   final Color basicColor = new Color.yellow(0.8);
   final Color spawningColor = new Color.red(0.8);
-  Color color;
+  Color glowColor;
   double blinkPeriod = 0.3;
   double _accumulatedTime = 0.0;
   bool _finished = false;
   bool _spawning = false;
 
-  SourceJointView(this.model) : super(null) {
-    color = basicColor;
+  SourceJointView(this.model): super(null) {
+    glowColor = basicColor;
   }
 
   @override
@@ -61,24 +61,26 @@ class SourceJointView extends JointView implements View {
     CanvasRenderingContext2D context = camera.buffer.context2D;
     for (var roadEnd in model.roadEnd) {
       context.save();
-      transformContext(context, makeTranslateMatrix3(roadEnd.pos.x, roadEnd.pos.y));
+      transformContext(context, makeTranslateMatrix3(roadEnd.pos.x,
+          roadEnd.pos.y));
       context.beginPath();
-      context.arc(0, 0, 5, 0, 2*PI);
+      context.arc(0, 0, 5, 0, 2 * PI);
       if (!_finished) {
         if (_spawning) {
           if (_accumulatedTime > blinkPeriod) {
-            color = basicColor;
-            _accumulatedTime = 0.0;
+            glowColor = basicColor;
             _spawning = false;
-          }
-          else {
-            if (!model.world.pause) {
-              _accumulatedTime += model.world.view.dt;
+            if (model.maxSpawn == 0) {
+              _finished = true;
+              glowColor.a = 0.0;
             }
+          }
+          if (!model.world.pause) {
+            _accumulatedTime = model.accumulatedTime + model.world.view.dt;
           }
         }
       }
-      context.setFillColorRgb(color.r, color.g, color.b, color.a);
+      context.setFillColorRgb(glowColor.r, glowColor.g, glowColor.b, glowColor.a);
       context.fill();
       context.restore();
     }
@@ -86,15 +88,14 @@ class SourceJointView extends JointView implements View {
   }
 
   void update() {
-    _spawning = true;
-    color = spawningColor;
-    if (model.maxDispatch == 0) {
-      _finished = true;
-      color.a = 0.0;
+    _spawning = model.spawning;
+    if (_spawning) {
+      glowColor = spawningColor;
+      _accumulatedTime = model.accumulatedTime;
     }
   }
 
-/*  void updateBlink() {
+  /*  void updateBlink() {
     _opacity += opacityFreq * model.world.dtUpdate;
     if (_opacity > maxOpacity) {
       _opacity = maxOpacity;
