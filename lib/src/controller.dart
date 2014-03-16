@@ -24,6 +24,11 @@ class Controller {
 
     gameLoop.state = runningState;
 
+    // prevent default right click context menu from showing up
+    gameLoop.element.addEventListener('contextmenu', (e){
+      e.preventDefault();
+    });
+
     DivElement fpsDiv = querySelector("#fps");
     fps = new FPS(fpsDiv);
   }
@@ -77,7 +82,19 @@ class State extends SimpleHtmlState {
     gameLoop = controller.gameLoop;
   }
 
-  void onWheel(WheelEvent event) {
+  void onMouseDown(MouseEvent event) {
+    print(event.which);
+  }
+
+  void onMouseUp(MouseEvent event) {
+    print(event.which);
+  }
+
+  void onMouseMove(MouseEvent event) {
+    print("(${gameLoop.mouse.clampX}, ${gameLoop.mouse.clampY})");
+  }
+
+  void onMouseWheel(WheelEvent event) {
     event.preventDefault();
     var factor = exp(-(event.deltaY * wheelZoomSensitivity).abs());
     if (event.deltaY > 0) {
