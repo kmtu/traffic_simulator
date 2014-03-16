@@ -16,7 +16,7 @@ class Road {
   /// Both inner lanes and outer lane are fine
   static const int RANDOM_LANE = 22;
 
-  RoadView view;
+  View<Road> view;
 
   /// Lanes which direction are [Road.FORWARD]
   /// First added will be drawn as inner lanes
@@ -49,9 +49,7 @@ class Road {
     if (view == null) {
       view = new RoadView(this);
     }
-    else {
-      view.update();
-    }
+    view.update();
   }
 
   /**
@@ -104,6 +102,7 @@ class Road {
       throw new ArgumentError("Joint can only be attached to either "
                               "the Road.BEGIN_SIDE or Road.END_SIDE of a road.");
     }
+    roadEnd.forEach((re) => re.view.update());
   }
 
   DoubleLinkedQueue<Lane> _getOppositeLane(Lane lane) {
@@ -141,10 +140,12 @@ class Road {
  * The interface of Road to Joint.
  */
 class RoadEnd {
+  View<RoadEnd> view;
+
   Vector2 pos;
   /// The road which this roadEnd connects to.
   final Road road;
-  /// The index for roadEnd side (can be [Road.BEGIN] or [Road.END]).
+  /// The index for roadEnd side (can be [Road.BEGIN_SIDE] or [Road.END_SIDE]).
   final int side;
   /// Outward means go onto the road,
   /// in order to be consistent with Joint's point of view.
@@ -155,7 +156,14 @@ class RoadEnd {
 
   Joint joint;
 
-  RoadEnd(this.road, this.side, this.pos, this.outwardLane, this.inwardLane);
+  RoadEnd(this.road, this.side, this.pos, this.outwardLane, this.inwardLane, {this.view}) {
+    if (view == null) {
+      view = new RoadEndView(this);
+    }
+    else {
+      view.update();
+    }
+  }
 
   void addJoint(Joint joint) {
     if (this.joint != null) {

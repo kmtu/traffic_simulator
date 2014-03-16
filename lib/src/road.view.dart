@@ -2,11 +2,9 @@ part of traffic_simulator;
 
 class RoadView implements View {
   Road model;
-  RoadView(this.model) {
-    update();
-  }
-
   Matrix3 transformMatrix;
+
+  RoadView(this.model);
 
   /// Lanes in the upper part of this road. For drawing purpose.
   DoubleLinkedQueue<Lane> _upperLane;
@@ -19,12 +17,12 @@ class RoadView implements View {
     context.save();
     if (model.forwardLane.isEmpty && model.backwardLane.isEmpty) {
       _drawMiddleLine(camera);
-    }
-    else {
+    } else {
       _upperLane.forEach((l) => l.view.draw(camera));
       _lowerLane.forEach((l) => l.view.draw(camera));
       _drawBoundary(camera);
     }
+    model.roadEnd.forEach((re) => re.view.draw(camera));
     context.restore();
   }
 
@@ -73,6 +71,7 @@ class RoadView implements View {
     _updateTransformMatrix();
     _updateDrivingSide();
     _updateLaneTransformMatrix();
+    model.roadEnd.forEach((re) => re.view.update());
   }
 
   void _updateTransformMatrix() {
@@ -83,7 +82,8 @@ class RoadView implements View {
     Vector2 d = model.roadEnd[1].pos - model.roadEnd[0].pos;
     double angle = atan2(d.y, d.x);
     transformMatrix = new Matrix3.rotationZ(angle);
-    transformMatrix = postTranslate(transformMatrix, model.roadEnd[0].pos.x, model.roadEnd[0].pos.y);
+    transformMatrix = postTranslate(transformMatrix, model.roadEnd[0].pos.x,
+        model.roadEnd[0].pos.y);
   }
 
   void _updateDrivingSide() {
@@ -91,8 +91,7 @@ class RoadView implements View {
       _upperLane = model.backwardLane;
       _lowerLane = model.forwardLane;
 
-    }
-    else {
+    } else {
       _upperLane = model.forwardLane;
       _lowerLane = model.backwardLane;
     }
@@ -102,18 +101,63 @@ class RoadView implements View {
     // _upperLane
     double cumWidth_ = 0.0;
     double halfTotalLaneWidth = model.width / 2;
-    forEachEntryFromLast(_upperLane, (laneEntry){
-      laneEntry.element.view.transformMatrix =
-          preTranslate(transformMatrix, 0.0, -halfTotalLaneWidth + cumWidth_);
+    forEachEntryFromLast(_upperLane, (laneEntry) {
+      laneEntry.element.view.transformMatrix = preTranslate(transformMatrix,
+          0.0, -halfTotalLaneWidth + cumWidth_);
       cumWidth_ += laneEntry.element.width;
     });
 
     // _lowerLane
     cumWidth_ = 0.0;
-    forEachEntryFromLast(_lowerLane, (laneEntry){
+    forEachEntryFromLast(_lowerLane, (laneEntry) {
       cumWidth_ += laneEntry.element.width;
-      laneEntry.element.view.transformMatrix =
-          preTranslate(transformMatrix, 0.0, halfTotalLaneWidth - cumWidth_);
+      laneEntry.element.view.transformMatrix = preTranslate(transformMatrix,
+          0.0, halfTotalLaneWidth - cumWidth_);
     });
+  }
+}
+
+
+class RoadEndView implements View {
+  RoadEnd model;
+  Matrix3 transformMatrix;
+  Color color;
+  double _width;
+
+  RoadEndView(this.model) {
+    _width = 4.0;
+  }
+
+  void draw(Camera camera) {
+    CanvasRenderingContext2D context = camera.buffer.context2D;
+    context.save();
+    if (model.joint != null) {
+      transformContext(context, transformMatrix);
+      // Draw as if this is a begin road end, and the beginning of the read is origin,
+      // the center axis of the road is x axis
+      context.beginPath();
+      context.setFillColorRgb(color.r, color.g, color.b);
+      context.fillRect(0, -model.road.width / 2, -_width, model.road.width);
+  //    context.setStrokeColorRgb(0, 0, 0);
+  //    context.lineWidth = 1 / camera.pixelPerMeter;
+  //    context.strokeRect(0, 0, model.road.length, model.width);
+    }
+    context.restore();
+
+  }
+
+  void update() {
+    transformMatrix = (model.road.view as RoadView).transformMatrix;
+    if (transformMatrix != null) {
+      if (model.side == Road.END_SIDE) {
+        // This is a [Road.END_SIDE] road end, flip x
+        transformMatrix = transformMatrix * postTranslate(makeInvertXMatrix3(),
+            model.road.length, 0.0);
+      }
+    }
+
+    if (model.joint != null) {
+      color = (model.joint.view as JointView).color;
+    }
   }
 }
