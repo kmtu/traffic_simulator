@@ -8,7 +8,7 @@ class WorldView implements View {
   void draw(Camera camera) {
     var context = camera.buffer.context2D;
 
-    if (model.pause == false) {
+    if (!model.pause) {
       dt = camera.dt;
     }
 
