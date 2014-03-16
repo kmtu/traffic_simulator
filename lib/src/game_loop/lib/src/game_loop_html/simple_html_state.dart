@@ -87,5 +87,23 @@ class SimpleHtmlState extends GameLoopHtmlState {
    * Calling this handler has no affect. Override this handler to implement
    * your behaviour.
    */
-  void onWheel(WheelEvent event) { }
+  void onMouseWheel(WheelEvent event) { }
+
+  /**
+   * Calling this handler has no affect. Override this handler to implement
+   * your behaviour.
+   */
+  void onMouseDown(MouseEvent event) { }
+
+  /**
+   * Calling this handler has no affect. Override this handler to implement
+   * your behaviour.
+   */
+  void onMouseMove(MouseEvent event) { }
+
+  /**
+   * Calling this handler has no affect. Override this handler to implement
+   * your behaviour.
+   */
+  void onMouseUp(MouseEvent event) { }
 }

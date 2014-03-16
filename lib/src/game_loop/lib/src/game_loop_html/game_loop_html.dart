@@ -50,6 +50,12 @@ typedef void GameLoopKeyDownHandler(KeyboardEvent event);
  */
 typedef void GameLoopWheelHandler(WheelEvent event);
 
+/**
+ * Called whenever the mouse is pressed or moved
+ */
+typedef void GameLoopMouseHandler(MouseEvent event);
+
+
 /** The game loop */
 class GameLoopHtml extends GameLoop {
   final Element element;
@@ -313,20 +319,29 @@ class GameLoopHtml extends GameLoop {
 
   final List<MouseEvent> _mouseEvents = new List<MouseEvent>();
   void _mouseDown(MouseEvent event) {
+    if (onMouseDown != null) {
+      onMouseDown(event);
+    }
     _mouseEvents.add(event);
   }
 
   void _mouseUp(MouseEvent event) {
+    if (onMouseUp != null) {
+      onMouseUp(event);
+    }
     _mouseEvents.add(event);
   }
 
   void _mouseMove(MouseEvent event) {
+    if (onMouseMove != null) {
+      onMouseMove(event);
+    }
     _mouseEvents.add(event);
   }
 
   void _mouseWheel(MouseEvent event) {
-    if (onWheel != null) {
-      onWheel(event);
+    if (onMouseWheel != null) {
+      onMouseWheel(event);
     }
     _mouseEvents.add(event);
     event.preventDefault();
@@ -407,7 +422,12 @@ class GameLoopHtml extends GameLoop {
   GameLoopKeyDownHandler onKeyUp;
 
   /** Called when mouse wheel is scrolled. */
-  GameLoopWheelHandler onWheel;
+  GameLoopWheelHandler onMouseWheel;
+
+  /** Called when mouse is pressed or moved. */
+  GameLoopMouseHandler onMouseUp;
+  GameLoopMouseHandler onMouseDown;
+  GameLoopMouseHandler onMouseMove;
 
   GameLoopHtmlState _state;
 
@@ -424,6 +444,9 @@ class GameLoopHtml extends GameLoop {
                   onResize            = state.onResize;
                   onTouchEnd          = state.onTouchEnd;
                   onTouchStart        = state.onTouchStart;
-                  onWheel             = state.onWheel;
+                  onMouseWheel        = state.onMouseWheel;
+                  onMouseUp           = state.onMouseUp;
+                  onMouseDown         = state.onMouseDown;
+                  onMouseMove         = state.onMouseMove;
                 }
 }
