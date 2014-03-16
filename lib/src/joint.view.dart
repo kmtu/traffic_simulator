@@ -72,7 +72,9 @@ class SourceJointView extends JointView implements View {
             _spawning = false;
           }
           else {
-            _accumulatedTime += model.world.view.dt;
+            if (!model.world.pause) {
+              _accumulatedTime += model.world.view.dt;
+            }
           }
         }
       }
