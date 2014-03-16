@@ -175,8 +175,10 @@ class RoadEndView implements View {
       glowColor = basicColor;
 
       _spawning = sourceJoint.spawning;
-      if (_spawning && sourceJoint.spawnLane.laneEnd.first == model) {
-        glowColor = spawningColor;
+      if (_spawning) {
+        if (sourceJoint.spawnLane.laneEnd.first == model) {
+          glowColor = spawningColor;
+        }
         _accumulatedTime = sourceJoint.accumulatedTime;
       }
     }
@@ -191,17 +193,15 @@ class RoadEndView implements View {
           _spawning = false;
           if (sourceJoint.maxSpawn == 0) {
             _finished = true;
-            glowColor.a = 0.0;
           }
         }
         if (!sourceJoint.world.pause) {
-          _accumulatedTime = sourceJoint.accumulatedTime +
-              sourceJoint.world.view.dt;
+          _accumulatedTime += sourceJoint.world.view.dt;
         }
       }
+      context.beginPath();
+      context.setFillColorRgb(glowColor.r, glowColor.g, glowColor.b, glowColor.a);
+      context.fillRect(0, -model.road.width / 2, _width, model.road.width);
     }
-    context.beginPath();
-    context.setFillColorRgb(glowColor.r, glowColor.g, glowColor.b, glowColor.a);
-    context.fillRect(0, -model.road.width / 2, _width, model.road.width);
   }
 }
