@@ -4,8 +4,6 @@ class Controller {
   World model;
   Camera view;
   GameLoopHtml gameLoop;
-  PauseState pauseState;
-  RunningState runningState;
   FPS fps;
 
   Controller(this.model, this.view) {
@@ -17,12 +15,7 @@ class Controller {
     model.dtUpdate = gameLoop.dt;
     view.model = model;
 
-    pauseState = new PauseState(this);
-    runningState = new RunningState(this);
-    pauseState.nextState = runningState;
-    runningState.nextState = pauseState;
-
-    gameLoop.state = runningState;
+    gameLoop.state = new State(this);
 
     // prevent default right click context menu from showing up
     gameLoop.element.addEventListener('contextmenu', (e){
@@ -145,7 +138,12 @@ class State extends SimpleHtmlState {
         break;
       case Keyboard.TAB:
         event.preventDefault();
-        gameLoop.state = nextState;
+        if (model.pause) {
+          model.pause = false;
+        } else {
+          model.pause = true;
+        }
+        super.onKeyDown(event);
         break;
       default:
     }
@@ -186,47 +184,11 @@ class State extends SimpleHtmlState {
     controller.view.canvas.height = window.innerHeight;
     camera.onResize();
   }
-}
-
-// Create a simple state implementing only the handlers you care about
-class PauseState extends State {
-  PauseState(Controller controller) : super(controller);
 
   void onUpdate(GameLoop gameLoop) {
-    camera.update();
-  }
-
-  void onKeyDown(KeyboardEvent event) {
-    //    event.preventDefault();
-    switch (event.keyCode) {
-      case Keyboard.TAB:
-        event.preventDefault();
-        model.pause = false;
-        super.onKeyDown(event);
-        break;
-      default:
-        super.onKeyDown(event);
+    if (!model.pause) {
+      model.update();
     }
-  }
-}
-
-class RunningState extends State {
-  RunningState(Controller controller) : super(controller);
-
-  void onUpdate(GameLoop gameLoop) {
-    model.update();
     camera.update();
-  }
-
-  void onKeyDown(KeyboardEvent event) {
-    switch (event.keyCode) {
-      case Keyboard.TAB:
-        event.preventDefault();
-        model.pause = true;
-        super.onKeyDown(event);
-        break;
-      default:
-        super.onKeyDown(event);
-    }
   }
 }
