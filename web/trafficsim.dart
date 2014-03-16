@@ -13,13 +13,13 @@ void main() {
   int row = 3;
   int col = 5;
   double gap = 100.0;
-  int forward = 3;
-  int backward = 1;
-  var roadGrid = createRoadGrid(row: row, col: col, gap: gap,
-      forwardLane: forward, backwardLane: backward);
+  int forward = 2;
+  int backward = 2;
+  var roadGrid = createRoadGrid(row: row, col: col, gap: gap, forwardLane:
+      forward, backwardLane: backward);
 
   // Set the starting position for the camera
-  camera.center = new Vector2((col-1)*gap / 2, (row-1)*gap / 2);
+  camera.center = new Vector2((col - 1) * gap / 2, (row - 1) * gap / 2);
 
   // Creates a world
   World world = new World();
@@ -86,8 +86,8 @@ List<List<Road>> createRoadGrid({Vector2 p0, double gap: 50.0, int row: 5, int
 
   List<Joint> joint = new List<Joint>(p.length);
   for (var i = 0; i < joint.length; i++) {
-    if (i == 0) {
-      joint[i] = new SourceJoint(label: "$i", maxDispatch: 1000);
+    if (i % 3 == 1) {
+      joint[i] = new SourceJoint(label: "$i", maxSpawn: 1000);
     } else {
       joint[i] = new Joint(label: "$i");
     }
