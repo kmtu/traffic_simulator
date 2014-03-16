@@ -25,13 +25,17 @@ class VehicleView implements View {
 
   @override
   void update() {
-    // Aligns the center of the lane to the x-axis
-    transformMatrix = preTranslate(model.lane.view.transformMatrix, 0.0, model.lane.width / 2);
-    if (model.lane.direction == Road.BACKWARD) {
-      // It is a backward lane, swap the begin and end of the lane
-      transformMatrix = transformMatrix * postTranslate(makeInvertXMatrix3(), model.lane.road.length, 0.0);
+    if (model.lane != null) {
+      // This vehicle is on a lane, so it can be drawn
+
+      // Aligns the center of the lane to the x-axis
+      transformMatrix = preTranslate(model.lane.view.transformMatrix, 0.0, model.lane.width / 2);
+      if (model.lane.direction == Road.BACKWARD) {
+        // It is a backward lane, swap the begin and end of the lane
+        transformMatrix = transformMatrix * postTranslate(makeInvertXMatrix3(), model.lane.road.length, 0.0);
+      }
+      // Updates the vehicle pos
+      transformMatrix = preTranslate(transformMatrix, model.pos, 0.0);
     }
-    // Updates the vehicle pos
-    transformMatrix = preTranslate(transformMatrix, model.pos, 0.0);
   }
 }
