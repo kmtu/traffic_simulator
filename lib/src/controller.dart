@@ -76,25 +76,18 @@ class State extends SimpleHtmlState {
   }
 
   void onMouseDown(MouseEvent event) {
-    print(event.which);
   }
 
   void onMouseUp(MouseEvent event) {
-    print(event.which);
   }
 
   void onMouseMove(MouseEvent event) {
-    print("(${gameLoop.mouse.clampX}, ${gameLoop.mouse.clampY})");
   }
 
   void onMouseWheel(WheelEvent event) {
     event.preventDefault();
-    var factor = exp(-(event.deltaY * wheelZoomSensitivity).abs());
-    if (event.deltaY > 0) {
-      camera.zoomIn(factor);
-    } else {
-      camera.zoomOut(factor);
-    }
+    var factor = exp(event.deltaY * wheelZoomSensitivity);
+    camera.zoomBy(factor);
   }
 
   void onRender(GameLoop gameLoop) {
@@ -102,6 +95,10 @@ class State extends SimpleHtmlState {
     controller.fps.sampleFPS();
     if (controller.fps.lastShowPassedDuration.inMilliseconds > 500) {
       controller.fps.showFPS();
+    }
+    if (this.gameLoop.mouse.isDown(Mouse.LEFT)) {
+      camera.pos.x -= this.gameLoop.mouse.dx / camera.pixelPerMeter;
+      camera.pos.y -= this.gameLoop.mouse.dy / camera.pixelPerMeter;
     }
   }
 
