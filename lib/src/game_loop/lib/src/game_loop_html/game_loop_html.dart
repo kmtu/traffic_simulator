@@ -153,7 +153,7 @@ class GameLoopHtml extends GameLoop {
     int canvasY = (box.top  + window.pageYOffset - docElem.clientTop).floor();
     for (MouseEvent mouseEvent in _mouseEvents) {
       bool moveEvent = mouseEvent.type == 'mousemove';
-      bool wheelEvent = mouseEvent.type == 'mousewheel';
+      bool wheelEvent = mouseEvent.type == 'wheel';
       bool down = mouseEvent.type == 'mousedown';
       double time = GameLoop.timeStampToSeconds(mouseEvent.timeStamp);
       if (moveEvent) {
@@ -196,7 +196,7 @@ class GameLoopHtml extends GameLoop {
         _mouse.gameLoopMouseEvent(event);
       } else if (wheelEvent) {
         WheelEvent wheel = mouseEvent as WheelEvent;
-        _mouse._accumulateWheel(wheel.deltaX, wheel.deltaY);
+        _mouse._accumulateWheel(wheel.deltaX.toInt(), wheel.deltaY.toInt());
       } else {
         int buttonId = mouseEvent.button;
         var event = new DigitalButtonEvent(buttonId, down, frame, time);
