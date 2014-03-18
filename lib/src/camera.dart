@@ -71,10 +71,11 @@ class Camera {
   }
 
   void onResize() {
-    var oldHeight, oldWidth;
+    var oldHeight, oldWidth, oldCanvasHeight;
     if (ratio != null) {
       oldHeight = _height;
       oldWidth = width;
+      oldCanvasHeight = oldHeight * _pixelPerMeter / resolutionScaleRatio;
     }
     ratio = canvas.width / canvas.height;
     resolutionScaleRatio = 1.0;
@@ -127,7 +128,9 @@ class Camera {
             ..height = canvas.height;
       }
     }
+
     if (oldHeight != null) {
+      _height *= canvas.height / oldCanvasHeight;
       pos.setValues(pos.x + (oldWidth - width) / 2, pos.y + (oldHeight - _height)
           / 2);
     } else {
