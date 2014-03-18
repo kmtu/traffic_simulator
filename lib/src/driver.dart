@@ -45,7 +45,11 @@ class Driver {
             nextQueueLane = vehicle.lane.laneEnd.last.joint.
                 getRandomLeastQueueOutwardLane(excludeRoadEnd:
                   [vehicle.lane.laneEnd.last]);
-            nextQueueLane.queue.addLast(vehicle);
+            if (nextQueueLane != null) {
+              nextQueueLane.queue.addLast(vehicle);
+            } else {
+              // It is a dead end ahead!! Simply stop before the road end
+            }
           }
         }
         else {
