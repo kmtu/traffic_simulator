@@ -97,8 +97,8 @@ class State extends SimpleHtmlState {
       controller.fps.showFPS();
     }
     if (this.gameLoop.mouse.isDown(Mouse.LEFT)) {
-      camera.pos.x -= this.gameLoop.mouse.dx / camera.pixelPerMeter;
-      camera.pos.y -= this.gameLoop.mouse.dy / camera.pixelPerMeter;
+      camera.pos.x -= this.gameLoop.mouse.dx / camera.pixelPerMeter * camera.resolutionScaleRatio;
+      camera.pos.y -= this.gameLoop.mouse.dy / camera.pixelPerMeter * camera.resolutionScaleRatio;
     }
   }
 

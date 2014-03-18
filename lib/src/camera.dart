@@ -29,6 +29,10 @@ class Camera {
   int maxHeightPixel;
   int maxWidthPixel;
 
+  /// buffer.height / canvas.height or buffer.width / canvas.width
+  /// whichever is limiting the resolution
+  double resolutionScaleRatio;
+
   Camera(this.canvas, {double height, Vector2 center, this.maxHeightPixel:
       0, this.maxWidthPixel: 0}) {
     if (center == null) {
@@ -73,6 +77,7 @@ class Camera {
       oldWidth = width;
     }
     ratio = canvas.width / canvas.height;
+    resolutionScaleRatio = 1.0;
     if (maxHeightPixel > 0) {
       if (maxWidthPixel > 0) {
         // Choose the limiting one
@@ -80,6 +85,7 @@ class Camera {
           // canvas.width < canvas.height, limit height
           if (canvas.height > maxHeightPixel) {
             buffer.height = maxHeightPixel;
+            resolutionScaleRatio = buffer.height / canvas.height;
           } else {
             buffer.height = canvas.height;
           }
@@ -88,6 +94,7 @@ class Camera {
           // canvas.width > canvas.height, limit width
           if (canvas.width > maxWidthPixel) {
             buffer.width = maxWidthPixel;
+            resolutionScaleRatio = buffer.width / canvas.width;
           } else {
             buffer.width = canvas.width;
           }
@@ -97,6 +104,7 @@ class Camera {
         // Only maxHeightPixel is given, limit height
         if (canvas.height > maxHeightPixel) {
           buffer.height = maxHeightPixel;
+          resolutionScaleRatio = buffer.height / canvas.height;
         } else {
           buffer.height = canvas.height;
         }
@@ -107,6 +115,7 @@ class Camera {
         // Only maxWidthPixel is given, limit width
         if (canvas.width > maxWidthPixel) {
           buffer.width = maxWidthPixel;
+          resolutionScaleRatio = buffer.width / canvas.width;
         } else {
           buffer.width = canvas.width;
         }
