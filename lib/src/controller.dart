@@ -23,7 +23,7 @@ class Controller {
     });
 
     DivElement fpsDiv = querySelector("#fps");
-    fps = new FPS(fpsDiv);
+    fps = new FPS(gameLoop.element);
   }
 
   void start() {
@@ -36,9 +36,22 @@ class FPS {
   DateTime currentTime;
   Duration lastShowPassedDuration;
   double fps = 0.0;
+  Element parent;
   DivElement div;
 
-  FPS(this.div);
+  FPS(this.parent) {
+    div = new DivElement();
+    div.id = "fps";
+    div.onMouseDown.listen((e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    div.onMouseMove.listen((e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    parent.append(div);
+  }
 
   void sampleFPS() {
     if (prevTime == null) {
