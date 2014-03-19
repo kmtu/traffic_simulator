@@ -20,7 +20,12 @@ class VehicleView implements View {
   void _paintVehicle(CanvasRenderingContext2D context) {
     // draw as if the reference point of the vehicle is the origin
     context.setFillColorRgb(model.color.r, model.color.g, model.color.b);
-    context.fillRect(-model.length, -model.width / 2, model.length, model.width);
+    // do not draw the part that is beyond the road end
+    double stickOut = model.pos - model.lane.road.length;
+    if (stickOut < 0) stickOut = 0.0;
+    double stickIn = model.length - model.pos;
+    if (stickIn < 0) stickIn = 0.0;
+    context.fillRect(-model.length + stickIn, -model.width / 2, model.length - stickIn - stickOut, model.width);
   }
 
   @override
