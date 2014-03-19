@@ -13,30 +13,6 @@ body {
   font-weight: normal;
 }
 
-#top-panel, #fps {
-  background-color: rgba(200, 200, 200, 0.5);
-  position: fixed;
-  margin: 1em;
-  padding: 0.1em 1em;
-  font-size: 1.2em;
-  line-height: 1.8em;
-}
-
-#top-panel {
-  top: 0px;
-  left: 0px;
-  border-radius:1em;
-}
-
-#fps {
-  top: 0px;
-  right: 0px;
-  border-radius:0.5em;
-}
-
-#game-container {
-}
-
 #game-element {
   background-color: #F8F8F8;
   position:absolute;
