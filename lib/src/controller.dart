@@ -22,7 +22,6 @@ class Controller {
       e.preventDefault();
     });
 
-    DivElement fpsDiv = querySelector("#fps");
     fps = new FPS(gameLoop.element);
   }
 
