@@ -14,9 +14,12 @@ build/
 
 pubspec.lock
 
+# IDE related files
+.settings
 *.sublime-workspace
 *.sublime-project
 
 *.swp
 
 lib/src/game_loop/.gitignore
+
