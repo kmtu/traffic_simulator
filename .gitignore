@@ -23,3 +23,5 @@ pubspec.lock
 
 lib/src/game_loop/.gitignore
 
+.pub
+
