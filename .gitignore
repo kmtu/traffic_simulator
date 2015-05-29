@@ -15,3 +15,12 @@ pubspec.lock
 lib/
 pubspec.yaml
 web/
+
+# IDE related files
+.settings
+*.sublime-workspace
+*.sublime-project
+
+*.swp
+
+.pub
