@@ -134,12 +134,6 @@ class State extends SimpleHtmlState {
     if (controller.fps.lastShowPassedDuration.inMilliseconds > 500) {
       controller.fps.showFPS();
     }
-    if (this.gameLoop.mouse.isDown(Mouse.LEFT)) {
-      camera.pos.x -= this.gameLoop.mouse.dx / camera.pixelPerMeter *
-          camera.resolutionScaleRatio;
-      camera.pos.y -= this.gameLoop.mouse.dy / camera.pixelPerMeter *
-          camera.resolutionScaleRatio;
-    }
   }
 
   void onKeyDown(KeyboardEvent event) {
@@ -226,6 +220,13 @@ class State extends SimpleHtmlState {
     if (!model.pause) {
       model.update();
     }
+    if (this.gameLoop.mouse.isDown(Mouse.LEFT)) {
+      camera.pos.x -= this.gameLoop.mouse.dx / camera.pixelPerMeter *
+        camera.resolutionScaleRatio;
+      camera.pos.y -= this.gameLoop.mouse.dy / camera.pixelPerMeter *
+        camera.resolutionScaleRatio;
+    }
+
     camera.update();
   }
 }
