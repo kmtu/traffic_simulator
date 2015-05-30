@@ -122,12 +122,6 @@ class State extends SimpleHtmlState {
   void onMouseMove(MouseEvent event) {
   }
 
-  void onMouseWheel(WheelEvent event) {
-    event.preventDefault();
-    var factor = exp(event.deltaY * wheelZoomSensitivity);
-    camera.zoomBy(factor);
-  }
-
   void onRender(GameLoop gameLoop) {
     camera.draw();
     controller.fps.sampleFPS();
@@ -226,6 +220,8 @@ class State extends SimpleHtmlState {
       camera.pos.y -= this.gameLoop.mouse.dy / camera.pixelPerMeter *
         camera.resolutionScaleRatio;
     }
+    var factor = exp(this.gameLoop.mouse.wheelDy * wheelZoomSensitivity);
+    camera.zoomBy(factor);
 
     camera.update();
   }
