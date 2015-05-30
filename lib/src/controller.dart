@@ -105,7 +105,6 @@ class State extends SimpleHtmlState {
   State nextState;
 
   double wheelZoomSensitivity = 0.0005;
-  double keyZoomSensitivity = 1.2;
 
   State(this.controller) {
     model = controller.model;
@@ -113,94 +112,11 @@ class State extends SimpleHtmlState {
     gameLoop = controller.gameLoop;
   }
 
-  void onMouseDown(MouseEvent event) {
-  }
-
-  void onMouseUp(MouseEvent event) {
-  }
-
-  void onMouseMove(MouseEvent event) {
-  }
-
   void onRender(GameLoop gameLoop) {
     camera.draw();
     controller.fps.sampleFPS();
     if (controller.fps.lastShowPassedDuration.inMilliseconds > 500) {
       controller.fps.showFPS();
-    }
-  }
-
-  void onKeyDown(KeyboardEvent event) {
-    //    event.preventDefault();
-    switch (event.keyCode) {
-      case Keyboard.C:
-        event.preventDefault();
-        camera.toCenter();
-        break;
-      case Keyboard.W:
-        event.preventDefault();
-        camera.moveUp();
-        break;
-      case Keyboard.S:
-        event.preventDefault();
-        camera.moveDown();
-        break;
-      case Keyboard.A:
-        event.preventDefault();
-        camera.moveLeft();
-        break;
-      case Keyboard.D:
-        event.preventDefault();
-        camera.moveRight();
-        break;
-      case Keyboard.Z:
-        event.preventDefault();
-        camera.beginZoomIn();
-        break;
-      case Keyboard.X:
-        event.preventDefault();
-        camera.beginZoomOut();
-        break;
-      case Keyboard.TAB:
-        event.preventDefault();
-        if (model.pause) {
-          model.pause = false;
-        } else {
-          model.pause = true;
-        }
-        super.onKeyDown(event);
-        break;
-      default:
-    }
-  }
-
-  void onKeyUp(KeyboardEvent event) {
-    switch (event.keyCode) {
-      case Keyboard.W:
-        event.preventDefault();
-        camera.stopMoveUp();
-        break;
-      case Keyboard.S:
-        event.preventDefault();
-        camera.stopMoveDown();
-        break;
-      case Keyboard.A:
-        event.preventDefault();
-        camera.stopMoveLeft();
-        break;
-      case Keyboard.D:
-        event.preventDefault();
-        camera.stopMoveRight();
-        break;
-      case Keyboard.Z:
-        event.preventDefault();
-        camera.stopZoomIn();
-        break;
-      case Keyboard.X:
-        event.preventDefault();
-        camera.stopZoomOut();
-        break;
-      default:
     }
   }
 
@@ -214,6 +130,7 @@ class State extends SimpleHtmlState {
     if (!model.pause) {
       model.update();
     }
+
     if (this.gameLoop.mouse.isDown(Mouse.LEFT)) {
       camera.pos.x -= this.gameLoop.mouse.dx / camera.pixelPerMeter *
         camera.resolutionScaleRatio;
@@ -222,6 +139,56 @@ class State extends SimpleHtmlState {
     }
     var factor = exp(this.gameLoop.mouse.wheelDy * wheelZoomSensitivity);
     camera.zoomBy(factor);
+
+    if (this.gameLoop.keyboard.pressed(Keyboard.W)) {
+      camera.moveUp();
+    }
+    if (this.gameLoop.keyboard.released(Keyboard.W)) {
+      camera.stopMoveUp();
+    }
+    if (this.gameLoop.keyboard.pressed(Keyboard.A)) {
+      camera.moveLeft();
+    }
+    if (this.gameLoop.keyboard.released(Keyboard.A)) {
+      camera.stopMoveLeft();
+    }
+    if (this.gameLoop.keyboard.pressed(Keyboard.S)) {
+      camera.moveDown();
+    }
+    if (this.gameLoop.keyboard.released(Keyboard.S)) {
+      camera.stopMoveDown();
+    }
+    if (this.gameLoop.keyboard.pressed(Keyboard.D)) {
+      camera.moveRight();
+    }
+    if (this.gameLoop.keyboard.released(Keyboard.D)) {
+      camera.stopMoveRight();
+    }
+
+    if (this.gameLoop.keyboard.pressed(Keyboard.C)) {
+      camera.toCenter();
+    }
+
+    if (this.gameLoop.keyboard.pressed(Keyboard.Z)) {
+      camera.beginZoomIn();
+    }
+    if (this.gameLoop.keyboard.released(Keyboard.Z)) {
+      camera.stopZoomIn();
+    }
+    if (this.gameLoop.keyboard.pressed(Keyboard.X)) {
+      camera.beginZoomOut();
+    }
+    if (this.gameLoop.keyboard.released(Keyboard.X)) {
+      camera.stopZoomOut();
+    }
+
+    if (this.gameLoop.keyboard.pressed(Keyboard.P)) {
+      if (model.pause) {
+        model.pause = false;
+      } else {
+        model.pause = true;
+      }
+    }
 
     camera.update();
   }
