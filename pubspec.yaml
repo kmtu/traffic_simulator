@@ -3,4 +3,5 @@ description: A sample web application
 dependencies:
   browser: any
   vector_math: any
-  game_loop: any
+  game_loop:
+    git: https://github.com/johnmccutchan/game_loop.git
