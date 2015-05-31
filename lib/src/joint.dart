@@ -91,7 +91,7 @@ class Joint {
     }
   }
 
-  void update() {
+  void update(double dt) {
   }
 }
 
@@ -111,7 +111,7 @@ class SourceJoint extends Joint {
   }
 
   @override
-  void update() {
+  void update(double dt) {
     if (maxSpawn > 0) {
       if (accumulatedTime >= spawnInterval) {
         if (randomDispatch()) {
@@ -122,10 +122,10 @@ class SourceJoint extends Joint {
           roadEnd.forEach((re) => re.view.update());
           spawning = false;
         } else {
-          accumulatedTime += world.dtUpdate;
+          accumulatedTime += dt;
         }
       } else {
-        accumulatedTime += world.dtUpdate;
+        accumulatedTime += dt;
       }
     }
   }

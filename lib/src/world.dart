@@ -1,22 +1,16 @@
 part of traffic_simulator;
 
 class World {
-  WorldView view;
   final Set<Road> road = new Set<Road>();
   final Set<Vehicle> vehicle = new Set<Vehicle>();
   final Queue<Vehicle> garage = new Queue<Vehicle>();
   final Set<Joint> joint = new Set<Joint>();
-  GameLoopHtml gameLoop;
-  double dtUpdate;
   Random random;
   bool pause = false;
 
-  World({this.random, this.view}) {
+  World({this.random}) {
     if (random == null) {
       random = new Random(new DateTime.now().millisecondsSinceEpoch);
-    }
-    if (view == null) {
-      view = new WorldView(this);
     }
   }
 
@@ -33,9 +27,9 @@ class World {
     }
   }
 
-  void update() {
-    road.forEach((r) => r.update());
-    joint.forEach((j) => j.update());
+  void update(double dt) {
+    road.forEach((r) => r.update(dt));
+    joint.forEach((j) => j.update(dt));
   }
 
   Vehicle requestVehicle() {

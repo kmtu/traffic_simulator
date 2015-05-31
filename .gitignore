@@ -18,6 +18,7 @@ pubspec.lock
 .settings
 *.sublime-workspace
 *.sublime-project
+.idea/
 
 *.swp
 

@@ -12,9 +12,8 @@ class Camera {
   int _maxSpeed = 5000; // pixel per sec
   double _height; // meters
   double ratio; // = width / height
-  World model;
+  World world;
   double _pixelPerMeter;
-  CanvasElement canvas, buffer;
   //  double minZoomFactor = 0.2;
   // minZoomFactor <= zoomFactor <= 1 (fill the maximum world.canvas)
 
@@ -24,22 +23,26 @@ class Camera {
   double _zoomLevel = 0.0;
   double _initialZoomSpeed = 2.0;
   double zoomSpeed = 0.0;
-  double dt;
   Matrix3 transformMatrix;
   int maxHeightPixel;
   int maxWidthPixel;
+  Visualizer visualizer;
+  CanvasElement canvas, buffer;
 
   /// buffer.height / canvas.height or buffer.width / canvas.width
   /// whichever is limiting the resolution
   double resolutionScaleRatio;
 
-  Camera(this.canvas, {double height, Vector2 center, this.maxHeightPixel:
+  Camera(this.visualizer, {double height, Vector2 center, this.maxHeightPixel:
       0, this.maxWidthPixel: 0}) {
     if (center == null) {
       this._center = new Vector2.zero();
     } else {
       this.center = center;
     }
+
+    this.canvas = visualizer.canvas;
+    this.buffer = visualizer.buffer;
 
     if (height == null) {
       _height = canvas.height.toDouble();
@@ -49,8 +52,7 @@ class Camera {
     }
     _pixelPerMeter = canvas.height.toDouble() / _height;
 
-    buffer = new CanvasElement();
-    onResize();
+    resize();
   }
 
   double get _accPressedInMeter => _accPressed.toDouble() / _pixelPerMeter;
@@ -70,7 +72,7 @@ class Camera {
     pos = _center2pos;
   }
 
-  void onResize() {
+  void resize() {
     var oldHeight, oldWidth, oldCanvasHeight;
     if (ratio != null) {
       oldHeight = _height;
@@ -139,22 +141,14 @@ class Camera {
     _pixelPerMeter = buffer.height.toDouble() / _height;
   }
 
-  void draw() {
-    dt = model.gameLoop.dt * model.gameLoop.renderInterpolationFactor;
+  void zoom(dt) {
 //    var pixelPerMeter = _pixelPerMeter / exp(_zoomLevel + zoomSpeed * dt);
 //    var dy = _height * (1 - exp(zoomSpeed * dt)) / 2;
+    var bufferContext = buffer.context2D;
     transformMatrix = preTranslate(makeScaleMatrix3(_pixelPerMeter), -(pos.x +
         vel.x * dt), -(pos.y + vel.y * dt));
-    var bufferContext = buffer.context2D;
-    bufferContext.clearRect(0, 0, buffer.width, buffer.height);
-    bufferContext.save();
     // align the top left corner of the canvas to camera.pos
     transformContext(bufferContext, transformMatrix);
-    model.view.draw(this);
-    bufferContext.restore();
-    canvas.context2D.clearRect(0, 0, canvas.width, canvas.height);
-    //    canvas.context2D.drawImage(buffer, 0 , 0);
-    canvas.context2D.drawImageScaled(buffer, 0, 0, canvas.width, canvas.height);
   }
 
   /*  void drawWorldBoundary() {
@@ -289,8 +283,7 @@ class Camera {
     }
   }
 
-  void update() {
-    double dt = model.gameLoop.dt;
+  void update(double dt) {
     vel += acc * dt;
     pos += vel * dt;
     zoomLevel += zoomSpeed * dt;

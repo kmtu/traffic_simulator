@@ -3,13 +3,6 @@ import 'package:vector_math/vector_math.dart';
 import 'package:traffic_simulator/traffic_simulator.dart';
 
 void main() {
-  // Creates a view
-  CanvasElement canvas = querySelector("#game-element");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  Camera camera = new Camera(canvas, height: 300.0, maxWidthPixel: 0,
-      maxHeightPixel: 0);
-
   int row = 3;
   int col = 5;
   double gap = 100.0;
@@ -18,15 +11,18 @@ void main() {
   var roadGrid = createRoadGrid(row: row, col: col, gap: gap, forwardLane:
       forward, backwardLane: backward);
 
-  // Set the starting position for the camera
-  camera.center = new Vector2((col - 1) * gap / 2, (row - 1) * gap / 2);
-
   // Creates a world
   World world = new World();
   roadGrid.forEach((rl) => world.addRoad(rl));
 
+  // Set the starting position for the camera
+  var center = new Vector2((col - 1) * gap / 2, (row - 1) * gap / 2);
+
+  // Creates a visualizer
+  Visualizer visualizer = new Visualizer(world, center: center);
+
   // Combines the world and view
-  Controller controller = new Controller(world, camera);
+  Controller controller = new Controller(world, visualizer);
   controller.start();
 }
 

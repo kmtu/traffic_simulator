@@ -30,7 +30,7 @@ Matrix3 postTranslate(Matrix3 M, double dx, double dy) {
 }
 
 /**
- * Returns a tranfomration matrix which flips x coordinates
+ * Returns a transformation matrix which flips x coordinates
  *
  * That is, x becomes -x
  */

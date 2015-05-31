@@ -26,8 +26,8 @@ class Lane implements Backtraceable {
     }
   }
 
-  void update() {
-    vehicle.forEach((v) => v.update());
+  void update(double dt) {
+    vehicle.forEach((v) => v.update(dt));
   }
 
   void addFirstVehicle(Vehicle vehicle) {

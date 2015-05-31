@@ -1,19 +1,15 @@
 part of traffic_simulator;
 
 class Controller {
-  World model;
-  Camera view;
+  World world;
+  Visualizer visualizer;
   GameLoopHtml gameLoop;
   FPS fps;
 
-  Controller(this.model, this.view) {
+  Controller(this.world, this.visualizer) {
     gameLoop = new GameLoopHtml(document.body);
     gameLoop.processAllKeyboardEvents = false;
     gameLoop.pointerLock.lockOnClick = false;
-
-    model.gameLoop = gameLoop;
-    model.dtUpdate = gameLoop.dt;
-    view.model = model;
 
     gameLoop.state = new State(this);
 
@@ -28,6 +24,32 @@ class Controller {
 
   void start() {
     gameLoop.start();
+  }
+
+  void pause() {
+    world.pause = true;
+  }
+
+  void unPause() {
+    world.pause = false;
+  }
+
+  bool get isPaused => world.pause;
+
+  void updateModel() {
+    world.update(gameLoop.dt);
+  }
+
+  void updateVisualizer() {
+    visualizer.update(gameLoop.dt);
+  }
+
+  void resize() {
+    visualizer.resize();
+  }
+
+  void draw() {
+    visualizer.draw(gameLoop.dt * gameLoop.renderInterpolationFactor);
   }
 }
 
@@ -98,98 +120,93 @@ class FPS extends UIPanel {
 }
 
 class State extends SimpleHtmlState {
-  World model;
-  Camera camera;
-  GameLoopHtml gameLoop;
   Controller controller;
-  State nextState;
+  Camera camera;
+  GameLoopHtml gameLoopHtml;
 
   double wheelZoomSensitivity = 0.0005;
 
   State(this.controller) {
-    model = controller.model;
-    camera = controller.view;
-    gameLoop = controller.gameLoop;
+    camera = controller.visualizer.camera;
+    gameLoopHtml = controller.gameLoop;
   }
 
   void onRender(GameLoop gameLoop) {
-    camera.draw();
+    controller.draw();
     controller.fps.sampleFPS();
     if (controller.fps.lastShowPassedDuration.inMilliseconds > 500) {
       controller.fps.showFPS();
     }
   }
 
-  void onResize(GameLoopHtml gameLoop) {
-    controller.view.canvas.width = window.innerWidth;
-    controller.view.canvas.height = window.innerHeight;
-    camera.onResize();
+  void onResize(GameLoop gameLoop) {
+    controller.resize();
   }
 
   void onUpdate(GameLoop gameLoop) {
-    if (!model.pause) {
-      model.update();
+    if (!controller.isPaused) {
+      controller.updateModel();
     }
 
-    if (this.gameLoop.mouse.isDown(Mouse.LEFT)) {
-      camera.pos.x -= this.gameLoop.mouse.dx / camera.pixelPerMeter *
+    if (gameLoopHtml.mouse.isDown(Mouse.LEFT)) {
+      camera.pos.x -= gameLoopHtml.mouse.dx / camera.pixelPerMeter *
         camera.resolutionScaleRatio;
-      camera.pos.y -= this.gameLoop.mouse.dy / camera.pixelPerMeter *
+      camera.pos.y -= gameLoopHtml.mouse.dy / camera.pixelPerMeter *
         camera.resolutionScaleRatio;
     }
-    var factor = exp(this.gameLoop.mouse.wheelDy * wheelZoomSensitivity);
+    var factor = exp(gameLoopHtml.mouse.wheelDy * wheelZoomSensitivity);
     camera.zoomBy(factor);
 
-    if (this.gameLoop.keyboard.pressed(Keyboard.W)) {
+    if (gameLoopHtml.keyboard.pressed(Keyboard.W)) {
       camera.moveUp();
     }
-    if (this.gameLoop.keyboard.released(Keyboard.W)) {
+    if (gameLoopHtml.keyboard.released(Keyboard.W)) {
       camera.stopMoveUp();
     }
-    if (this.gameLoop.keyboard.pressed(Keyboard.A)) {
+    if (gameLoopHtml.keyboard.pressed(Keyboard.A)) {
       camera.moveLeft();
     }
-    if (this.gameLoop.keyboard.released(Keyboard.A)) {
+    if (gameLoopHtml.keyboard.released(Keyboard.A)) {
       camera.stopMoveLeft();
     }
-    if (this.gameLoop.keyboard.pressed(Keyboard.S)) {
+    if (gameLoopHtml.keyboard.pressed(Keyboard.S)) {
       camera.moveDown();
     }
-    if (this.gameLoop.keyboard.released(Keyboard.S)) {
+    if (gameLoopHtml.keyboard.released(Keyboard.S)) {
       camera.stopMoveDown();
     }
-    if (this.gameLoop.keyboard.pressed(Keyboard.D)) {
+    if (gameLoopHtml.keyboard.pressed(Keyboard.D)) {
       camera.moveRight();
     }
-    if (this.gameLoop.keyboard.released(Keyboard.D)) {
+    if (gameLoopHtml.keyboard.released(Keyboard.D)) {
       camera.stopMoveRight();
     }
 
-    if (this.gameLoop.keyboard.pressed(Keyboard.C)) {
+    if (gameLoopHtml.keyboard.pressed(Keyboard.C)) {
       camera.toCenter();
     }
 
-    if (this.gameLoop.keyboard.pressed(Keyboard.Z)) {
+    if (gameLoopHtml.keyboard.pressed(Keyboard.Z)) {
       camera.beginZoomIn();
     }
-    if (this.gameLoop.keyboard.released(Keyboard.Z)) {
+    if (gameLoopHtml.keyboard.released(Keyboard.Z)) {
       camera.stopZoomIn();
     }
-    if (this.gameLoop.keyboard.pressed(Keyboard.X)) {
+    if (gameLoopHtml.keyboard.pressed(Keyboard.X)) {
       camera.beginZoomOut();
     }
-    if (this.gameLoop.keyboard.released(Keyboard.X)) {
+    if (gameLoopHtml.keyboard.released(Keyboard.X)) {
       camera.stopZoomOut();
     }
 
-    if (this.gameLoop.keyboard.pressed(Keyboard.P)) {
-      if (model.pause) {
-        model.pause = false;
+    if (gameLoopHtml.keyboard.pressed(Keyboard.P)) {
+      if (controller.isPaused) {
+        controller.unPause();
       } else {
-        model.pause = true;
+        controller.pause();
       }
     }
 
-    camera.update();
+    controller.updateVisualizer();
   }
 }

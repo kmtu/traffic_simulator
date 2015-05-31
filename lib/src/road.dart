@@ -16,8 +16,6 @@ class Road {
   /// Both inner lanes and outer lane are fine
   static const int RANDOM_LANE = 22;
 
-  View<Road> view;
-
   /// Lanes which direction are [Road.FORWARD]
   /// First added will be drawn as inner lanes
   final DoubleLinkedQueue<Lane> forwardLane = new DoubleLinkedQueue<Lane>();
@@ -46,10 +44,6 @@ class Road {
     updateOnEndChange();
     _drivingSide = drivingSide;
     addLane(numForwardLane, numBackwardLane);
-    if (view == null) {
-      view = new RoadView(this);
-    }
-    view.update();
   }
 
   /**
@@ -130,9 +124,9 @@ class Road {
     }
   }
 
-  void update() {
-    forwardLane.forEach((l) => l.update());
-    backwardLane.forEach((l) => l.update());
+  void update(double dt) {
+    forwardLane.forEach((l) => l.update(dt));
+    backwardLane.forEach((l) => l.update(dt));
   }
 }
 
